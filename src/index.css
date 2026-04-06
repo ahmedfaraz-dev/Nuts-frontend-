@@ -5,6 +5,8 @@
 
 body{
   font-family: var(--font-display);
+  /* Always reserve space for vertical scrollbar so layout doesn't jump */
+  overflow-y: scroll;
 }
 
 .no-scrollbar::-webkit-scrollbar {

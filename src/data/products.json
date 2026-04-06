@@ -1,97 +1,97 @@
 [
   {
     "id": 1,
-    "title": "Salad Food",
-    "desc": "Salad is one of best food in hunza and best sale product",
-    "price": 20.5,
+    "title": "Hunza Walnuts (Natural)",
+    "desc": "Premium quality walnuts harvested from the high valleys of Hunza.",
+    "price": 850,
     "image": "/images/product1.png",
     "category": "dry-fruits"
   },
   {
     "id": 2,
-    "title": "Salad Food",
-    "desc": "Salad is one of best food in hunza and best sale product",
-    "price": 20.5,
+    "title": "Roasted Almonds",
+    "desc": "Crunchy and flavorful almonds roasted to perfection.",
+    "price": 1200,
     "image": "/images/product2.png",
     "category": "dry-fruits"
   },
   {
     "id": 3,
-    "title": "Salad Food",
-    "desc": "Salad is one of best food in hunza and best sale product",
-    "price": 20.5,
+    "title": "Dried Apricots",
+    "desc": "Sun-dried organic apricots with zero additives.",
+    "price": 600,
     "image": "/images/product3.png",
-    "category": "dry-fruits"
+    "category": "dried-fruits"
   },
   {
     "id": 4,
-    "title": "Salad Food",
-    "desc": "Salad is one of best food in hunza and best sale product",
-    "price": 20.5,
+    "title": "Cashew Nuts (W320)",
+    "desc": "Large, creamy cashews perfect for snacking or desserts.",
+    "price": 1500,
     "image": "/images/product4.png",
     "category": "dry-fruits"
   },
   {
     "id": 5,
-    "title": "Salad Food",
-    "desc": "Salad is one of best food in hunza and best sale product",
-    "price": 20.5,
+    "title": "Pistachios (Saffron Roasted)",
+    "desc": "Luxurious saffron-infused roasted pistachios.",
+    "price": 1800,
     "image": "/images/product5.png",
     "category": "dry-fruits"
   },
   {
     "id": 6,
-    "title": "Salad Food",
-    "desc": "Salad is one of best food in hunza and best sale product",
-    "price": 20.5,
+    "title": "Dried Mulberries",
+    "desc": "Naturally sweet and healthy dried white mulberries.",
+    "price": 450,
     "image": "/images/product6.png",
-    "category": "dry-fruits"
+    "category": "dried-fruits"
   },
   {
     "id": 7,
-    "title": "Salad Food",
-    "desc": "Salad is one of best food in hunza and best sale product",
-    "price": 20.5,
+    "title": "Pine Nuts (Chilgoza)",
+    "desc": "Hand-picked chilgoza from the forests of Gilgit-Baltistan.",
+    "price": 2500,
     "image": "/images/product7.png",
     "category": "dry-fruits"
   },
   {
     "id": 8,
-    "title": "Salad Food",
-    "desc": "Salad is one of best food in hunza and best sale product",
-    "price": 20.5,
+    "title": "Golden Raisins",
+    "desc": "Extra sweet golden raisins dried under the Hunza sun.",
+    "price": 350,
     "image": "/images/product8.png",
-    "category": "dry-fruits"
+    "category": "dried-fruits"
   },
   {
     "id": 9,
-    "title": "Salad Food",
-    "desc": "Salad is one of best food in hunza and best sale product",
-    "price": 20.5,
+    "title": "Mix Dry Fruits Tray",
+    "desc": "A perfect blend of all premium dry fruits in one pack.",
+    "price": 1350,
     "image": "/images/product9.png",
-    "category": "dry-fruits"
+    "category": "mix"
   },
   {
     "id": 10,
-    "title": "Salad Food",
-    "desc": "Salad is one of best food in hunza and best sale product",
-    "price": 20.5,
+    "title": "Roasted Kaju (Salted)",
+    "desc": "Savory salted cashews for a quick healthy bite.",
+    "price": 1400,
     "image": "/images/product10.png",
     "category": "dry-fruits"
   },
   {
     "id": 11,
-    "title": "Salad Food",
-    "desc": "Salad is one of best food in hunza and best sale product",
-    "price": 20.5,
+    "title": "Black Kishmish",
+    "desc": "Iron-rich organic black raisins.",
+    "price": 400,
     "image": "/images/product11.png",
-    "category": "dry-fruits"
+    "category": "dried-fruits"
   },
   {
     "id": 12,
-    "title": "Salad Food",
-    "desc": "Salad is one of best food in hunza and best sale product",
-    "price": 20.5,
+    "title": "Apricot Kernels (Sweet)",
+    "desc": "Traditional Hunza health snack with amazing health benefits.",
+    "price": 700,
     "image": "/images/product12.png",
     "category": "dry-fruits"
   }

@@ -1,4 +1,8 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useCart } from '../contexts/CartContext.jsx'
+import { useAuth } from '../contexts/AuthContext.jsx'
+import { User, LogOut, ChevronDown, LayoutDashboard } from 'lucide-react'
 
 const PRIMARY_TABS = [
   { id: 'dryfood', label: 'Dry food' },
@@ -38,11 +42,17 @@ const DRY_FOOD_COLUMNS = [
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('dryfood')
+  const navigate = useNavigate()
+  const { totalItems } = useCart()
+  const { user, logout } = useAuth()
 
   const handleSearch = (e) => {
     e.preventDefault()
-    console.log('Searching for:', searchQuery)
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`)
+    }
   }
 
   return (
@@ -53,15 +63,15 @@ const Navbar = () => {
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
             {/* Logo */}
             <a href="/" className="shrink-0">
-              <img 
-                src="/images/logo.png" 
-                alt="Hunza Naturals" 
+              <img
+                src="/images/logo.png"
+                alt="Hunza Naturals"
                 className="h-10 md:h-12 w-auto"
               />
             </a>
 
             {/* Search Bar - Hidden on mobile, visible on md and up */}
-            <form 
+            <form
               onSubmit={handleSearch}
               className="hidden md:flex flex-1 max-w-xl mx-4 lg:mx-8"
             >
@@ -83,18 +93,73 @@ const Navbar = () => {
             </form>
 
             {/* Hamburger Menu */}
-            <div className='flex justify-center items-center gap-4 cursor-pointer'>
-              <button>
-                <img src="/images/cart.svg" alt="" />
+            <div className='flex justify-center items-center gap-6 cursor-pointer'>
+              {/* Cart Button */}
+              <button
+                onClick={() => navigate('/cart')}
+                className="relative p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <img src="/images/cart.svg" alt="cart" className="w-6 h-6" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#F59115] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                    {totalItems > 9 ? '9+' : totalItems}
+                  </span>
+                )}
               </button>
+
+              {/* User Section */}
+              <div className="flex items-center gap-4">
+                {user ? (
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-100">
+                      <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center overflow-hidden">
+                        {user.avatar?.url ? (
+                          <img src={user.avatar.url} alt={user.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <User className="w-4 h-4 text-[#F59115]" />
+                        )}
+                      </div>
+                      <span className="text-sm font-medium text-gray-700 hidden lg:block">{user.name}</span>
+                    </div>
+                    <button
+                      onClick={logout}
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                      title="Logout"
+                    >
+                      <LogOut className="w-5 h-5" />
+                    </button>
+                    {user.role === 'admin' && (
+                      <button
+                        onClick={() => navigate('/admin-dashboard')}
+                        className="p-2 text-gray-400 hover:text-[#F59115] hover:bg-orange-50 rounded-lg transition-all"
+                        title="Admin Dashboard"
+                      >
+                        <LayoutDashboard className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => navigate('/register')}
+                    className="flex items-center gap-2 p-1.5 hover:bg-gray-100 rounded-lg transition-all group"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center overflow-hidden border border-gray-200 group-hover:border-[#F59115]">
+                      <User className="w-5 h-5 text-gray-500 group-hover:text-[#F59115]" />
+                    </div>
+                    <span className="text-sm font-medium text-gray-600 group-hover:text-[#F59115] hidden sm:block">Register</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Hamburger Menu Toggle */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="flex flex-col justify-center items-center gap-1.5 p-2 cursor-pointer"
+                className="flex flex-col justify-center items-center gap-1.5 p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                 aria-label="Toggle menu"
               >
-                <span className="w-6 h-0.5 bg-gray-800 rounded-full transition-all duration-200"></span>
-                <span className="w-6 h-0.5 bg-gray-800 rounded-full transition-all duration-200"></span>
-                <span className="w-6 h-0.5 bg-gray-800 rounded-full transition-all duration-200"></span>
+                <span className={`w-6 h-0.5 bg-gray-800 rounded-full transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+                <span className={`w-6 h-0.5 bg-gray-800 rounded-full transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></span>
+                <span className={`w-6 h-0.5 bg-gray-800 rounded-full transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
               </button>
             </div>
           </div>
@@ -123,11 +188,10 @@ const Navbar = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`text-sm font-medium transition-colors whitespace-nowrap pb-1 border-b-2 -mb-[13px] ${
-                      activeTab === tab.id
-                        ? 'text-[#F59115] border-[#F59115]'
-                        : 'text-gray-600 border-transparent hover:text-gray-800'
-                    }`}
+                    className={`text-sm font-medium transition-colors whitespace-nowrap pb-1 border-b-2 -mb-[13px] ${activeTab === tab.id
+                      ? 'text-[#F59115] border-[#F59115]'
+                      : 'text-gray-600 border-transparent hover:text-gray-800'
+                      }`}
                   >
                     {tab.label}
                   </button>

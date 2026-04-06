@@ -28,8 +28,9 @@ const Contact = () => {
  }
 
  return (
-   <section className="w-full flex justify-center py-20 bg-[#FDFDFD]">
-     <div className="w-[1180px] px-4 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+   <section className="w-full bg-[#FDFDFD]">
+     <div className="w-full px-4 md:px-8 lg:px-16 py-20">
+       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
        {/* MAP */}
        <div className="w-full h-[480px] rounded-xl overflow-hidden">
@@ -43,9 +44,9 @@ const Contact = () => {
          ></iframe>
        </div>
 
-       {/* CONTACT FORM */}
-       <div className="flex flex-col justify-center h-[480px]">
-         <div className="ml-auto w-full pr-0">
+      {/* CONTACT FORM */}
+      <div className="flex flex-col justify-center h-[480px]">
+        <div className="ml-auto w-full pr-0">
            <p className="text-[26px] text-[#4E575A] mb-2">Contact Us</p>
            <h2 className="text-3xl font-bold text-[#F59115] mb-4">Sultanabad Main Road</h2>
            <p className="text-[#4E575A] mb-4 text-sm">
@@ -96,9 +97,9 @@ const Contact = () => {
              </div>
            </form>
          </div>
-       </div>
-
-     </div>
+      </div>
+      </div>
+    </div>
    </section>
  )
 }

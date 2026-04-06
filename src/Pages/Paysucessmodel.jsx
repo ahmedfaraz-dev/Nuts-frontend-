@@ -1,7 +1,7 @@
 import React from 'react';
-import  PaymentImg from "../assets/payment.png";
+import PaymentImg from "../assets/payment.png";
 import { useNavigate } from 'react-router-dom';
-              
+
 
 
 const Paysucessmodel = () => {
@@ -20,14 +20,14 @@ const Paysucessmodel = () => {
     <div className="flex items-center justify-center min-h-screen bg-white p-4">
       {/* Card Container */}
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md text-center border border-gray-100">
-        
+
         {/* Illustration Placeholder */}
         <div className="flex justify-center mb-6">
           <div className="relative">
             {/* You can replace this div with your actual <img> tag */}
-            <img 
-              src={PaymentImg} 
-              alt="Payment Success Illustration" 
+            <img
+              src={PaymentImg}
+              alt="Payment Success Illustration"
               className="w-48 h-auto object-contain"
             />
           </div>
@@ -49,7 +49,7 @@ const Paysucessmodel = () => {
         </div>
 
         {/* Action Button */}
-        <button 
+        <button
           className="w-full bg-[#F59115] text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 shadow-md active:scale-[0.98]"
           onClick={handleBackToHome}
         >

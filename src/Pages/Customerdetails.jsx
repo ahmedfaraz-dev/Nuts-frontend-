@@ -1,126 +1,237 @@
-import React from "react";
+import React, { useState } from "react";
 import dryfruit from "../assets/dryfruitplate.png";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
+const REQUIRED_FIELDS = ["email", "firstName", "lastName", "address", "city", "postalCode", "phone"];
 
 const CustomerDetails = () => {
-  const items = [1, 2, 3]; // Mocking the 3 dry food apple items
+  const navigate = useNavigate();
+  const items = [1, 2, 3];
+
+  const [form, setForm] = useState({
+    email: "",
+    firstName: "",
+    lastName: "",
+    company: "",   // optional
+    address: "",
+    city: "",
+    postalCode: "",
+    phone: "",
+    saveInfo: false,
+  });
+
+  const [errors, setErrors] = useState({});
+
+  function handleChange(e) {
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    // Clear error on change
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  }
+
+  function validate() {
+    const newErrors = {};
+
+    if (!form.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      newErrors.email = "Enter a valid email address";
+    }
+
+    if (!form.firstName.trim()) newErrors.firstName = "First name is required";
+    if (!form.lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!form.address.trim()) newErrors.address = "Address is required";
+    if (!form.city.trim()) newErrors.city = "City is required";
+
+    if (!form.postalCode.trim()) {
+      newErrors.postalCode = "Postal code is required";
+    } else if (!/^\d{4,10}$/.test(form.postalCode.trim())) {
+      newErrors.postalCode = "Enter a valid postal code";
+    }
+
+    if (!form.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^[0-9+\-\s()]{7,15}$/.test(form.phone.trim())) {
+      newErrors.phone = "Enter a valid phone number";
+    }
+
+    return newErrors;
+  }
+
+  function handleContinue() {
+    const newErrors = validate();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      // Scroll to first error
+      const firstErrorKey = Object.keys(newErrors)[0];
+      document.getElementById(firstErrorKey)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    navigate("/payment-form");
+  }
+
+  const inputClass = (field) =>
+    `w-full p-3 border rounded-md outline-none transition-colors ${errors[field]
+      ? "border-red-400 focus:ring-1 focus:ring-red-400 bg-red-50"
+      : "border-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-300"
+    }`;
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-800 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-      {/* Main Flex Container */}
       <div className="flex flex-col lg:flex-row mx-auto w-full max-w-[95vw] md:max-w-3xl lg:max-w-6xl xl:max-w-7xl min-h-[80vh]">
-        {/* Left Section: Form (Flex Grow) */}
+
+        {/* Left Section: Form */}
         <div className="flex-1 py-6 md:py-12 lg:pr-20 px-4 sm:px-8">
           <div className="max-w-xl w-full mx-auto">
-            <h2 className="text-lg font-medium mb-4 text-[#272727]">
-              Contact Information
-            </h2>
-            <input
-              type="email"
-              defaultValue="ilhankarim123@gmail.com"
-              className="w-full p-3 border border-orange-300 rounded-md outline-none focus:ring-1 focus:ring-orange-400 mb-8"
-            />
+
+            <h2 className="text-lg font-medium mb-4 text-[#272727]">Contact Information</h2>
+
+            {/* Email */}
+            <div className="mb-8">
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Email address"
+                value={form.email}
+                onChange={handleChange}
+                className={inputClass("email")}
+              />
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+            </div>
 
             <div className="flex flex-col gap-5">
+
+              {/* First & Last Name */}
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
-                  <label className="text-sm text-[#272727] block mb-1 ">
-                    First Name
-                  </label>
+                  <label className="text-sm text-[#272727] block mb-1">First Name <span className="text-red-500">*</span></label>
                   <input
+                    id="firstName"
+                    name="firstName"
                     type="text"
-                    defaultValue="Ilhan"
-                    className="w-full p-3 border border-gray-200 rounded-md outline-none"
+                    placeholder="First name"
+                    value={form.firstName}
+                    onChange={handleChange}
+                    className={inputClass("firstName")}
                   />
+                  {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
                 </div>
                 <div className="flex-1">
-                  <label className="text-sm text-[#272727] block mb-1">
-                    Last Name
-                  </label>
+                  <label className="text-sm text-[#272727] block mb-1">Last Name <span className="text-red-500">*</span></label>
                   <input
+                    id="lastName"
+                    name="lastName"
                     type="text"
-                    defaultValue="karim"
-                    className="w-full p-3 border border-gray-200 rounded-md outline-none"
+                    placeholder="Last name"
+                    value={form.lastName}
+                    onChange={handleChange}
+                    className={inputClass("lastName")}
                   />
+                  {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
                 </div>
               </div>
 
+              {/* Company (optional) */}
               <div>
-                <label className="text-sm text-[#272727] block mb-1">
-                  Company (Optional)
-                </label>
+                <label className="text-sm text-[#272727] block mb-1">Company (Optional)</label>
                 <input
+                  name="company"
                   type="text"
-                  placeholder="Company Optional"
-                  className="w-full p-3 border border-gray-200 rounded-md outline-none"
+                  placeholder="Company name"
+                  value={form.company}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-gray-200 rounded-md outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-300"
                 />
               </div>
 
+              {/* Address */}
               <div>
-                <label className="text-sm text-[#272727] block mb-1">
-                  Address
-                </label>
+                <label className="text-sm text-[#272727] block mb-1">Address <span className="text-red-500">*</span></label>
                 <input
+                  id="address"
+                  name="address"
                   type="text"
-                  defaultValue="Sultanabad Gilgit City Main Road"
-                  className="w-full p-3 border border-gray-200 rounded-md outline-none"
+                  placeholder="Street address"
+                  value={form.address}
+                  onChange={handleChange}
+                  className={inputClass("address")}
                 />
+                {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
               </div>
 
+              {/* City & Postal Code */}
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
-                  <label className="text-sm text-[#272727] block mb-1">
-                    City
-                  </label>
+                  <label className="text-sm text-[#272727] block mb-1">City <span className="text-red-500">*</span></label>
                   <input
+                    id="city"
+                    name="city"
                     type="text"
-                    defaultValue="Gilgit"
-                    className="w-full p-3 border border-gray-200 rounded-md outline-none"
+                    placeholder="City"
+                    value={form.city}
+                    onChange={handleChange}
+                    className={inputClass("city")}
                   />
+                  {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
                 </div>
                 <div className="flex-1">
-                  <label className="text-sm text-[#272727] block mb-1">
-                    Postal Code
-                  </label>
+                  <label className="text-sm text-[#272727] block mb-1">Postal Code <span className="text-red-500">*</span></label>
                   <input
+                    id="postalCode"
+                    name="postalCode"
                     type="text"
-                    defaultValue="1234"
-                    className="w-full p-3 border border-gray-200 rounded-md outline-none"
+                    placeholder="Postal code"
+                    value={form.postalCode}
+                    onChange={handleChange}
+                    className={inputClass("postalCode")}
                   />
+                  {errors.postalCode && <p className="text-red-500 text-xs mt-1">{errors.postalCode}</p>}
                 </div>
               </div>
 
+              {/* Phone */}
               <div>
-                <label className="text-sm text-[#272727] block mb-1">
-                  Phone Number
-                </label>
+                <label className="text-sm text-[#272727] block mb-1">Phone Number <span className="text-red-500">*</span></label>
                 <input
+                  id="phone"
+                  name="phone"
                   type="text"
-                  defaultValue="03478762135"
-                  className="w-full p-3 border border-gray-200 rounded-md outline-none"
+                  placeholder="e.g. 03001234567"
+                  value={form.phone}
+                  onChange={handleChange}
+                  className={inputClass("phone")}
                 />
+                {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
               </div>
             </div>
 
+            {/* Footer Actions */}
             <div className="flex flex-col md:flex-row items-center justify-between mt-10 gap-6">
               <label className="flex items-center text-sm text-gray-600 cursor-pointer w-full md:w-auto">
                 <input
                   type="checkbox"
+                  name="saveInfo"
+                  checked={form.saveInfo}
+                  onChange={handleChange}
                   className="mr-2 accent-orange-500 h-4 w-4"
-                  defaultChecked
                 />
                 Save This Information For Next Time
               </label>
-              <Link to="/payment-form">
-                <button className="w-full md:w-auto bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 px-10 rounded-lg transition-transform active:scale-95">
-                  Continue To Shipping
-                </button>
-              </Link>
+              <button
+                onClick={handleContinue}
+                className="w-full md:w-auto bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 px-10 rounded-lg transition-transform active:scale-95"
+              >
+                Continue To Shipping
+              </button>
             </div>
+
           </div>
         </div>
 
-        {/* Right Section: Summary (Fixed Width on Desktop) */}
+        {/* Right Section: Order Summary */}
         <div className="w-full sm:w-[90vw] md:w-[70vw] lg:w-112.5 bg-[#FDFDFD] py-6 px-4 sm:px-8 md:py-12 shrink-0 mx-auto mt-8 lg:mt-0 rounded-lg shadow-md">
           <h2 className="text-xl font-bold mb-8 text-[#272727]">Your Order</h2>
 
@@ -131,16 +242,10 @@ const CustomerDetails = () => {
                 className="flex items-center gap-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm"
               >
                 <div className="w-20 h-20 bg-orange-100 rounded-lg shrink-0 overflow-hidden">
-                  <img
-                    src={dryfruit}
-                    alt="Product"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={dryfruit} alt="Product" className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-[#272727] font-medium">
-                    Dry Food Apples
-                  </h3>
+                  <h3 className="text-[#272727] font-medium">Dry Food Apples</h3>
                   <p className="text-lg font-bold text-[#272727]">$20.2</p>
                 </div>
               </div>
@@ -162,6 +267,7 @@ const CustomerDetails = () => {
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );

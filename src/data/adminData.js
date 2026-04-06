@@ -1,0 +1,131 @@
+// Mock data for admin dashboard — mirrors backend models
+
+export const initialProducts = [
+    {
+        _id: "p1",
+        name: "Premium Almonds",
+        price: 850,
+        stock: 120,
+        isActive: true,
+        category: "c1",
+        activeDeal: "d1",
+    },
+    {
+        _id: "p2",
+        name: "Hunza Apricot Kernels",
+        price: 650,
+        stock: 80,
+        isActive: true,
+        category: "c1",
+        activeDeal: null,
+    },
+    {
+        _id: "p3",
+        name: "Cashew Nuts",
+        price: 1200,
+        stock: 45,
+        isActive: true,
+        category: "c1",
+        activeDeal: null,
+    },
+    {
+        _id: "p4",
+        name: "Dried Mulberries",
+        price: 400,
+        stock: 200,
+        isActive: true,
+        category: "c2",
+        activeDeal: "d2",
+    },
+    {
+        _id: "p5",
+        name: "Walnuts",
+        price: 950,
+        stock: 60,
+        isActive: false,
+        category: "c1",
+        activeDeal: null,
+    },
+    {
+        _id: "p6",
+        name: "Pine Nuts",
+        price: 2200,
+        stock: 30,
+        isActive: true,
+        category: "c1",
+        activeDeal: null,
+    },
+    {
+        _id: "p7",
+        name: "Dried Figs",
+        price: 550,
+        stock: 90,
+        isActive: true,
+        category: "c2",
+        activeDeal: null,
+    },
+    {
+        _id: "p8",
+        name: "Hunza Gold Apricots",
+        price: 700,
+        stock: 150,
+        isActive: true,
+        category: "c2",
+        activeDeal: null,
+    },
+];
+
+export const initialCategories = [
+    {
+        _id: "c1",
+        name: "Dry Fruits",
+        slug: "dry-fruits",
+        parentCategoryId: null,
+        isDeleted: false,
+    },
+    {
+        _id: "c2",
+        name: "Dried Fruits",
+        slug: "dried-fruits",
+        parentCategoryId: null,
+        isDeleted: false,
+    },
+    {
+        _id: "c3",
+        name: "Almonds",
+        slug: "almonds",
+        parentCategoryId: "c1",
+        isDeleted: false,
+    },
+    {
+        _id: "c4",
+        name: "Cashews",
+        slug: "cashews",
+        parentCategoryId: "c1",
+        isDeleted: false,
+    },
+    {
+        _id: "c5",
+        name: "Hunza Specials",
+        slug: "hunza-specials",
+        parentCategoryId: null,
+        isDeleted: false,
+    },
+];
+
+export const initialDeals = [
+    {
+        _id: "d1",
+        discount: 15,
+        startDate: "2026-04-01",
+        endDate: "2026-05-01",
+        product: "p1",
+    },
+    {
+        _id: "d2",
+        discount: 20,
+        startDate: "2026-04-01",
+        endDate: "2026-06-01",
+        product: "p4",
+    },
+];

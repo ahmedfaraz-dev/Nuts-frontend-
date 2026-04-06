@@ -2,9 +2,9 @@ import React from "react";
 
 const Testmonial = () => {
   return (
-    <section className="w-full px-4 md:px-8 lg:px-16 py-20">
-
-      <div className="flex flex-col lg:flex-row gap-16 items-center">
+    <section className="w-full bg-white">
+      <div className="w-full px-4 md:px-8 lg:px-16 py-20">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
 
         {/* ================= LEFT ================= */}
         <div className="flex flex-col gap-4 w-full lg:w-1/2">
@@ -104,6 +104,7 @@ const Testmonial = () => {
 
         </div>
       </div>
+    </div>
     </section>
   );
 };
