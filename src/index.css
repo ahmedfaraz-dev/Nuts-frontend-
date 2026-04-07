@@ -1,9 +1,10 @@
 @import "tailwindcss";
+
 @theme {
-  --font-display: "Nunito Sans", sans-serif; 
+  --font-display: "Nunito Sans", sans-serif;
 }
 
-body{
+body {
   font-family: var(--font-display);
   /* Always reserve space for vertical scrollbar so layout doesn't jump */
   overflow-y: scroll;
@@ -14,6 +15,6 @@ body{
 }
 
 .no-scrollbar {
-  -ms-overflow-style: none;  
-  scrollbar-width: none;     
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

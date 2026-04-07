@@ -52,8 +52,8 @@ export default function Sidebar({ isOpen, onClose }) {
                 to={item.to}
                 onClick={onClose}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${active
-                    ? "bg-orange-50 text-[#F59115]"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-orange-50 text-[#F59115]"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
               >
                 <Icon size={18} strokeWidth={active ? 2.5 : 2} />
@@ -70,7 +70,7 @@ export default function Sidebar({ isOpen, onClose }) {
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
           >
             <Store size={18} />
-            Back to Store
+            Back to Home
           </Link>
           <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors w-full cursor-pointer">
             <LogOut size={18} />

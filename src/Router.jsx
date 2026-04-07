@@ -3,6 +3,7 @@ import Layout from "./Components/Layout/Layout";
 import Home from "./Pages/Home";
 import ProductDetails from "./Pages/ProductDetails";
 import Cart from "./Pages/Cart";
+import ProductList from "./Components/Products";
 import MinimalLayout from "./Components/Layout/MiniLaout";
 import CustomerDetails from "./Pages/Customerdetails";
 import PaymentForm from "./Components/PaymentForm";
@@ -35,6 +36,10 @@ export const route = createBrowserRouter(
                 {
                     path: 'cart/',
                     element: <Cart />
+                },
+                {
+                    path: 'search',
+                    element: <ProductList />
                 }
             ]
 
