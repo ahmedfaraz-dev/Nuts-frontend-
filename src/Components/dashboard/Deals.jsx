@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Loader2, AlertCircle } from "lucide-react";
 import { adminApi } from "../../Api/adminApi";
 import DealForm from "./DealForm";
+import Pagination from "./Pagination";
 
 export default function Deals() {
   const [deals, setDeals] = useState([]);
@@ -9,6 +10,10 @@ export default function Deals() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   const [showForm, setShowForm] = useState(false);
   const [editingDeal, setEditingDeal] = useState(null);
@@ -18,8 +23,8 @@ export default function Deals() {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (isRefresh = false) => {
+    if (!isRefresh) setLoading(true);
     try {
       const [dealsRes, prodRes] = await Promise.all([
         adminApi.getDeals(),
@@ -33,7 +38,7 @@ export default function Deals() {
       console.error("Error fetching deals:", err);
       setError("Failed to load deals. Please try again.");
     } finally {
-      setLoading(false);
+      if (!isRefresh) setLoading(false);
     }
   };
 
@@ -95,8 +100,8 @@ export default function Deals() {
             : editingDeal.product;
         const res = await adminApi.editDeal(productId, editingDeal._id, dealData);
         if (res.success) {
-          // Refetch to get the latest data including updated dates from backend
-          await fetchData();
+          // Refetch silently to get the latest data including updated dates from backend
+          await fetchData(true);
         }
       } else {
         const res = await adminApi.createDeal(dealData.product, {
@@ -105,7 +110,7 @@ export default function Deals() {
           endDate: dealData.endDate,
         });
         if (res.success) {
-          await fetchData();
+          await fetchData(true);
         }
       }
       setShowForm(false);
@@ -125,8 +130,8 @@ export default function Deals() {
     try {
       const res = await adminApi.deleteDeal(deal.product, dealId);
       if (res.success) {
-        // Refresh products too to clear activeDeal local state
-        await fetchData();
+        // Refresh silently
+        await fetchData(true);
         setDeleteConfirm(null);
       }
     } catch (err) {
@@ -157,6 +162,13 @@ export default function Deals() {
     );
   }
 
+  // Pagination logic
+  const totalPages = Math.ceil(deals.length / itemsPerPage);
+  const displayedDeals = deals.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="space-y-4">
       {/* Top bar */}
@@ -185,7 +197,7 @@ export default function Deals() {
             </tr>
           </thead>
           <tbody>
-            {deals.map((deal) => (
+            {displayedDeals.map((deal) => (
               <tr key={deal._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
                 <td className="px-5 py-3 text-gray-900 font-medium whitespace-nowrap">
                   {getProductName(deal.product)}
@@ -226,6 +238,15 @@ export default function Deals() {
         </table>
       </div>
 
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalItems={deals.length}
+        label="Total Deals"
+      />
+
       {/* Deal Form Modal */}
       {showForm && (() => {
         // Build set of product IDs that already have a deal
@@ -244,6 +265,7 @@ export default function Deals() {
           <DealForm
             deal={editingDeal}
             products={formProducts}
+            isLoading={actionLoading}
             onSave={handleSave}
             onClose={() => {
               setShowForm(false);

@@ -1,29 +1,15 @@
-// import axios from "axios";
-
-// const api = axios.create({
-//     baseURL: "http://localhost:8000/api/v1",
-// });
-
-// export {api};
-
-// src/utils/httpClient.js
-
 import axios from "axios";
 import Cookies from "js-cookie";
 
-// You can move this to .env
-// const API_BASE_URL =
-//   process.env.REACT_APP_API_BASE_URL ||
-//   "http://localhost:8000/api/v1";
-
 export const httpClient = axios.create({
   baseURL: "http://localhost:8000/api/v1",
-  timeout: 10000,
+  timeout: 14000,
 });
 
 httpClient.interceptors.request.use(
   (config) => {
-    const token = Cookies.get("token");
+    // Check Cookies first, then localStorage as fallback
+    const token = Cookies.get("token") || localStorage.getItem("token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -53,12 +39,14 @@ httpClient.interceptors.response.use(
 
 // 👉 Handle session expiration
 function handleSessionExpiration() {
-  Cookies.remove("token");
-  // Optional: clear any other user-related items
-  // localStorage.removeItem("user");
+  Cookies.remove("token", { path: '/' });
+  localStorage.removeItem("token");
 
-  // redirect user (React way)
-  if (window.location.pathname !== "/login") {
+  // Only redirect if not already on login or register pages to avoid loops
+  const publicPaths = ["/login", "/register"];
+  const isPublicPath = publicPaths.some(path => window.location.pathname.startsWith(path));
+
+  if (!isPublicPath) {
     window.location.href = "/login";
   }
 }

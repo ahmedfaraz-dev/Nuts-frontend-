@@ -1,33 +1,23 @@
 [
-    {
-        "id": 1,
-        "title": "Hunza Dry Fruits",
-        "description": "Best Product For You K2 Dry Food",
-        "image": "/productbg/productbgimage.png",
-        "sideImage": "/productbg/product1.png",
-        "left": "left-62.5",
-        "top": "top-46",
-        "width": "267px"
-
-    },
-    {
-        "id": 2,
-        "title": "Hunza Dry Fruits",
-        "description": "Best Product For You K2 Dry Food",
-        "image": "/productbg/productbgimage.png",
-        "sideImage": "./productbg/product2.png",
-        "left": "left-62.5",
-        "top": "top-41",
-        "width": "360px"
-    },
-    {
-        "id": 3,
-        "title": "Hunza Dry Fruits",
-        "description": "Best Product For You K2 Dry Food",
-        "image": "/productbg/productbgimage.png",
-        "sideImage": "/productbg/product1.png",
-        "left": "left-62.5",
-        "top": "top-46",
-        "width": "267px"
-    }
+  {
+    "id": 1,
+    "title": "Hunza Valley Dry Fruits",
+    "description": "Naturally harvested from the pristine Hunza Valley, rich in nutrients.",
+    "sideImage": "/productbg/product1.png",
+    "badge": "Best Seller"
+  },
+  {
+    "id": 2,
+    "title": "Premium Mixed Nuts",
+    "description": "A handpicked blend of cashews, almonds, walnuts and pistachios.",
+    "sideImage": "/productbg/product2.png",
+    "badge": "Top Rated"
+  },
+  {
+    "id": 3,
+    "title": "Organic Dried Berries",
+    "description": "Sun-dried apricots, cranberries and raisins — naturally sweet.",
+    "sideImage": "/productbg/product1.png",
+    "badge": "New Arrival"
+  }
 ]

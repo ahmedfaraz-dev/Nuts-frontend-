@@ -15,6 +15,7 @@ import Categories from "./Components/dashboard/Categories";
 import Deals from "./Components/dashboard/Deals";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
+import Profile from "./Pages/Profile";
 import ProtectedRoute from "./Components/Auth/ProtectedRoute";
 
 
@@ -40,6 +41,14 @@ export const route = createBrowserRouter(
                 {
                     path: 'search',
                     element: <ProductList />
+                },
+                {
+                    path: 'profile',
+                    element: (
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
+                    )
                 }
             ]
 

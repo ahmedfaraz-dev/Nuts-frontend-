@@ -1,31 +1,67 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { userApi } from '../Api/userApi.js';
+import Cookies from 'js-cookie';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    // MOCK: Default admin session for development without backend
-    const [user, setUser] = useState({
-        name: "Admin User",
-        email: "admin@example.com",
-        role: "admin"
-    });
-    const [authLoading, setAuthLoading] = useState(false);
+    const [user, setUser] = useState(null);
+    const [authLoading, setAuthLoading] = useState(true);
 
-    // On mount, try to restore session (disabled for mock)
+    // On mount, try to restore session
     useEffect(() => {
-        // Mock session is already set
-        setAuthLoading(false);
+        const restoreSession = async () => {
+            // Optimization: Only try to restore if a token exists
+            const token = Cookies.get("token") || localStorage.getItem("token");
+            
+            if (!token) {
+                console.log("No auth token found, skipping session restoration.");
+                setAuthLoading(false);
+                return;
+            }
+
+            try {
+                console.log("Restoring session...");
+                const profileRes = await userApi.getCurrentUser();
+
+                // Extract user data reliably even if nested (res.user or res.data)
+                const userData = profileRes.user || profileRes.data || profileRes;
+
+                if (userData && typeof userData === 'object') {
+                    console.log("Session restored successfully:", userData.name);
+                    setUser(userData);
+                }
+            } catch (err) {
+                console.error("Session restoration failed:", err.response?.data?.message || err.message);
+                // Clear state if session restoration failed due to invalid/expired token
+                if (err.response?.status === 401) {
+                    setUser(null);
+                    Cookies.remove("token", { path: '/' });
+                    localStorage.removeItem("token");
+                }
+            } finally {
+                setAuthLoading(false);
+            }
+        };
+        restoreSession();
     }, []);
 
     const login = async (credentials) => {
         try {
             const res = await userApi.login(credentials);
-            // After login, fetch the full user profile (from our mock or real API)
-            const profileRes = await userApi.getCurrentUser();
-            const userData = profileRes.data || profileRes;
+
+            // Robustly extract user data and token
+            const userData = res.user || res.data || res;
+            const token = res.accessToken || res.token || res.data?.accessToken || res.data?.token;
+
+            // Centralized token handling
+            if (token) {
+                Cookies.set("token", token, { expires: 7, path: '/' });
+                localStorage.setItem("token", token);
+            }
+
             setUser(userData);
-            return res;
+            return userData;
         } catch (err) {
             console.error("Login failed:", err);
             throw err;
@@ -43,10 +79,12 @@ export const AuthProvider = ({ children }) => {
             console.error("Logout error:", err);
         }
         setUser(null);
+        Cookies.remove("token", { path: '/' });
+        localStorage.removeItem("token");
     };
 
     return (
-        <AuthContext.Provider value={{ user, authLoading, login, register, logout }}>
+        <AuthContext.Provider value={{ user, setUser, authLoading, login, register, logout }}>
             {children}
         </AuthContext.Provider>
     );

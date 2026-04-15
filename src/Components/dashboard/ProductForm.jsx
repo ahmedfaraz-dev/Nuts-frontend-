@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { X, Upload, Image as ImageIcon } from "lucide-react";
+import { X, Upload, Image as ImageIcon, Loader2 } from "lucide-react";
 
-export default function ProductForm({ product, categories, onSave, onClose }) {
+export default function ProductForm({ product, categories, onSave, onClose, isLoading }) {
   const [form, setForm] = useState({
     name: "",
     price: "",
@@ -127,7 +127,8 @@ export default function ProductForm({ product, categories, onSave, onClose }) {
               onChange={handleChange}
               placeholder="Min 3 characters"
               required
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors"
+              disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors disabled:bg-gray-50 disabled:text-gray-400"
             />
           </div>
 
@@ -140,7 +141,8 @@ export default function ProductForm({ product, categories, onSave, onClose }) {
               placeholder="3 - 200 characters"
               required
               rows={3}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors resize-none"
+              disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors resize-none disabled:bg-gray-50 disabled:text-gray-400"
             />
             <p className="text-[10px] text-gray-400 mt-1 text-right">{form.discription.length}/200</p>
           </div>
@@ -156,7 +158,8 @@ export default function ProductForm({ product, categories, onSave, onClose }) {
                 onChange={handleChange}
                 placeholder="0"
                 required
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors"
+                 disabled={isLoading}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors disabled:bg-gray-50 disabled:text-gray-400"
               />
             </div>
             <div>
@@ -169,7 +172,8 @@ export default function ProductForm({ product, categories, onSave, onClose }) {
                 onChange={handleChange}
                 placeholder="0"
                 required
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors"
+                disabled={isLoading}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors disabled:bg-gray-50 disabled:text-gray-400"
               />
             </div>
           </div>
@@ -181,7 +185,8 @@ export default function ProductForm({ product, categories, onSave, onClose }) {
               value={form.category}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors bg-white font-mono"
+               disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors bg-white font-mono disabled:bg-gray-50 disabled:text-gray-400"
             >
               <option value="">Select a category</option>
               {categories.map((cat) => (
@@ -196,10 +201,12 @@ export default function ProductForm({ product, categories, onSave, onClose }) {
             <label className="block text-sm font-medium text-gray-700 mb-1">Images (Exactly 3) *</label>
             <div
               onClick={() => fileInputRef.current.click()}
-              className="border-2 border-dashed border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center gap-2 hover:border-[#F59115]/50 transition-colors cursor-pointer bg-gray-50/50"
+               disabled={isLoading}
             >
               <Upload size={24} className="text-gray-400" />
-              <p className="text-xs text-gray-500">Click to upload 3 product images</p>
+              <p className="text-xs text-gray-500">
+                {isLoading ? "Uploading..." : "Click to upload 3 product images"}
+              </p>
               <input
                 type="file"
                 multiple
@@ -207,6 +214,7 @@ export default function ProductForm({ product, categories, onSave, onClose }) {
                 onChange={handleImageChange}
                 className="hidden"
                 ref={fileInputRef}
+                disabled={isLoading}
               />
             </div>
 
@@ -311,11 +319,13 @@ export default function ProductForm({ product, categories, onSave, onClose }) {
             >
               Cancel
             </button>
-            <button
+             <button
               type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-[#F59115] rounded-lg hover:bg-orange-600 transition-colors cursor-pointer disabled:opacity-50"
+              disabled={isLoading}
+              className="px-4 py-2 text-sm font-medium text-white bg-[#F59115] rounded-lg hover:bg-orange-600 transition-colors cursor-pointer disabled:opacity-70 flex items-center gap-2"
             >
-              {product ? "Update Product" : "Save Product"}
+              {isLoading && <Loader2 size={16} className="animate-spin" />}
+              {isLoading ? (product ? "Updating..." : "Saving...") : (product ? "Update Product" : "Save Product")}
             </button>
           </div>
         </form>

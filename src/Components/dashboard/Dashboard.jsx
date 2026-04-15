@@ -12,37 +12,39 @@ export default function Dashboard() {
   const [recentProducts, setRecentProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadStats() {
-      try {
-        const [prodRes, catRes] = await Promise.all([
-          adminApi.getAllProducts(),
-          adminApi.getCategories().catch(() => ({ success: true, data: [] }))
-        ]);
+  const loadStats = async (isRefresh = false) => {
+    if (!isRefresh) setLoading(true);
+    try {
+      const [prodRes, catRes] = await Promise.all([
+        adminApi.getAllProducts(),
+        adminApi.getCategories().catch(() => ({ success: true, data: [] }))
+      ]);
 
-        if (prodRes.success) {
-          const prods = prodRes.data?.products || [];
-          setRecentProducts(prods.slice(0, 5));
+      if (prodRes.success) {
+        const prods = prodRes.data?.products || [];
+        setRecentProducts(prods.slice(0, 5));
 
-          setStats(prev => prev.map(s => {
-            if (s.label === "Total Products") return { ...s, value: prods.length };
-            if (s.label === "Active Deals") return { ...s, value: prods.filter(p => p.activeDeal).length };
-            return s;
-          }));
-        }
-
-        if (catRes.success) {
-          setStats(prev => prev.map(s => {
-            if (s.label === "Categories") return { ...s, value: catRes.data?.length || 0 };
-            return s;
-          }));
-        }
-      } catch (err) {
-        console.error("Dashboard stats error:", err);
-      } finally {
-        setLoading(false);
+        setStats(prev => prev.map(s => {
+          if (s.label === "Total Products") return { ...s, value: prods.length };
+          if (s.label === "Active Deals") return { ...s, value: prods.filter(p => p.activeDeal).length };
+          return s;
+        }));
       }
+
+      if (catRes.success) {
+        setStats(prev => prev.map(s => {
+          if (s.label === "Categories") return { ...s, value: catRes.data?.length || 0 };
+          return s;
+        }));
+      }
+    } catch (err) {
+      console.error("Dashboard stats error:", err);
+    } finally {
+      if (!isRefresh) setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadStats();
   }, []);
 

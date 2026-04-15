@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.jsx";
-import { httpClient } from "../Api/axiosInstance.js";
-import Cookies from "js-cookie";
 
 const Login = () => {
   const { login } = useAuth();
@@ -42,23 +40,11 @@ const Login = () => {
     setLoading(true);
     try {
       const data = await login(form);
-      const response = await httpClient.post("/auth/login", {
-        email: form.email,
-        password: form.password,
-      });
-
-      console.log("Login API response:", response.data);
-      // const token = response?.data?.accessToken;
-
-      // if (token) {
-      //   localStorage.setItem("accessToken", token);
-      // }
-
-      Cookies.set("token", response.data.accessToken);
 
       console.log("Login successful, user data:", data);
-      // Redirect based on role returned from /get-user
+      // Redirect based on role returned from /get-user (or within the login response)
       if (data?.role === "admin")
+
         navigate("/admin-dashboard", { replace: true });
       else navigate("/", { replace: true });
     } catch (err) {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { X, AlertCircle } from "lucide-react";
+import { X, AlertCircle, Loader2 } from "lucide-react";
 
-export default function CategoryForm({ category, categories, onSave, onClose }) {
+export default function CategoryForm({ category, categories, onSave, onClose, isLoading }) {
   const [form, setForm] = useState({
     name: "",
     slug: "",
@@ -86,7 +86,8 @@ export default function CategoryForm({ category, categories, onSave, onClose }) 
               onChange={handleChange}
               placeholder="e.g. Dry Fruits"
               required
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors"
+              disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors disabled:bg-gray-50 disabled:text-gray-400"
             />
           </div>
 
@@ -98,7 +99,8 @@ export default function CategoryForm({ category, categories, onSave, onClose }) 
               onChange={handleChange}
               placeholder="dry-fruits"
               required
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors font-mono"
+              disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors font-mono disabled:bg-gray-50 disabled:text-gray-400"
             />
           </div>
 
@@ -108,7 +110,8 @@ export default function CategoryForm({ category, categories, onSave, onClose }) 
               name="parentCategoryId"
               value={form.parentCategoryId}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors bg-white"
+               disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors bg-white disabled:bg-gray-50 disabled:text-gray-400"
             >
               <option value="">None (Top-level)</option>
               {parentOptions.map((cat) => (
@@ -135,11 +138,13 @@ export default function CategoryForm({ category, categories, onSave, onClose }) 
             >
               Cancel
             </button>
-            <button
+             <button
               type="submit"
-              className="px-6 py-2 text-sm font-bold text-white bg-[#F59115] rounded-lg hover:bg-orange-600 transition-all shadow-sm hover:shadow-orange-200 cursor-pointer"
+              disabled={isLoading}
+              className="px-6 py-2 text-sm font-bold text-white bg-[#F59115] rounded-lg hover:bg-orange-600 transition-all shadow-sm hover:shadow-orange-200 cursor-pointer disabled:opacity-70 flex items-center gap-2"
             >
-              {category ? "Update" : "Create"}
+              {isLoading && <Loader2 size={16} className="animate-spin" />}
+              {isLoading ? (category ? "Updating..." : "Creating...") : (category ? "Update" : "Create")}
             </button>
           </div>
         </form>

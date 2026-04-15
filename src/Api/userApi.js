@@ -10,18 +10,18 @@ const MOCK_USER = {
 
 const userApi = {
     register: async (userData) => {
-        console.log("Mock Register:", userData);
-        return { success: true, message: "Registered successfully (Mock)" };
+        const res = await httpClient.post("/user/register", userData);
+        return res.data;
     },
 
     login: async (credentials) => {
-        console.log("Mock Login:", credentials);
-        return { success: true, message: "Logged in successfully (Mock)" };
+        const res = await httpClient.post("/auth/login", credentials);
+        return res.data;
     },
 
     getCurrentUser: async () => {
-        // Return null if you want to test logged out state
-        return { success: true, data: MOCK_USER };
+        const res = await httpClient.get('/user/get-user');
+        return res.data;
     },
 
     logout: async () => {
@@ -43,6 +43,22 @@ const userApi = {
     getProductById: async (id) => {
         const res = await httpClient.get(`/user/productss/${id}`);
         return res.data;
+    },
+
+    // PROFILE MANAGEMENT (Frontend ready, backend to be added by user)
+    updateAccount: async (data) => {
+        console.warn("updateAccount backend not attached");
+        return { success: true, message: "Profile updated (Local Only)" };
+    },
+
+    updatePassword: async (data) => {
+        console.warn("updatePassword backend not attached");
+        return { success: true, message: "Password updated (Local Only)" };
+    },
+
+    updateAvatar: async (formData) => {
+        console.warn("updateAvatar backend not attached");
+        return { success: true, avatar: { url: "path/to/new/avatar" } };
     },
 };
 
