@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Loader2, AlertCircle, Image as ImageIcon } from "lucide-react";
 import ProductForm from "./ProductForm";
+import Pagination from "./Pagination";
 import { adminApi } from "../../Api/adminApi";
 
 export default function Products() {
@@ -15,12 +16,16 @@ export default function Products() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8; // 10 items per page as requested
+
   useEffect(() => {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (isRefresh = false) => {
+    if (!isRefresh) setLoading(true);
     try {
       // Parallel fetch for better performance
       const [productsData, categoriesData] = await Promise.all([
@@ -36,7 +41,7 @@ export default function Products() {
       console.error("Error fetching admin data:", err);
       setError("Failed to load products. Please check your connection.");
     } finally {
-      setLoading(false);
+      if (!isRefresh) setLoading(false);
     }
   };
 
@@ -81,8 +86,8 @@ export default function Products() {
           if (dealData) {
             try {
               await adminApi.createDeal(newProduct._id, dealData);
-              // Refresh everything to get final state with deal
-              await fetchData();
+              // Refresh silently to get final state with deal
+              await fetchData(true);
             } catch (err) {
               console.error("Failed to create deal:", err);
               setProducts(prev => [...prev, newProduct]);
@@ -142,6 +147,13 @@ export default function Products() {
     );
   }
 
+  // Pagination logic
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const displayedProducts = products.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="space-y-4">
       {/* Top bar */}
@@ -173,7 +185,7 @@ export default function Products() {
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => (
+            {displayedProducts.map((product) => (
               <tr key={product._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
                 <td className="px-5 py-3 whitespace-nowrap">
                   <div className="flex items-center gap-3">
@@ -235,11 +247,21 @@ export default function Products() {
         </table>
       </div>
 
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalItems={products.length}
+        label="Total Products"
+      />
+
       {/* Product Form Modal */}
       {showForm && (
         <ProductForm
           product={editingProduct}
           categories={categories}
+          isLoading={actionLoading}
           onSave={handleSave}
           onClose={() => {
             setShowForm(false);

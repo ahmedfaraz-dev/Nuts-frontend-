@@ -46,13 +46,25 @@ const Navbar = () => {
   const [activeTab, setActiveTab] = useState('dryfood')
   const navigate = useNavigate()
   const { totalItems } = useCart()
-  const { user, logout } = useAuth()
+  const { user, logout, authLoading } = useAuth()
 
   const handleSearch = (e) => {
     e.preventDefault()
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`)
     }
+  }
+
+  if (authLoading) {
+    return (
+      <nav className="w-full sticky top-0 z-50 bg-white/70 backdrop-blur-[2px] py-4 px-4 md:px-8 lg:px-16">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+           <div className="h-10 w-32 bg-gray-100 animate-pulse rounded" />
+           <div className="h-10 flex-1 max-w-xl mx-8 bg-gray-100 animate-pulse rounded-full hidden md:block" />
+           <div className="h-10 w-24 bg-gray-100 animate-pulse rounded" />
+        </div>
+      </nav>
+    )
   }
 
   return (
@@ -111,22 +123,20 @@ const Navbar = () => {
               <div className="flex items-center gap-4">
                 {user ? (
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-100">
-                      <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center overflow-hidden">
+                    <button
+                      onClick={() => navigate('/profile')}
+                      className="flex items-center p-0.5 bg-gray-50 rounded-full border border-gray-100 hover:border-orange-200 transition-all cursor-pointer group"
+                      title="View Profile"
+                    >
+                      <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-orange-100 flex items-center justify-center overflow-hidden group-hover:ring-2 group-hover:ring-orange-200 transition-all">
                         {user.avatar?.url ? (
                           <img src={user.avatar.url} alt={user.name} className="w-full h-full object-cover" />
                         ) : (
-                          <User className="w-4 h-4 text-[#F59115]" />
+                          <span className="text-xs md:text-sm font-bold text-[#F59115] uppercase">
+                            {user.name?.charAt(0)}
+                          </span>
                         )}
                       </div>
-                      <span className="text-sm font-medium text-gray-700 hidden lg:block">{user.name}</span>
-                    </div>
-                    <button
-                      onClick={logout}
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                      title="Logout"
-                    >
-                      <LogOut className="w-5 h-5" />
                     </button>
                     {user.role === 'admin' && (
                       <button

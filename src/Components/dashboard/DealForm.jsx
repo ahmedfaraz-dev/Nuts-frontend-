@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 
-export default function DealForm({ deal, products, onSave, onClose }) {
+export default function DealForm({ deal, products, onSave, onClose, isLoading }) {
   const toDateInputValue = (value) => {
     if (!value) return "";
     // Handles "YYYY-MM-DD" and full ISO strings reliably.
@@ -103,7 +103,7 @@ export default function DealForm({ deal, products, onSave, onClose }) {
               value={form.product}
               onChange={handleChange}
               required
-              disabled={!!deal}
+               disabled={!!deal || isLoading}
               className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors bg-white disabled:bg-gray-50 disabled:text-gray-400"
             >
               <option value="">Select a product</option>
@@ -126,7 +126,8 @@ export default function DealForm({ deal, products, onSave, onClose }) {
               onChange={handleChange}
               placeholder="0"
               required
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors"
+               disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors disabled:bg-gray-50 disabled:text-gray-400"
             />
           </div>
 
@@ -138,7 +139,8 @@ export default function DealForm({ deal, products, onSave, onClose }) {
                 type="date"
                 value={form.startDate}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors"
+                 disabled={isLoading}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors disabled:bg-gray-50 disabled:text-gray-400"
               />
             </div>
             <div>
@@ -149,7 +151,8 @@ export default function DealForm({ deal, products, onSave, onClose }) {
                 value={form.endDate}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors"
+                 disabled={isLoading}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors disabled:bg-gray-50 disabled:text-gray-400"
               />
             </div>
           </div>
@@ -167,11 +170,13 @@ export default function DealForm({ deal, products, onSave, onClose }) {
             >
               Cancel
             </button>
-            <button
+             <button
               type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-[#F59115] rounded-lg hover:bg-orange-600 transition-colors cursor-pointer"
+              disabled={isLoading}
+              className="px-4 py-2 text-sm font-medium text-white bg-[#F59115] rounded-lg hover:bg-orange-600 transition-colors cursor-pointer disabled:opacity-70 flex items-center gap-2 justify-center"
             >
-              {deal ? "Update Deal" : "Save Deal"}
+              {isLoading && <Loader2 size={16} className="animate-spin" />}
+              {isLoading ? (deal ? "Updating..." : "Saving...") : (deal ? "Update Deal" : "Save Deal")}
             </button>
           </div>
         </form>

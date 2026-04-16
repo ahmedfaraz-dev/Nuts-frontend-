@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Loader2, AlertCircle } from "lucide-react";
 import { adminApi } from "../../Api/adminApi";
 import CategoryForm from "./CategoryForm";
+import Pagination from "./Pagination";
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
@@ -9,6 +10,10 @@ export default function Categories() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
@@ -19,8 +24,8 @@ export default function Categories() {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (isRefresh = false) => {
+    if (!isRefresh) setLoading(true);
     try {
       const [catRes, prodRes] = await Promise.all([
         adminApi.getCategories(),
@@ -34,7 +39,7 @@ export default function Categories() {
       console.error("Error fetching categories:", err);
       setError("Failed to load categories. Please try again.");
     } finally {
-      setLoading(false);
+      if (!isRefresh) setLoading(false);
     }
   };
 
@@ -64,8 +69,8 @@ export default function Categories() {
       } else {
         const res = await adminApi.createCategory(categoryData);
         if (res.success) {
-          // The API returns the ID or the object, let's refresh to be safe or append
-          await fetchData();
+          // Silent refresh after adding a new category
+          await fetchData(true);
         }
       }
       setShowForm(false);
@@ -144,6 +149,13 @@ export default function Categories() {
     );
   }
 
+  // Pagination logic
+  const totalPages = Math.ceil(categories.length / itemsPerPage);
+  const displayedCategories = categories.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="space-y-4">
       {/* Top bar */}
@@ -171,7 +183,7 @@ export default function Categories() {
             </tr>
           </thead>
           <tbody>
-            {categories.map((category) => (
+            {displayedCategories.map((category) => (
               <tr key={category._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
                 <td className="px-5 py-3 text-gray-900 font-medium">{category.name}</td>
                 <td className="px-5 py-3 text-gray-500 font-mono text-xs">{category.slug}</td>
@@ -205,11 +217,21 @@ export default function Categories() {
         </table>
       </div>
 
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalItems={categories.length}
+        label="Total Categories"
+      />
+
       {/* Category Form Modal */}
       {showForm && (
         <CategoryForm
           category={editingCategory}
           categories={categories}
+          isLoading={actionLoading}
           onSave={handleSave}
           onClose={() => {
             setShowForm(false);
