@@ -31,6 +31,7 @@ const Home = () => {
                   imageSrc={items?.sideImage}
                   left={items?.left}
                   top={items?.top}
+
                   width={items?.width}
                 />
               ))}
