@@ -2,14 +2,16 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext.jsx';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
+import { useCurrency } from '../contexts/CurrencyContext.jsx';
 import Button from '../Components/Ui/Button.jsx';
 
 const Cart = () => {
     const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
+    const { formatPrice } = useCurrency();
     const navigate = useNavigate();
 
     const subTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const delivery = cartItems.length > 0 ? 2.4 : 0;
+    const delivery = cartItems.length > 0 ? 500 : 0; // 500 PKR base delivery
     const total = subTotal + delivery;
 
     if (cartItems.length === 0) {
@@ -60,7 +62,7 @@ const Cart = () => {
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium text-[#272727] truncate">{item.name}</p>
                                     <p className="text-[#F59115] font-semibold mt-1">
-                                        ${item.price.toFixed(2)} <span className="text-gray-400 text-xs font-normal">/ item</span>
+                                        {formatPrice(item.price)} <span className="text-gray-400 text-xs font-normal">/ item</span>
                                     </p>
                                 </div>
 
@@ -84,9 +86,8 @@ const Cart = () => {
                                     </button>
                                 </div>
 
-                                {/* Line Total */}
-                                <p className="text-base font-bold text-[#272727] w-16 text-right shrink-0">
-                                    ${(item.price * item.quantity).toFixed(2)}
+                                <p className="text-base font-bold text-[#272727] w-24 text-right shrink-0">
+                                    {formatPrice(item.price * item.quantity)}
                                 </p>
 
                                 {/* Remove */}
@@ -108,17 +109,17 @@ const Cart = () => {
                             <div className="space-y-3 text-sm text-gray-500 mb-6">
                                 <div className="flex justify-between">
                                     <span>Subtotal</span>
-                                    <span className="font-medium text-[#272727]">${subTotal.toFixed(2)}</span>
+                                    <span className="font-medium text-[#272727]">{formatPrice(subTotal)}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span>Delivery</span>
-                                    <span className="font-medium text-[#272727]">${delivery.toFixed(2)}</span>
+                                    <span className="font-medium text-[#272727]">{formatPrice(delivery)}</span>
                                 </div>
                             </div>
 
                             <div className="border-t border-gray-200 pt-4 flex justify-between items-center mb-6">
                                 <span className="text-base font-medium text-[#272727]">Total</span>
-                                <span className="text-2xl font-bold text-[#272727]">${total.toFixed(2)}</span>
+                                <span className="text-2xl font-bold text-[#272727]">{formatPrice(total)}</span>
                             </div>
 
                             <div className="space-y-3">

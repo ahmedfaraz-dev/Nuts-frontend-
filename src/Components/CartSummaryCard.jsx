@@ -1,6 +1,8 @@
 import React from "react";
+import { useCurrency } from "../contexts/CurrencyContext.jsx";
 
 const CartSummaryCard = () => {
+  const { formatPrice } = useCurrency();
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       
@@ -48,7 +50,7 @@ const CartSummaryCard = () => {
           </p>
 
           <p className="text-2xl font-semibold text-orange-500 mb-6">
-            Rs 1000
+            {formatPrice(1000)}
           </p>
 
           {/* BUTTONS */}

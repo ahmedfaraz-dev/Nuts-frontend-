@@ -1,12 +1,20 @@
 import React, { useState } from "react";
 import dryfruit from "../assets/dryfruitplate.png";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../contexts/CartContext.jsx";
+import { useCurrency } from "../contexts/CurrencyContext.jsx";
 
 const REQUIRED_FIELDS = ["email", "firstName", "lastName", "address", "city", "postalCode", "phone"];
 
 const CustomerDetails = () => {
   const navigate = useNavigate();
-  const items = [1, 2, 3];
+  const { cartItems } = useCart();
+  const { formatPrice } = useCurrency();
+  
+  const subTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const delivery = cartItems.length > 0 ? 500 : 0; // consistent with Cart.jsx
+  const discount = 0; // Logic for discount to be added later if needed
+  const total = subTotal + delivery - discount;
 
   const [form, setForm] = useState({
     email: "",
@@ -236,34 +244,46 @@ const CustomerDetails = () => {
           <h2 className="text-xl font-bold mb-8 text-[#272727]">Your Order</h2>
 
           <div className="flex flex-col gap-4 mb-8">
-            {items.map((_, i) => (
+            {cartItems.map((item) => (
               <div
-                key={i}
+                key={item.id}
                 className="flex items-center gap-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm"
               >
                 <div className="w-20 h-20 bg-orange-100 rounded-lg shrink-0 overflow-hidden">
-                  <img src={dryfruit} alt="Product" className="w-full h-full object-cover" />
+                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-[#272727] font-medium">Dry Food Apples</h3>
-                  <p className="text-lg font-bold text-[#272727]">$20.2</p>
+                  <h3 className="text-[#272727] font-medium text-sm line-clamp-1">{item.name}</h3>
+                  <div className="flex items-center justify-between mt-1">
+                    <p className="text-sm font-bold text-[#F59115]">{formatPrice(item.price)}</p>
+                    <span className="text-xs text-gray-400">Qty: {item.quantity}</span>
+                  </div>
                 </div>
               </div>
             ))}
+            {cartItems.length === 0 && (
+              <p className="text-center py-10 text-gray-400 text-sm italic">Cart is empty</p>
+            )}
           </div>
 
           <div className="border-t border-orange-200 pt-6 space-y-3">
-            <div className="flex justify-between text-gray-600">
-              <span>Deliver</span>
-              <span className="font-semibold text-gray-900">$2.4</span>
+            <div className="flex justify-between text-gray-600 text-sm">
+              <span>Subtotal</span>
+              <span className="font-semibold text-gray-900">{formatPrice(subTotal)}</span>
             </div>
-            <div className="flex justify-between text-gray-600">
-              <span>Discount</span>
-              <span className="font-semibold text-gray-900">$0.4</span>
+            <div className="flex justify-between text-gray-600 text-sm">
+              <span>Delivery</span>
+              <span className="font-semibold text-gray-900">{formatPrice(delivery)}</span>
             </div>
+            {discount > 0 && (
+              <div className="flex justify-between text-green-600 text-sm">
+                <span>Discount</span>
+                <span className="font-semibold">-{formatPrice(discount)}</span>
+              </div>
+            )}
             <div className="flex justify-between items-center pt-4 border-t border-gray-200">
               <span className="text-lg font-medium">Total</span>
-              <span className="text-3xl text-gray-900">$42</span>
+              <span className="text-3xl font-black text-[#272727]">{formatPrice(total)}</span>
             </div>
           </div>
         </div>

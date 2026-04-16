@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Package, Tag, Zap, ArrowRight, Loader2 } from "lucide-react";
 import { adminApi } from "../../Api/adminApi";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 export default function Dashboard() {
+  const { formatPrice } = useCurrency();
   const [stats, setStats] = useState([
     { label: "Total Products", value: 0, icon: Package, to: "/admin-dashboard/products", color: "text-[#F59115]", bg: "bg-orange-50" },
     { label: "Categories", value: 0, icon: Tag, to: "/admin-dashboard/categories", color: "text-[#F59115]", bg: "bg-orange-50" },
@@ -126,8 +128,9 @@ export default function Dashboard() {
             <tbody>
               {recentProducts.map((product) => (
                 <tr key={product._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
-                  <td className="px-5 py-3 text-gray-900 font-medium">{product.name}</td>
-                  <td className="px-5 py-3 text-gray-600">Rs. {product.price}</td>
+                  <td className="px-5 py-3 text-gray-900 font-medium truncate max-w-[150px]">{product.name}</td>
+                  <td className="px-5 py-3 text-gray-500 font-mono text-xs">{product.slug}</td>
+                  <td className="px-5 py-3 text-gray-600">{formatPrice(product.price)}</td>
                   <td className="px-5 py-3 text-gray-600">{product.stock}</td>
                   <td className="px-5 py-3">
                     <span

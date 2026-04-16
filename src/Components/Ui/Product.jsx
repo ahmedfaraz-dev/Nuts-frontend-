@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { Clock, ShoppingBag, Flame } from "lucide-react";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 const Product = ({ item }) => {
   const deal = item.activeDeal;
   const hasDeal = deal && deal.discount > 0;
 
+  const { formatPrice } = useCurrency();
   const dealPrice = hasDeal
     ? Math.round(item.price - (item.price * deal.discount) / 100)
     : null;
@@ -92,15 +94,15 @@ const Product = ({ item }) => {
             {hasDeal ? (
               <>
                 <span className="text-base font-extrabold text-[#F59115]">
-                  Rs. {dealPrice?.toLocaleString()}
+                  {formatPrice(dealPrice)}
                 </span>
                 <span className="text-[11px] text-gray-400 line-through mt-0.5">
-                  Rs. {item.price?.toLocaleString()}
+                  {formatPrice(item.price)}
                 </span>
               </>
             ) : (
               <span className="text-base font-extrabold text-gray-800">
-                Rs. {item.price?.toLocaleString()}
+                {formatPrice(item.price)}
               </span>
             )}
           </div>

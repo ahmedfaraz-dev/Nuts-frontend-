@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { X, Upload, Image as ImageIcon, Loader2 } from "lucide-react";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 export default function ProductForm({ product, categories, onSave, onClose, isLoading }) {
+  const { currency } = useCurrency();
   const [form, setForm] = useState({
     name: "",
     price: "",
@@ -149,7 +151,7 @@ export default function ProductForm({ product, categories, onSave, onClose, isLo
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Price (Rs.) *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Price ({currency === 'USD' ? '$' : 'Rs.'}) *</label>
               <input
                 name="price"
                 type="number"

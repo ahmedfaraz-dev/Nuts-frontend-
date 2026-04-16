@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext.jsx'
 import { useAuth } from '../contexts/AuthContext.jsx'
-import { User, LogOut, ChevronDown, LayoutDashboard } from 'lucide-react'
+import { useCurrency } from '../contexts/CurrencyContext.jsx'
+import { User, LogOut, ChevronDown, LayoutDashboard, Globe } from 'lucide-react'
 
 const PRIMARY_TABS = [
   { id: 'dryfood', label: 'Dry food' },
@@ -44,9 +45,11 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('dryfood')
+  const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false)
   const navigate = useNavigate()
   const { totalItems } = useCart()
   const { user, logout, authLoading } = useAuth()
+  const { currency, setCurrency } = useCurrency()
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -104,8 +107,49 @@ const Navbar = () => {
               </div>
             </form>
 
-            {/* Hamburger Menu */}
-            <div className='flex justify-center items-center gap-6 cursor-pointer'>
+            {/* Hamburger Menu & Actions */}
+            <div className='flex justify-center items-center gap-4 md:gap-6 cursor-pointer'>
+              
+              {/* Currency Selector */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
+                  className="flex items-center gap-1.5 px-2 py-1.5 bg-gray-50 border border-gray-100 rounded-lg hover:border-orange-200 transition-all group"
+                  title="Change Currency"
+                >
+                  <Globe className="w-4 h-4 text-gray-400 group-hover:text-[#F59115]" />
+                  <span className="text-xs font-bold text-gray-600 group-hover:text-[#F59115]">{currency}</span>
+                  <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform ${isCurrencyDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isCurrencyDropdownOpen && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-[60]" 
+                      onClick={() => setIsCurrencyDropdownOpen(false)}
+                    />
+                    <div className="absolute top-full right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-[70] py-1 min-w-[100px] overflow-hidden">
+                      {['PKR', 'USD'].map((curr) => (
+                        <button
+                          key={curr}
+                          onClick={() => {
+                            setCurrency(curr);
+                            setIsCurrencyDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-colors ${
+                            currency === curr 
+                              ? 'bg-orange-50 text-[#F59115]' 
+                              : 'text-gray-600 hover:bg-gray-50'
+                          }`}
+                        >
+                          {curr}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
               {/* Cart Button */}
               <button
                 onClick={() => navigate('/cart')}

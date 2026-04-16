@@ -1,19 +1,22 @@
 import React from 'react';
 import PaymentImg from "../assets/payment.png";
 import { useNavigate } from 'react-router-dom';
+import { useCurrency } from '../contexts/CurrencyContext.jsx';
 
 
 
 const Paysucessmodel = () => {
 
   const navigate = useNavigate();
+  const { formatPrice } = useCurrency();
+  
   function handleBackToHome() {
     navigate('/');
   }
   const paymentDetails = [
     { label: "Payment Type", value: "Net Banking" },
     { label: "Bank Name", value: "HBL Bank" },
-    { label: "Amount Paid", value: "$42" },
+    { label: "Amount Paid", value: formatPrice(2500) }, // Example total
   ];
 
   return (

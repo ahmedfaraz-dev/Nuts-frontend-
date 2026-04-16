@@ -4,6 +4,7 @@ import { ChevronUp, ChevronDown, X, ShoppingCart, ArrowLeft } from "lucide-react
 import imgFour from '../assets/ProductImages/shbackgound.png'
 import Testmonial from '../Components/Testmonial.jsx'
 import VideoSection from '../Components/VideoSection.jsx'
+import { useCurrency } from '../contexts/CurrencyContext.jsx';
 import { useNavigate, useParams } from "react-router-dom";
 import { useCart } from '../contexts/CartContext.jsx';
 import { userApi } from '../Api/userApi.js';
@@ -12,6 +13,7 @@ const ProductDetails = () => {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { formatPrice } = useCurrency();
     const [error, setError] = useState('');
     const [selectedImage, setSelectedImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
@@ -147,7 +149,7 @@ const ProductDetails = () => {
 
                             <p className="py-5 text-[#F59B2B]">Special Price</p>
 
-                            <h3 className="text-[20px] font-medium">Rs. {product.price} per item</h3>
+                            <h3 className="text-[20px] font-medium">{formatPrice(product.price)} per item</h3>
 
                             <h3 className="py-5 text-[20px] text-[#F59B2B]">Description</h3>
 
@@ -320,7 +322,7 @@ const ProductDetails = () => {
                                             <p className="text-xs text-gray-400 mt-0.5">Qty: {item.quantity}</p>
                                         </div>
                                         <p className="text-sm font-semibold text-[#F59115] shrink-0">
-                                            Rs. {(item.price * item.quantity).toFixed(2)}
+                                            {formatPrice(item.price * item.quantity)}
                                         </p>
                                     </div>
                                 ))
@@ -331,7 +333,7 @@ const ProductDetails = () => {
                         <div className="px-6 py-5 border-t border-gray-100 space-y-3">
                             <div className="flex justify-between items-center">
                                 <span className="text-gray-500 text-sm">Total</span>
-                                <span className="text-xl font-bold text-[#272727]">Rs. {cartTotal.toFixed(2)}</span>
+                                <span className="text-xl font-bold text-[#272727]">{formatPrice(cartTotal)}</span>
                             </div>
 
                             <button

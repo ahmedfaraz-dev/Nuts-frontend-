@@ -3,8 +3,10 @@ import { Plus, Pencil, Trash2, Loader2, AlertCircle, Image as ImageIcon } from "
 import ProductForm from "./ProductForm";
 import Pagination from "./Pagination";
 import { adminApi } from "../../Api/adminApi";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 export default function Products() {
+  const { formatPrice } = useCurrency();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [deals, setDeals] = useState([]);
@@ -204,7 +206,7 @@ export default function Products() {
                 <td className="px-5 py-3 text-gray-500 max-w-[200px] truncate" title={product.discription}>
                   {product.discription || "—"}
                 </td>
-                <td className="px-5 py-3 text-gray-600">Rs. {product.price}</td>
+                <td className="px-5 py-3 text-gray-600">{formatPrice(product.price)}</td>
                 <td className="px-5 py-3 text-gray-600">{product.stock}</td>
                 <td className="px-5 py-3 text-gray-600">{getCategoryName(product.category)}</td>
                 <td className="px-5 py-3">

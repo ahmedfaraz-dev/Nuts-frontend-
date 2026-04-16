@@ -17,7 +17,7 @@ const Home = () => {
     <div>
       <Hero />
       <FeaturedSection />
-      <ProductList />
+      <ProductList limit={8} />
       <DealsSection />
 
       <section className="w-full bg-white">
