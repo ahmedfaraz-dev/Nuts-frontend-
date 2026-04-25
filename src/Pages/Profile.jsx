@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext.jsx';
-import { User, Mail, Phone, MapPin, Camera, Lock, LogOut, Check } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Camera, Lock, LogOut, Check, ShoppingBag, ChevronRight } from 'lucide-react';
 import { userApi } from '../Api/userApi.js';
 
 const Profile = () => {
@@ -153,6 +153,19 @@ const Profile = () => {
                                         Verified
                                     </span>
                                 </div>
+                            </div>
+
+                            <div className="mt-8 pt-6 border-t border-gray-50">
+                                <button
+                                    onClick={() => (window.location.href = "/order-history")}
+                                    className="w-full flex items-center justify-between gap-2 px-4 py-3 bg-orange-50 text-orange-600 rounded-xl hover:bg-orange-100 transition-all font-bold text-sm group"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <ShoppingBag className="w-4 h-4" />
+                                        Order History
+                                    </div>
+                                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </button>
                             </div>
                         </div>
                     </div>

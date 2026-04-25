@@ -57,6 +57,12 @@ const adminApi = {
     getCurrentProductDeal: async (productId) => {
         const res = await httpClient.get(`/admin/products/${productId}/deals/current`);
         return res.data;
+    },
+
+    // ORDERS
+    getAllOrders: async () => {
+        const res = await httpClient.get('/admin/orders');
+        return res.data;
     }
 };
 

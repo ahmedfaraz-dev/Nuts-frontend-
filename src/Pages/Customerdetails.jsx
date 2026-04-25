@@ -10,7 +10,7 @@ const CustomerDetails = () => {
   const navigate = useNavigate();
   const { cartItems } = useCart();
   const { formatPrice } = useCurrency();
-  
+
   const subTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const delivery = cartItems.length > 0 ? 500 : 0; // consistent with Cart.jsx
   const discount = 0; // Logic for discount to be added later if needed
@@ -77,7 +77,7 @@ const CustomerDetails = () => {
       document.getElementById(firstErrorKey)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
-    navigate("/payment-form");
+    navigate("/payment-form/");
   }
 
   const inputClass = (field) =>

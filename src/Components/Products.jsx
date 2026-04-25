@@ -2,8 +2,9 @@ import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { userApi } from "../Api/userApi";
 import Product from "./Ui/Product";
-import { SearchX, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { SearchX, ChevronLeft, ChevronRight, ArrowRight, SlidersHorizontal, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useCurrency } from "../contexts/CurrencyContext";
 
 const ProductList = ({ limit }) => {
   const [products, setProducts] = useState([]);
@@ -11,11 +12,25 @@ const ProductList = ({ limit }) => {
   const [error, setError] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { formatPrice } = useCurrency();
 
-  const query = searchParams.get("q")?.trim() || "";
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [activeDiscount, setActiveDiscount] = useState(null);
+
+  const query = limit ? "" : (searchParams.get("q")?.trim() || "");
   const pageParam = parseInt(searchParams.get("page")) || 1;
   const currentPage = pageParam < 1 ? 1 : pageParam;
-  const itemsPerPage = 8;
+  const itemsPerPage = 6;
+
+  const categories = ["All", "Cashews", "Almonds", "Walnuts", "Pistachios", "Dates", "Mix Dry Fruits"];
+  const discounts = [
+    { label: "10% Off or more", value: 10 },
+    { label: "20% Off or more", value: 20 },
+    { label: "30% Off or more", value: 30 },
+    { label: "50% Off or more", value: 50 },
+  ];
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -49,29 +64,40 @@ const ProductList = ({ limit }) => {
     fetchProducts();
   }, []);
 
-  // ---------- search & pagination logic ----------
   const lowerQ = query.toLowerCase();
 
   const displayProducts = useMemo(() => {
     if (!query) return products;
 
-    // Matched first, then the rest
     const matched = products.filter((p) => p.title?.toLowerCase().includes(lowerQ));
     const rest = products.filter((p) => !p.title?.toLowerCase().includes(lowerQ));
     return [...matched, ...rest];
   }, [products, lowerQ, query]);
 
-  const totalPages = Math.ceil(displayProducts.length / itemsPerPage);
+  const filteredProducts = useMemo(() => {
+    return displayProducts.filter((p) => {
+      const matchCategory = activeCategory === "All" ||
+        p.title?.toLowerCase().includes(activeCategory.toLowerCase()) ||
+        (p.desc && p.desc.toLowerCase().includes(activeCategory.toLowerCase()));
 
-  // Slice for current page (or show first few if limit is provided)
+      const matchPrice = p.price <= priceRange[1];
+      const discount = p.activeDeal ? p.activeDeal.discount : 0;
+      const matchDiscount = activeDiscount === null || discount >= activeDiscount;
+
+      return matchCategory && matchPrice && matchDiscount;
+    });
+  }, [displayProducts, activeCategory, priceRange, activeDiscount]);
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+
   const paginatedProducts = limit
-    ? displayProducts.slice(0, limit)
-    : displayProducts.slice(
+    ? filteredProducts.slice(0, limit)
+    : filteredProducts.slice(
       (currentPage - 1) * itemsPerPage,
       currentPage * itemsPerPage
     );
 
-  const noMatch = query && !products.some(p => p.title?.toLowerCase().includes(lowerQ));
+  const noMatch = (query || activeCategory !== "All" || activeDiscount !== null) && filteredProducts.length === 0;
 
   const handlePageChange = (newPage) => {
     const params = new URLSearchParams(searchParams);
@@ -81,12 +107,10 @@ const ProductList = ({ limit }) => {
   };
 
   useEffect(() => {
-    // Reset to last available page if current page becomes empty due to filtering/search
     if (totalPages > 0 && currentPage > totalPages) {
       handlePageChange(totalPages);
     }
   }, [totalPages, currentPage]);
-  // ----------------------------------
 
   if (loading)
     return (
@@ -102,120 +126,256 @@ const ProductList = ({ limit }) => {
       </div>
     );
 
+  const FilterContent = () => (
+    <div className="flex flex-col gap-8">
+      <div>
+        <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+          Categories
+          <span className="w-1.5 h-1.5 rounded-full bg-[#F59115]"></span>
+        </h3>
+        <div className="flex flex-col gap-2">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${activeCategory === cat
+                ? "bg-[#F59115] text-white shadow-lg shadow-orange-200"
+                : "text-gray-500 hover:bg-orange-50 hover:text-[#F59115]"
+                }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+          Price Range
+          <span className="w-1.5 h-1.5 rounded-full bg-[#F59115]"></span>
+        </h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-xs font-bold text-gray-400">
+            <span>{formatPrice(0)}</span>
+            <span>{formatPrice(5000)}</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="5000"
+            step="100"
+            value={priceRange[1]}
+            onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+            className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#F59115]"
+          />
+          <div className="flex items-center justify-between">
+            <div className="px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-xs font-bold text-gray-700">
+              Up to {formatPrice(priceRange[1])}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+          Discount
+          <span className="w-1.5 h-1.5 rounded-full bg-[#F59115]"></span>
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          {discounts.map((d) => (
+            <button
+              key={d.value}
+              onClick={() => setActiveDiscount(activeDiscount === d.value ? null : d.value)}
+              className={`px-3 py-2 rounded-xl text-[11px] font-bold border-2 transition-all duration-300 ${activeDiscount === d.value
+                ? "bg-[#F59115] border-[#F59115] text-white shadow-md shadow-orange-100"
+                : "border-gray-100 text-gray-500 hover:border-orange-200 hover:text-[#F59115]"
+                }`}
+            >
+              {d.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <button
+        onClick={() => {
+          setActiveCategory("All");
+          setPriceRange([0, 5000]);
+          setActiveDiscount(null);
+        }}
+        className="w-full py-3 rounded-xl border-2 border-dashed border-gray-200 text-sm font-bold text-gray-400 hover:border-[#F59115] hover:text-[#F59115] transition-all duration-300"
+      >
+        Reset All Filters
+      </button>
+    </div>
+  );
+
   return (
     <div className="w-full bg-white">
       <div className="w-full py-20 px-4 md:px-8 lg:px-16">
         <div className="max-w-7xl mx-auto">
-
-          {/* Section Heading */}
-          <h2 className="text-xl font-semibold text-gray-900 md:text-2xl lg:text-3xl">
-            {query ? (
-              <>
-                Search results for{" "}
-                <span className="text-[#F59115]">"{query}"</span>
-              </>
-            ) : (
-              "Our Products"
-            )}
-          </h2>
-
-          {/* "Not found" banner — shown when query exists but no match */}
-          {noMatch && (
-            <div className="mt-6 flex items-start gap-3 bg-orange-50 border border-orange-200 rounded-xl px-5 py-4">
-              <SearchX className="w-5 h-5 text-[#F59115] shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-gray-800">
-                  No products found for{" "}
-                  <span className="text-[#F59115] font-semibold">"{query}"</span>.
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  Showing all available products instead.
-                </p>
-              </div>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 md:text-3xl tracking-tight">
+                {query && !limit ? (
+                  <>
+                    Search results for{" "}
+                    <span className="text-[#F59115]">"{query}"</span>
+                  </>
+                ) : (
+                  limit ? "Our Products" : "Explore Premium Nuts"
+                )}
+              </h2>
+              <p className="text-gray-400 text-sm mt-2 font-medium">
+                {limit 
+                  ? "Discover our selection of premium quality dry fruits."
+                  : "Handpicked quality dry fruits from around the world."}
+              </p>
             </div>
-          )}
 
-          {/* Products grid */}
-          {paginatedProducts.length > 0 ? (
-            <div className="grid grid-cols-1 gap-6 mt-8 sm:grid-cols-2 lg:grid-cols-4 md:gap-6">
-              {paginatedProducts.map((item) => (
-                <Product key={item.id} item={item} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-200 mt-8">
-              <p className="text-gray-500 font-medium">No products available at the moment.</p>
-            </div>
-          )}
-
-
-          {/* Action Footer (See All or Pagination) */}
-          {limit ? (
-            <div className="mt-16 flex justify-center">
+            {!limit && (
               <button
-                onClick={() => navigate('/all-products')}
-                className="group relative flex items-center gap-3 px-10 py-4 bg-gray-900 text-white font-bold rounded-xl hover:bg-[#F59115] transition-all duration-500 shadow-[0_10px_20px_rgba(0,0,0,0.1)] hover:shadow-[0_20px_40px_rgba(245,145,21,0.2)] hover:-translate-y-1 active:scale-95 overflow-hidden"
+                onClick={() => setShowMobileFilters(true)}
+                className="md:hidden flex items-center justify-center gap-2 px-6 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold text-gray-700 hover:bg-orange-50 hover:text-[#F59115] transition-all duration-300"
               >
-                <span className="relative z-10">See All Products</span>
-                <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-2 transition-transform duration-500 ease-out" />
-
-                {/* Subtle sheen effect on hover */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                <SlidersHorizontal size={18} />
+                Filters
               </button>
-            </div>
-          ) : (
-            totalPages > 1 && (
-              <div className="mt-20 flex flex-col items-center justify-center gap-8">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="flex items-center justify-center w-12 h-12 rounded-xl border-2 border-gray-100 bg-white text-gray-400 hover:border-[#F59115] hover:text-[#F59115] hover:bg-orange-50 disabled:opacity-30 disabled:hover:border-gray-100 disabled:hover:text-gray-400 disabled:hover:bg-white transition-all duration-300 active:scale-90"
-                    aria-label="Previous page"
-                  >
-                    <ChevronLeft className="w-6 h-6" />
-                  </button>
+            )}
+          </div>
 
-                  <div className="flex items-center gap-2">
-                    {[...Array(totalPages)].map((_, i) => {
-                      const pageNum = i + 1;
-                      const isActive = currentPage === pageNum;
-                      return (
-                        <button
-                          key={pageNum}
-                          onClick={() => handlePageChange(pageNum)}
-                          className={`w-12 h-12 rounded-xl font-bold text-sm transition-all duration-300 active:scale-90 ${isActive
-                              ? "bg-[#F59115] text-white shadow-[0_8px_16px_rgba(245,145,21,0.25)] scale-110"
-                              : "bg-white border-2 border-gray-100 text-gray-500 hover:border-orange-200 hover:text-[#F59115] hover:bg-orange-50"
-                            }`}
-                        >
-                          {pageNum}
-                        </button>
-                      );
-                    })}
+          <div className="flex flex-col lg:flex-row gap-12">
+            {!limit && (
+              <aside className="hidden lg:block w-72 shrink-0 sticky top-24 h-fit">
+                <div className="bg-white rounded-3xl p-8 border border-gray-100/50">
+                  <FilterContent />
+                </div>
+              </aside>
+            )}
+
+            <div className="flex-1">
+              {noMatch && (
+                <div className="mb-8 flex items-start gap-4 bg-orange-50 border border-orange-200/50 rounded-2xl p-5 animate-in fade-in slide-in-from-top-4 duration-500">
+                  <div className="p-3 bg-white rounded-xl shadow-sm">
+                    <SearchX className="w-6 h-6 text-[#F59115]" />
                   </div>
+                  <div>
+                    <h4 className="text-base font-bold text-gray-900">No matches found</h4>
+                    <p className="text-sm text-gray-500 mt-1">
+                      We couldn't find any products matching your current filters. Try adjusting your search or resetting filters.
+                    </p>
+                  </div>
+                </div>
+              )}
 
+              {paginatedProducts.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+                  {paginatedProducts.map((item) => (
+                    <Product key={item.id} item={item} />
+                  ))}
+                </div>
+              ) : (
+                !noMatch && (
+                  <div className="text-center py-32 bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-200">
+                    <p className="text-gray-400 font-bold text-lg">No products available at the moment.</p>
+                  </div>
+                )
+              )}
+
+              {limit ? (
+                <div className="mt-16 flex justify-center">
                   <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="flex items-center justify-center w-12 h-12 rounded-xl border-2 border-gray-100 bg-white text-gray-400 hover:border-[#F59115] hover:text-[#F59115] hover:bg-orange-50 disabled:opacity-30 disabled:hover:border-gray-100 disabled:hover:text-gray-400 disabled:hover:bg-white transition-all duration-300 active:scale-90"
-                    aria-label="Next page"
+                    onClick={() => navigate('/all-products')}
+                    className="group relative flex items-center gap-3 px-10 py-5 bg-gray-900 text-white font-bold rounded-2xl hover:bg-[#F59115] transition-all duration-500 shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:shadow-[0_20px_40px_rgba(245,145,21,0.3)] hover:-translate-y-1 active:scale-95 overflow-hidden"
                   >
-                    <ChevronRight className="w-6 h-6" />
+                    <span className="relative z-10">See All Products</span>
+                    <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-2 transition-transform duration-500 ease-out" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                   </button>
                 </div>
+              ) : (
+                totalPages > 1 && (
+                  <div className="mt-24 flex flex-col items-center justify-center gap-10">
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="flex items-center justify-center w-14 h-14 rounded-2xl border-2 border-gray-100 bg-white text-gray-400 hover:border-[#F59115] hover:text-[#F59115] hover:bg-orange-50 disabled:opacity-30 disabled:hover:border-gray-100 disabled:hover:text-gray-400 disabled:hover:bg-white transition-all duration-300 shadow-sm active:scale-90"
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                      </button>
 
-                <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full border border-gray-100">
-                  <p className="text-[13px] text-gray-500 font-medium">
-                    Showing <span className="text-gray-900 font-bold">{(currentPage - 1) * itemsPerPage + 1}</span> - <span className="text-gray-900 font-bold">{Math.min(currentPage * itemsPerPage, displayProducts.length)}</span> of <span className="text-gray-900 font-bold">{displayProducts.length}</span> Products
-                  </p>
-                </div>
-              </div>
-            )
-          )}
+                      <div className="flex items-center gap-2">
+                        {[...Array(totalPages)].map((_, i) => {
+                          const pageNum = i + 1;
+                          const isActive = currentPage === pageNum;
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => handlePageChange(pageNum)}
+                              className={`w-14 h-14 rounded-2xl font-bold text-sm transition-all duration-300 active:scale-90 ${isActive
+                                ? "bg-[#F59115] text-white shadow-xl shadow-orange-200 scale-110"
+                                : "bg-white border-2 border-gray-100 text-gray-500 hover:border-orange-200 hover:text-[#F59115] hover:bg-orange-50"
+                                }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
 
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="flex items-center justify-center w-14 h-14 rounded-2xl border-2 border-gray-100 bg-white text-gray-400 hover:border-[#F59115] hover:text-[#F59115] hover:bg-orange-50 disabled:opacity-30 disabled:hover:border-gray-100 disabled:hover:text-gray-400 disabled:hover:bg-white transition-all duration-300 shadow-sm active:scale-90"
+                      >
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
+                    </div>
+
+                    <div className="px-6 py-3 bg-gray-50/80 backdrop-blur-sm rounded-full border border-gray-100/50 shadow-sm">
+                      <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">
+                        Showing <span className="text-[#F59115]">{(currentPage - 1) * itemsPerPage + 1}</span> - <span className="text-[#F59115]">{Math.min(currentPage * itemsPerPage, filteredProducts.length)}</span> of <span className="text-gray-900">{filteredProducts.length}</span> Products
+                      </p>
+                    </div>
+                  </div>
+                )
+              )}
+            </div>
+          </div>
         </div>
       </div>
+
+      {showMobileFilters && (
+        <div className="fixed inset-0 z-[100] md:hidden">
+          <div
+            className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-300"
+            onClick={() => setShowMobileFilters(false)}
+          />
+          <div className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-white shadow-2xl animate-in slide-in-from-right duration-500 ease-out flex flex-col">
+            <div className="p-6 border-b border-gray-50 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900">Filters</h3>
+              <button
+                onClick={() => setShowMobileFilters(false)}
+                className="p-2.5 bg-gray-50 rounded-xl text-gray-400 hover:text-gray-900 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+              <FilterContent />
+            </div>
+            <div className="p-6 border-t border-gray-50">
+              <button
+                onClick={() => setShowMobileFilters(false)}
+                className="w-full py-4 bg-[#F59115] text-white font-bold rounded-2xl shadow-lg shadow-orange-100"
+              >
+                Show {filteredProducts.length} Products
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

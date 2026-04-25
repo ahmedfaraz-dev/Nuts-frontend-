@@ -125,7 +125,7 @@ const Cart = () => {
                             <div className="space-y-3">
                                 <Button
                                     className="w-full justify-center"
-                                    onClick={() => navigate('/customer-details/')}
+                                    onClick={() => navigate('/customer-details')}
                                 >
                                     Proceed to Checkout
                                 </Button>

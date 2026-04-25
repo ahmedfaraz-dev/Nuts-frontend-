@@ -17,7 +17,6 @@ const ProductDetails = () => {
     const [error, setError] = useState('');
     const [selectedImage, setSelectedImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
-    const [address, setAddress] = useState('');
     const [open, setOpen] = useState(false);
     const [cartModalOpen, setCartModalOpen] = useState(false);
     const navigate = useNavigate();
@@ -41,9 +40,25 @@ const ProductDetails = () => {
         };
         fetchProduct();
     }, [id]);
+    
+    // Derived values - defined before helpers for safety
+    const rawImages = product?.images || [];
+    const images = [
+        rawImages[0] || '/images/placeholder.png',
+        rawImages[1] || rawImages[0] || '/images/placeholder.png',
+        rawImages[2] || rawImages[0] || '/images/placeholder.png',
+    ];
+    const description = product?.discription || product?.description || '';
+    const maxQty = product?.stock ? Math.min(product.stock, 10) : 10;
+
+    const getFinalPrice = () => {
+        if (!product) return 0;
+        return product.activeDeal 
+            ? product.price * (1 - product.activeDeal.discount / 100)
+            : product.price;
+    };
 
     function handleIncrement() {
-        const maxQty = product?.stock ? Math.min(product.stock, 10) : 10;
         setQuantity((prev) => prev < maxQty ? prev + 1 : prev);
     }
 
@@ -51,12 +66,17 @@ const ProductDetails = () => {
         setQuantity((prev) => prev > 1 ? prev - 1 : prev);
     }
 
-    function handleAddress(e) {
-        setAddress(e.target.value);
-    }
 
     function handleCustomerDetails() {
-        navigate('/customer-details/');
+        if (!product) return;
+        addToCart({
+            id: product._id || product.id,
+            name: product.name,
+            price: getFinalPrice(),
+            image: images[0],
+            quantity
+        });
+        navigate('/customer-details');
     }
 
     function handleAddToCart() {
@@ -64,7 +84,7 @@ const ProductDetails = () => {
         addToCart({
             id: product._id || product.id,
             name: product.name,
-            price: product.price,
+            price: getFinalPrice(),
             image: images[0],
             quantity
         });
@@ -86,18 +106,7 @@ const ProductDetails = () => {
             </div>
         );
     }
-
-    // Build images array — use all images from API, pad to 3 with placeholder
-    const rawImages = product.images || [];
-    const images = [
-        rawImages[0] || '/images/placeholder.png',
-        rawImages[1] || rawImages[0] || '/images/placeholder.png',
-        rawImages[2] || rawImages[0] || '/images/placeholder.png',
-    ];
-
-    const description = product.discription || product.description || '';
     const cartTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const maxQty = product.stock ? Math.min(product.stock, 10) : 10;
 
     return (
         <>
@@ -147,9 +156,23 @@ const ProductDetails = () => {
 
                             <h1 className="flex-1 text-[20px] font-medium pr-10">{product.name}</h1>
 
-                            <p className="py-5 text-[#F59B2B]">Special Price</p>
+                            {product?.activeDeal && (
+                                <p className="py-5 text-[#F59B2B] font-medium flex items-center gap-2">
+                                    Special Price: {product.activeDeal.discount}% OFF
+                                </p>
+                            )}
 
-                            <h3 className="text-[20px] font-medium">{formatPrice(product.price)} per item</h3>
+                            <div className="flex items-baseline gap-3">
+                                <h3 className="text-[20px] font-bold text-[#F59115]">
+                                    {formatPrice(getFinalPrice())}
+                                </h3>
+                                {product?.activeDeal && (
+                                    <span className="text-gray-400 line-through text-sm">
+                                        {formatPrice(product.price)}
+                                    </span>
+                                )}
+                                <span className="text-sm font-medium text-gray-500">per item</span>
+                            </div>
 
                             <h3 className="py-5 text-[20px] text-[#F59B2B]">Description</h3>
 
@@ -178,15 +201,7 @@ const ProductDetails = () => {
                             </div>
 
                             <div className="flex-1 text-[20px] py-8">
-                                <p className="text-sm text-gray-500 mb-2">Usually deliver in 3 days</p>
-                                <input
-                                    type="text"
-                                    placeholder="Please enter your address"
-                                    className="w-80 border px-2 py-1 outline-none border-l-0 border-t-0 border-r-0 focus:border-blue-500 transition-all duration-300 text-sm"
-                                    value={address}
-                                    required
-                                    onChange={handleAddress}
-                                />
+                                <p className="text-sm text-gray-500">Usually deliver in 3 days</p>
                             </div>
 
                             <div className="flex gap-4 mt-auto">
@@ -343,7 +358,7 @@ const ProductDetails = () => {
                                 View Cart
                             </button>
                             <button
-                                onClick={() => { setCartModalOpen(false); navigate('/customer-details/'); }}
+                                onClick={() => { setCartModalOpen(false); navigate('/customer-details'); }}
                                 className="w-full py-2.5 bg-[#F59115] hover:bg-[#e0800f] text-white rounded-xl font-semibold transition text-sm"
                             >
                                 Proceed to Checkout

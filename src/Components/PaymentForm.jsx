@@ -1,110 +1,127 @@
-import React from "react";
-import {useNavigate} from "react-router-dom";
-
+import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
 
 const PaymentForm = () => {
   const navigate = useNavigate();
-  function handlePaymentSuccess() {
+  const { id } = useParams(); // ✅ productId from URL
 
-    navigate('/payment-success');
-  }
- return (
-   <div className="min-h-screen flex items-center justify-center bg-white">
+  const stripe = useStripe();
+  const elements = useElements();
 
-     {/* Card */}
-     <div className="w-full max-w-lg bg-[#FDFDFD] rounded-2xl shadow-sm p-8">
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [cardholderName, setCardholderName] = useState("");
 
-       {/* Card Number */}
-       <div className="mb-6">
-         <label className="block text-sm font-medium text-gray-700 mb-2"> 
-           Card Number
-         </label>
-         <input
-           type="text"
-           inputMode="numeric"
-           placeholder="0923-133441-23123-1"
-           className="w-full border border-gray-300 px-4 py-3 rounded-lg text-sm outline-none
-                      focus:ring-2 focus:ring-orange-400"
-         />
-       </div>
+  const handlePaymentSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
 
-       {/* Name on Card */}
-       <div className="mb-6">
-         <label className="block text-sm font-medium text-gray-700 mb-2">
-           Name On Card
-         </label>
-         <input
-           type="text"
-           placeholder="Kamran Jan"
-           className="w-full border border-gray-300 px-4 py-3 rounded-lg text-sm outline-none
-                      focus:ring-2 focus:ring-orange-400"
-         />
-       </div>
+    if (!stripe || !elements) {
+      setError("Stripe not loaded");
+      return;
+    }
 
-       {/* Exp Date & CVV */}
-       <div className="grid grid-cols-2 gap-6 mb-6">
+    if (!id) {
+      setError("Product ID not found in URL");
+      return;
+    }
 
-         {/* Exp Date */}
-         <div>
-           <label className="block text-sm font-medium text-gray-700 mb-2">
-             Exp Date
-           </label>
-           <input
-             type="text"
-             inputMode="numeric"
-             placeholder="MM/YY"
-             maxLength={5}
-             className="w-full border border-gray-300 px-4 py-3 rounded-lg text-sm outline-none
-                        focus:ring-2 focus:ring-orange-400"
-           />
-         </div>
+    setLoading(true);
 
-         {/* CVV */}
-         <div>
-           <label className="block text-sm font-medium text-gray-700 mb-2">
-             CVV
-           </label>
-           <input
-             type="text"
-             inputMode="numeric"
-             placeholder="123"
-             maxLength={3}
-             className="w-full border border-gray-300 px-4 py-3 rounded-lg text-sm outline-none
-                        focus:ring-2 focus:ring-orange-400"
-           />
-         </div>
+    try {
+      const cardElement = elements.getElement(CardNumberElement);
 
-       </div>
+      // 1️⃣ Create Payment Intent
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/create-payment-intent`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            productId: id, // ✅ ONLY THIS
+          }),
+        }
+      );
 
-       {/* Save Card */}
-       <div className="flex items-start gap-3 mb-8">
-         <input
-           type="checkbox"
-           defaultChecked
-           className="mt-1 accent-orange-500"
-         />
+      const data = await response.json();
 
-         <div>
-           <p className="text-sm font-medium text-gray-700">
-             Save Card
-           </p>
-           <p className="text-xs text-gray-500 leading-relaxed">
-             That My Card Information Is Saved In My Hunza Naturals Account
-           </p>
-         </div>
-       </div>
+      if (!data.clientSecret) {
+        throw new Error(data.message || "Payment failed");
+      }
 
-       {/* Payment Button */}
-       <button
-         className="w-full bg-[#F59115] hover:bg-[#e0800f] text-white
-                    py-3 rounded-lg font-semibold transition"
-          onClick={handlePaymentSuccess}
-       >
-         Payment Now
-       </button>
+      // 2️⃣ Confirm Payment
+      const { error: confirmError, paymentIntent } =
+        await stripe.confirmCardPayment(data.clientSecret, {
+          payment_method: {
+            card: cardElement,
+            billing_details: {
+              name: cardholderName,
+            },
+          },
+        });
 
-     </div>
-   </div>
- );
+      if (confirmError) {
+        setError(confirmError.message);
+        setLoading(false);
+        return;
+      }
+
+      if (paymentIntent.status === "succeeded") {
+        navigate("/payment-success");
+      } else {
+        setError("Payment not completed");
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <form onSubmit={handlePaymentSubmit} className="w-full max-w-md p-6">
+
+        {error && (
+          <div className="mb-4 text-red-600 bg-red-100 p-2 rounded">
+            {error}
+          </div>
+        )}
+
+        <CardNumberElement className="border p-3 rounded mb-4" />
+
+        <input
+          type="text"
+          placeholder="Cardholder Name"
+          value={cardholderName}
+          onChange={(e) => setCardholderName(e.target.value)}
+          className="w-full border p-3 mb-4 rounded"
+        />
+
+        <CardExpiryElement className="border p-3 rounded mb-4" />
+
+        <CardCvcElement className="border p-3 rounded mb-4" />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-orange-600 text-white py-3 rounded"
+        >
+          {loading ? "Processing..." : "Pay Now"}
+        </button>
+
+      </form>
+    </div>
+  );
 };
+
 export default PaymentForm;

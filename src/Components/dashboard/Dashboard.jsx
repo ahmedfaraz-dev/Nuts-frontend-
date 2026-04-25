@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Package, Tag, Zap, ArrowRight, Loader2 } from "lucide-react";
+import { Package, Tag, Zap, ArrowRight, Loader2, ShoppingBag } from "lucide-react";
 import { adminApi } from "../../Api/adminApi";
 import { useCurrency } from "../../contexts/CurrencyContext";
 
@@ -10,16 +10,19 @@ export default function Dashboard() {
     { label: "Total Products", value: 0, icon: Package, to: "/admin-dashboard/products", color: "text-[#F59115]", bg: "bg-orange-50" },
     { label: "Categories", value: 0, icon: Tag, to: "/admin-dashboard/categories", color: "text-[#F59115]", bg: "bg-orange-50" },
     { label: "Active Deals", value: 0, icon: Zap, to: "/admin-dashboard/deals", color: "text-[#F59115]", bg: "bg-orange-50" },
+    { label: "Total Orders", value: 0, icon: ShoppingBag, to: "/admin-dashboard/orders", color: "text-[#F59115]", bg: "bg-orange-50" },
   ]);
   const [recentProducts, setRecentProducts] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const loadStats = async (isRefresh = false) => {
     if (!isRefresh) setLoading(true);
     try {
-      const [prodRes, catRes] = await Promise.all([
+      const [prodRes, catRes, orderRes] = await Promise.all([
         adminApi.getAllProducts(),
-        adminApi.getCategories().catch(() => ({ success: true, data: [] }))
+        adminApi.getCategories().catch(() => ({ success: true, data: [] })),
+        adminApi.getAllOrders().catch(() => ({ success: true, orders: [] }))
       ]);
 
       if (prodRes.success) {
@@ -36,6 +39,15 @@ export default function Dashboard() {
       if (catRes.success) {
         setStats(prev => prev.map(s => {
           if (s.label === "Categories") return { ...s, value: catRes.data?.length || 0 };
+          return s;
+        }));
+      }
+
+      if (orderRes.success) {
+        const orders = orderRes.orders || [];
+        setRecentOrders(orders.slice(0, 5));
+        setStats(prev => prev.map(s => {
+          if (s.label === "Total Orders") return { ...s, value: orders.length };
           return s;
         }));
       }
@@ -59,9 +71,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-display">
       {/* Stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
@@ -101,6 +113,12 @@ export default function Dashboard() {
           className="bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:border-[#F59115]/40 transition-colors flex items-center justify-between"
         >
           Manage Deals <ArrowRight size={16} className="text-gray-400" />
+        </Link>
+        <Link
+          to="/admin-dashboard/orders"
+          className="bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:border-[#F59115]/40 transition-colors flex items-center justify-between"
+        >
+          Manage Orders <ArrowRight size={16} className="text-gray-400" />
         </Link>
       </div>
 
@@ -147,6 +165,53 @@ export default function Dashboard() {
               {recentProducts.length === 0 && (
                 <tr>
                   <td colSpan={4} className="px-5 py-8 text-center text-gray-400">No products found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {/* Recent orders */}
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h3 className="text-sm font-bold text-gray-900">Recent Orders</h3>
+          <Link
+            to="/admin-dashboard/orders"
+            className="text-xs font-medium text-[#F59115] hover:underline"
+          >
+            View all
+          </Link>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-widest">Order ID</th>
+                <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-widest">Customer</th>
+                <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-widest">Amount</th>
+                <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-widest">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentOrders.map((order) => (
+                <tr key={order._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                  <td className="px-5 py-3 text-gray-900 font-bold uppercase text-[10px]">#{order._id.slice(-8)}</td>
+                  <td className="px-5 py-3">
+                    <div className="flex flex-col">
+                      <span className="text-gray-900 font-medium text-xs">{order.customerInfo?.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-5 py-3 text-gray-900 font-bold">{formatPrice(order.totalAmount)}</td>
+                  <td className="px-5 py-3">
+                    <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${order.orderStatus === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+                      {order.orderStatus}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {recentOrders.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-5 py-8 text-center text-gray-400 italic text-xs">No orders recently.</td>
                 </tr>
               )}
             </tbody>

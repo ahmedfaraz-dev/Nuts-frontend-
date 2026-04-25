@@ -1,11 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Package, Tag, Zap, Store, LogOut, X } from "lucide-react";
+import { LayoutDashboard, Package, Tag, Zap, Store, LogOut, X, ShoppingBag } from "lucide-react";
 
 const navItems = [
   { to: "/admin-dashboard", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/admin-dashboard/products", label: "Products", icon: Package },
   { to: "/admin-dashboard/categories", label: "Categories", icon: Tag },
   { to: "/admin-dashboard/deals", label: "Deals", icon: Zap },
+  { to: "/admin-dashboard/orders", label: "Orders", icon: ShoppingBag },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {
