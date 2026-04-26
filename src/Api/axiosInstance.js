@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 export const httpClient = axios.create({
-  baseURL: `${process.env.VITE_API_URL}/api/v1`,
+  baseURL: "https://nut-backend-production-73f0.up.railway.app/api/v1",
   timeout: 14000,
 });
 
