@@ -2,8 +2,8 @@ import { httpClient } from "./axiosInstance";
 
 const adminApi = {
     // PRODUCTS
-    getAllProducts: async () => {
-        const res = await httpClient.get('/admin/products');
+    getAllProducts: async (page = 1, limit = 20) => {
+        const res = await httpClient.get(`/admin/products?page=${page}&limit=${limit}`);
         return res.data;
     },
     createProduct: async (productData) => {

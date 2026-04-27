@@ -160,7 +160,7 @@ export default function ProductForm({ product, categories, onSave, onClose, isLo
                 onChange={handleChange}
                 placeholder="0"
                 required
-                 disabled={isLoading}
+                disabled={isLoading}
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors disabled:bg-gray-50 disabled:text-gray-400"
               />
             </div>
@@ -187,7 +187,7 @@ export default function ProductForm({ product, categories, onSave, onClose, isLo
               value={form.category}
               onChange={handleChange}
               required
-               disabled={isLoading}
+              disabled={isLoading}
               className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] transition-colors bg-white font-mono disabled:bg-gray-50 disabled:text-gray-400"
             >
               <option value="">Select a category</option>
@@ -203,7 +203,7 @@ export default function ProductForm({ product, categories, onSave, onClose, isLo
             <label className="block text-sm font-medium text-gray-700 mb-1">Images (Exactly 3) *</label>
             <div
               onClick={() => fileInputRef.current.click()}
-               disabled={isLoading}
+              disabled={isLoading}
             >
               <Upload size={24} className="text-gray-400" />
               <p className="text-xs text-gray-500">
@@ -321,7 +321,7 @@ export default function ProductForm({ product, categories, onSave, onClose, isLo
             >
               Cancel
             </button>
-             <button
+            <button
               type="submit"
               disabled={isLoading}
               className="px-4 py-2 text-sm font-medium text-white bg-[#F59115] rounded-lg hover:bg-orange-600 transition-colors cursor-pointer disabled:opacity-70 flex items-center gap-2"

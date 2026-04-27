@@ -20,22 +20,28 @@ export default function Products() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8; // 10 items per page as requested
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentPage]);
 
   const fetchData = async (isRefresh = false) => {
     if (!isRefresh) setLoading(true);
     try {
       // Parallel fetch for better performance
       const [productsData, categoriesData] = await Promise.all([
-        adminApi.getAllProducts(),
+        adminApi.getAllProducts(currentPage, itemsPerPage),
         adminApi.getCategories().catch(() => ({ success: true, data: [] })) // Fallback if route missing
       ]);
 
-      if (productsData.success) setProducts(productsData.data?.products || []);
+      if (productsData.success) {
+        setProducts(productsData.data?.products || []);
+        setTotalItems(productsData.meta?.totalProducts || 0);
+        setTotalPages(productsData.meta?.totalPages || 1);
+      }
       if (categoriesData.success) setCategories(categoriesData.data || []);
 
       setError(null);
@@ -149,18 +155,14 @@ export default function Products() {
     );
   }
 
-  // Pagination logic
-  const totalPages = Math.ceil(products.length / itemsPerPage);
-  const displayedProducts = products.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  // Server-side pagination: use products directly
+  const displayedProducts = products;
 
   return (
     <div className="space-y-4">
       {/* Top bar */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">{products.length} products</p>
+        <p className="text-sm text-gray-500">{totalItems} products</p>
         <button
           onClick={handleAdd}
           className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#F59115] rounded-lg hover:bg-orange-600 transition-colors cursor-pointer disabled:opacity-50"
@@ -254,7 +256,7 @@ export default function Products() {
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
-        totalItems={products.length}
+        totalItems={totalItems}
         label="Total Products"
       />
 
