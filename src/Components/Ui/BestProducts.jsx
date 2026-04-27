@@ -1,8 +1,9 @@
-import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import bg from '../../assets/bgimage.png'
 import Button from './Button'
 
 const BestProducts = ({ heading, subheading, imageSrc }) => {
+  const navigate = useNavigate()
   return (
     <div
       className="relative w-[520px] h-[250px] rounded-2xl bg-center bg-cover pt-10 pl-9 overflow-hidden flex-shrink-0 shadow-md hover:shadow-xl transition-shadow duration-300"
@@ -17,7 +18,7 @@ const BestProducts = ({ heading, subheading, imageSrc }) => {
           </p>
         </div>
         <div>
-          <Button>Shop Now</Button>
+          <Button onClick={() => navigate('/all-products')}>Shop Now</Button>
         </div>
       </div>
 

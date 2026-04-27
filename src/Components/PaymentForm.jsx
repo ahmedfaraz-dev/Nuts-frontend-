@@ -104,6 +104,10 @@ const PaymentForm = () => {
       }
 
       if (paymentIntent.status === "succeeded") {
+        // Calculate amount from paymentIntent (ground truth)
+        // Note: Stripe amount is in cents, so we divide by 100
+        const actualAmountPaid = paymentIntent.amount / 100;
+
         // 3️⃣ Tell Backend to update status to "paid"
         await fetch(
           `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/confirm-payment`,
@@ -121,7 +125,14 @@ const PaymentForm = () => {
 
         // 4️⃣ Clear Cart and Redirect
         clearCart();
-        navigate("/payment-success");
+        navigate("/payment-success", { 
+          state: { 
+            amount: actualAmountPaid,
+            paymentType: "Credit Card",
+            bankName: "Stripe Secure",
+            transactionId: paymentIntent.id
+          } 
+        });
       } else {
         setError("Payment not completed");
       }
@@ -180,19 +191,19 @@ const PaymentForm = () => {
 
           {/* Save Card */}
           <div className="flex items-start gap-4 pt-2">
-            <div 
+            <div
               onClick={() => setSaveCard(!saveCard)}
               className="cursor-pointer mt-0.5"
             >
               {saveCard ? (
                 <div className="w-6 h-6 rounded-full bg-[#f7941d] flex items-center justify-center border border-[#f7941d] shadow-sm">
-                  <svg 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="4" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     className="w-3.5 h-3.5 text-white"
                   >
                     <polyline points="20 6 9 17 4 12" />
@@ -203,8 +214,8 @@ const PaymentForm = () => {
               )}
             </div>
             <div className="space-y-1">
-              <label 
-                className="block text-[#333] text-lg font-medium leading-none cursor-pointer" 
+              <label
+                className="block text-[#333] text-lg font-medium leading-none cursor-pointer"
                 onClick={() => setSaveCard(!saveCard)}
               >
                 Save Card
@@ -223,7 +234,7 @@ const PaymentForm = () => {
           >
             {loading ? "Processing..." : "Payment Now"}
           </button>
-          </form>
+        </form>
       </div>
     </div>
   );

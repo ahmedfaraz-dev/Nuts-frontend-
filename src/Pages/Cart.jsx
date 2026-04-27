@@ -11,7 +11,7 @@ const Cart = () => {
     const navigate = useNavigate();
 
     const subTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const delivery = cartItems.length > 0 ? 500 : 0; // 500 PKR base delivery
+    const delivery = cartItems.length > 0 ? 250 : 0; // consistent with backend
     const total = subTotal + delivery;
 
     if (cartItems.length === 0) {

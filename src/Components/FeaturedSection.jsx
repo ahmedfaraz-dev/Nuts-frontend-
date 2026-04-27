@@ -9,7 +9,7 @@ const FeaturedCard = ({ title, highlight, offer, image }) => {
   };
 
   return (
-    <div 
+    <div
       className="relative h-[280px] overflow-hidden group cursor-pointer bg-neutral-900 shadow-xl border border-neutral-800"
       onClick={handleBuyNow}
     >
@@ -35,9 +35,9 @@ const FeaturedCard = ({ title, highlight, offer, image }) => {
             <span className="text-[#FACC15] font-black text-3xl leading-none uppercase">{offer}</span>
           </div>
         </div>
-        
+
         <div className="mt-auto">
-          <button 
+          <button
             className="bg-[#F59115] text-white font-extrabold text-[12px] px-8 py-3 uppercase tracking-tighter hover:bg-[#d87d12] transition-all duration-300 transform active:scale-95 shadow-md hover:shadow-orange-200/50 hover:shadow-xl cursor-pointer rounded-lg"
             onClick={(e) => {
               e.stopPropagation();

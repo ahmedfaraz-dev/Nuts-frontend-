@@ -227,7 +227,7 @@ const ProductList = ({ limit }) => {
                 )}
               </h2>
               <p className="text-gray-400 text-sm mt-2 font-medium">
-                {limit 
+                {limit
                   ? "Discover our selection of premium quality dry fruits."
                   : "Handpicked quality dry fruits from around the world."}
               </p>

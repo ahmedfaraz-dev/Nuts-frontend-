@@ -12,7 +12,7 @@ const CustomerDetails = () => {
   const { formatPrice } = useCurrency();
 
   const subTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const delivery = cartItems.length > 0 ? 500 : 0; // consistent with Cart.jsx
+  const delivery = cartItems.length > 0 ? 250 : 0; // consistent with backend and Cart.jsx
   const discount = 0; // Logic for discount to be added later if needed
   const total = subTotal + delivery - discount;
 
