@@ -122,7 +122,7 @@ export const route = createBrowserRouter([
             element: <CustomerDetails />,
           },
           {
-            path: "payment-form",
+            path: "payment-form/:id",
             element: <PaymentForm />,
           },
           {

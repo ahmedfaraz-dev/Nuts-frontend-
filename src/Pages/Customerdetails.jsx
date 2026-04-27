@@ -77,7 +77,8 @@ const CustomerDetails = () => {
       document.getElementById(firstErrorKey)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
-    navigate("/payment-form/");
+    const productId = cartItems[0]?.id || "";
+    navigate(`/payment-form/${productId}`, { state: { customerData: form } });
   }
 
   const inputClass = (field) =>

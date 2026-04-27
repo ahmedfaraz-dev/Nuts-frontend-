@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
   CardNumberElement,
   CardExpiryElement,
@@ -7,11 +7,14 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
-import { CheckCircle2 } from "lucide-react";
+import Cookies from "js-cookie";
+import { useCart } from "../contexts/CartContext.jsx";
 
 const PaymentForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams();
+  const { cartItems, clearCart } = useCart();
 
   const stripe = useStripe();
   const elements = useElements();
@@ -22,6 +25,7 @@ const PaymentForm = () => {
   const [saveCard, setSaveCard] = useState(true);
 
   const elementOptions = {
+    // ... same styles
     style: {
       base: {
         fontSize: "16px",
@@ -41,13 +45,15 @@ const PaymentForm = () => {
     e.preventDefault();
     setError(null);
 
+    const customerData = location.state?.customerData;
+
     if (!stripe || !elements) {
       setError("Stripe not loaded");
       return;
     }
 
-    if (!id) {
-      setError("Product ID not found in URL");
+    if (!cartItems || cartItems.length === 0) {
+      setError("Cart is empty");
       return;
     }
 
@@ -55,6 +61,7 @@ const PaymentForm = () => {
 
     try {
       const cardNumberElement = elements.getElement(CardNumberElement);
+      const token = Cookies.get("token") || localStorage.getItem("token");
 
       const response = await fetch(
         `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/create-payment-intent`,
@@ -62,9 +69,14 @@ const PaymentForm = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
           },
           body: JSON.stringify({
-            productId: id,
+            cartItems: cartItems.map((item) => ({
+              productId: item.id,
+              quantity: item.quantity,
+            })),
+            customerData,
           }),
         }
       );
@@ -92,6 +104,23 @@ const PaymentForm = () => {
       }
 
       if (paymentIntent.status === "succeeded") {
+        // 3️⃣ Tell Backend to update status to "paid"
+        await fetch(
+          `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/confirm-payment`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              paymentIntentId: paymentIntent.id,
+            }),
+          }
+        );
+
+        // 4️⃣ Clear Cart and Redirect
+        clearCart();
         navigate("/payment-success");
       } else {
         setError("Payment not completed");
