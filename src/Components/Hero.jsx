@@ -1,6 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import Button from "./Ui/Button";
 
 const Hero = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="w-full bg-white">
       <div className="w-full py-20 px-4 md:px-8 lg:px-16">
@@ -20,7 +23,7 @@ const Hero = () => {
           </p>
 
           <div className="flex justify-center lg:justify-start">
-            <Button>Order Now</Button>
+            <Button onClick={() => navigate("/all-products")}>Order Now</Button>
           </div>
         </div>
 
