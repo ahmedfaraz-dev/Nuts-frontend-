@@ -20,6 +20,8 @@ const ProductList = ({ limit }) => {
   const [activeDiscount, setActiveDiscount] = useState(null);
 
   const query = limit ? "" : (searchParams.get("q")?.trim() || "");
+  const categoryParam = searchParams.get("category");
+  const discountParam = searchParams.get("discount");
   const pageParam = parseInt(searchParams.get("page")) || 1;
   const currentPage = pageParam < 1 ? 1 : pageParam;
   const itemsPerPage = 6;
@@ -66,27 +68,40 @@ const ProductList = ({ limit }) => {
 
   const lowerQ = query.toLowerCase();
 
-  const displayProducts = useMemo(() => {
-    if (!query) return products;
-
-    const matched = products.filter((p) => p.title?.toLowerCase().includes(lowerQ));
-    const rest = products.filter((p) => !p.title?.toLowerCase().includes(lowerQ));
-    return [...matched, ...rest];
-  }, [products, lowerQ, query]);
-
   const filteredProducts = useMemo(() => {
-    return displayProducts.filter((p) => {
-      const matchCategory = activeCategory === "All" ||
-        p.title?.toLowerCase().includes(activeCategory.toLowerCase()) ||
-        (p.desc && p.desc.toLowerCase().includes(activeCategory.toLowerCase()));
+    let result = products;
 
-      const matchPrice = p.price <= priceRange[1];
-      const discount = p.activeDeal ? p.activeDeal.discount : 0;
-      const matchDiscount = activeDiscount === null || discount >= activeDiscount;
+    // 1. Apply Search Query Filter
+    if (query) {
+      result = result.filter((p) => 
+        p.title?.toLowerCase().includes(lowerQ) ||
+        p.desc?.toLowerCase().includes(lowerQ)
+      );
+    }
 
-      return matchCategory && matchPrice && matchDiscount;
-    });
-  }, [displayProducts, activeCategory, priceRange, activeDiscount]);
+    // 2. Apply Category Filter
+    if (activeCategory !== "All") {
+      result = result.filter((p) => {
+        const matchesCategory = 
+          p.title?.toLowerCase().includes(activeCategory.toLowerCase()) ||
+          (p.desc && p.desc.toLowerCase().includes(activeCategory.toLowerCase()));
+        return matchesCategory;
+      });
+    }
+
+    // 3. Apply Discount Filter
+    if (activeDiscount !== null) {
+      result = result.filter((p) => {
+        const discount = p.activeDeal ? p.activeDeal.discount : 0;
+        return discount >= activeDiscount;
+      });
+    }
+
+    // 4. Apply Price Range Filter
+    result = result.filter((p) => p.price <= priceRange[1]);
+
+    return result;
+  }, [products, query, lowerQ, activeCategory, activeDiscount, priceRange]);
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
@@ -111,6 +126,55 @@ const ProductList = ({ limit }) => {
       handlePageChange(totalPages);
     }
   }, [totalPages, currentPage]);
+
+  // Auto-apply filters based on search query or URL params
+  useEffect(() => {
+    if (products.length > 0) {
+      // Priority 1: Handle explicit URL parameters
+      if (categoryParam) {
+        const validCat = categories.find(c => c.toLowerCase() === categoryParam.toLowerCase());
+        if (validCat) setActiveCategory(validCat);
+      }
+      
+      if (discountParam) {
+        const dVal = parseInt(discountParam);
+        if (!isNaN(dVal)) setActiveDiscount(dVal);
+      }
+
+      // Priority 2: If searching, try to auto-detect category/discount from the query
+      if (query && !categoryParam) {
+        const lowerQ = query.toLowerCase();
+
+        // Improved category matching (handles singular/plural and containing strings)
+        const matchedCategory = categories.find(
+          (cat) => 
+            cat !== "All" && 
+            (lowerQ.includes(cat.toLowerCase().replace(/s$/, '')) || 
+             cat.toLowerCase().includes(lowerQ))
+        );
+
+        if (matchedCategory) {
+          setActiveCategory(matchedCategory);
+        }
+
+        // Find matches for discount
+        const matchedProduct = products.find((p) =>
+          p.title?.toLowerCase().includes(lowerQ)
+        );
+
+        if (matchedProduct && matchedProduct.activeDeal?.discount && !discountParam) {
+          const discountVal = matchedProduct.activeDeal.discount;
+          const bestDiscount = [...discounts]
+            .sort((a, b) => b.value - a.value)
+            .find((d) => discountVal >= d.value);
+
+          if (bestDiscount) {
+            setActiveDiscount(bestDiscount.value);
+          }
+        }
+      }
+    }
+  }, [query, products, categoryParam, discountParam]);
 
   if (loading)
     return (
@@ -202,6 +266,7 @@ const ProductList = ({ limit }) => {
           setActiveCategory("All");
           setPriceRange([0, 5000]);
           setActiveDiscount(null);
+          setSearchParams({}); // Clears q, category, and discount from the URL
         }}
         className="w-full py-3 rounded-xl border-2 border-dashed border-gray-200 text-sm font-bold text-gray-400 hover:border-[#F59115] hover:text-[#F59115] transition-all duration-300"
       >

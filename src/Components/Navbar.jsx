@@ -54,7 +54,7 @@ const Navbar = () => {
   const handleSearch = (e) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`)
+      navigate(`/all-products?q=${encodeURIComponent(searchQuery)}`)
     }
   }
 
@@ -263,7 +263,7 @@ const Navbar = () => {
                       {column.items.map((item) => (
                         <li key={`${column.title}-${item}-${column.items.indexOf(item)}`}>
                           <a
-                            href={`/products?category=${encodeURIComponent(item)}`}
+                            href={`/all-products?category=${encodeURIComponent(item)}`}
                             className="text-sm text-gray-500 hover:text-[#F59115] transition-colors"
                           >
                             {item}
