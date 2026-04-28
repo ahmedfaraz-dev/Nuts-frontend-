@@ -54,8 +54,10 @@ export default function Products() {
   };
 
   const getCategoryName = (catId) => {
+    console.log(categories, "cate")
     const cat = categories.find((c) => c._id === catId);
-    return cat ? cat.name : "—";
+    console.log("cat", cat)
+    return cat ? cat.name : "";
   };
 
   const getDealDiscount = (dealId) => {
@@ -74,7 +76,6 @@ export default function Products() {
     setEditingProduct(product);
     setShowForm(true);
   };
-
   const handleSave = async (productData, dealData) => {
     setActionLoading(true);
     try {
@@ -157,7 +158,7 @@ export default function Products() {
 
   // Server-side pagination: use products directly
   const displayedProducts = products;
-
+  console.log(displayedProducts, "All ")
   return (
     <div className="space-y-4">
       {/* Top bar */}
@@ -210,7 +211,7 @@ export default function Products() {
                 </td>
                 <td className="px-5 py-3 text-gray-600">{formatPrice(product.price)}</td>
                 <td className="px-5 py-3 text-gray-600">{product.stock}</td>
-                <td className="px-5 py-3 text-gray-600">{getCategoryName(product.category)}</td>
+                <td className="px-5 py-3 text-gray-600">{product.category.name || "unknown"}</td>
                 <td className="px-5 py-3">
                   <span
                     className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${product.isActive
@@ -221,7 +222,9 @@ export default function Products() {
                     {product.isActive ? "Active" : "Inactive"}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-gray-600">{getDealDiscount(product.activeDeal)}</td>
+                <td className="px-5 py-3 text-gray-600"> {product?.activeDeal?.discount !== undefined
+                  ? product.activeDeal.discount + "%"
+                  : "No Deals"}</td>
                 <td className="px-5 py-3 text-right whitespace-nowrap">
                   <button
                     onClick={() => handleEdit(product)}
