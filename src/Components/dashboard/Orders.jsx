@@ -14,6 +14,7 @@ export default function Orders() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [statusTab, setStatusTab] = useState("Active");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -102,23 +103,65 @@ export default function Orders() {
     );
   }
 
-  const totalPages = Math.ceil(orders.length / itemsPerPage);
-  const displayedOrders = orders.slice(
+  const filteredOrders = (orders || []).filter(order => {
+    const status = (order?.orderStatus || "").toLowerCase();
+
+    if (statusTab === "Active") {
+      return status !== "delivered" && status !== "cancelled";
+    }
+    if (statusTab === "Delivered") {
+      return status === "delivered";
+    }
+    if (statusTab === "Cancelled") {
+      return status === "cancelled";
+    }
+    return true;
+  });
+
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const displayedOrders = filteredOrders.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
   return (
     <div className="space-y-4 font-display">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">{orders.length} total orders</p>
-        <button 
-          onClick={() => fetchOrders(true)}
-          className="flex items-center gap-2 text-[10px] font-bold text-gray-400 hover:text-[#F59115] transition-colors uppercase tracking-widest"
-        >
-          <Clock className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          Refresh Data
-        </button>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-500">
+            {filteredOrders.length} shown / {orders.length} total
+          </p>
+          <button 
+            onClick={() => fetchOrders(true)}
+            className="flex items-center gap-2 text-[10px] font-bold text-gray-400 hover:text-[#F59115] transition-colors uppercase tracking-widest"
+          >
+            <Clock className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            Refresh Data
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          {[
+            { key: "Active", label: "Active" },
+            { key: "Delivered", label: "Delivered" },
+            { key: "Cancelled", label: "Cancelled" },
+          ].map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => {
+                setStatusTab(tab.key);
+                setCurrentPage(1);
+              }}
+              className={`px-4 py-2 rounded-xl border text-[10px] font-bold uppercase tracking-widest transition-all ${
+                statusTab === tab.key
+                  ? "bg-[#F59115]/10 border-[#F59115] text-[#F59115]"
+                  : "bg-white border-gray-200 text-gray-500 hover:text-gray-800 hover:border-orange-200"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl overflow-x-auto shadow-sm">
@@ -157,14 +200,14 @@ export default function Orders() {
                 <td className="px-5 py-5 relative dropdown-container">
                   <button
                     onClick={() => setOpenDropdownId(openDropdownId === order._id ? null : order._id)}
-                    className={`px-4 py-1.5 rounded-xl text-[10px] font-bold border uppercase tracking-[0.1em] cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 group ${getStatusStyle(order.orderStatus)}`}
+                    className={`px-4 py-1.5 rounded-xl text-[10px] font-bold border uppercase tracking-widest cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 group ${getStatusStyle(order.orderStatus)}`}
                   >
                     {order.orderStatus}
                     <ChevronDown size={12} className={`transition-transform duration-200 ${openDropdownId === order._id ? 'rotate-180' : ''}`} />
                   </button>
 
                   {openDropdownId === order._id && (
-                    <div className="absolute left-5 mt-2 w-56 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[100] py-3 animate-in fade-in zoom-in duration-200">
+                    <div className="absolute left-5 mt-2 w-56 bg-white border border-gray-100 rounded-2xl shadow-2xl z-100 py-3 animate-in fade-in zoom-in duration-200">
                       <div className="px-5 py-2 border-b border-gray-50 mb-2">
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Update Order Status</p>
                       </div>
@@ -195,7 +238,7 @@ export default function Orders() {
                 </td>
               </tr>
             ))}
-            {orders.length === 0 && (
+            {filteredOrders.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-5 py-12 text-center text-sm text-gray-400 italic">
                   No orders found in the database.
@@ -210,7 +253,7 @@ export default function Orders() {
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
-        totalItems={orders.length}
+        totalItems={filteredOrders.length}
         label="Total Orders"
       />
 
