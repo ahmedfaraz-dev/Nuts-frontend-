@@ -11,6 +11,9 @@ const OrderHistory = () => {
     const [error, setError] = useState(null);
     const { formatPrice } = useCurrency();
     const navigate = useNavigate();
+    // API doesn't provide deliveredAt/cancelledAt, so we approximate the 7-day archive
+    // window using the order's createdAt (same timestamp you already display).
+    const sevenDaysAgoMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
     const fetchOrders = async (showLoading = true) => {
         try {
@@ -63,6 +66,16 @@ const OrderHistory = () => {
         }
     };
 
+    const visibleOrders = (orders || []).filter(order => {
+        const status = order?.orderStatus?.toLowerCase();
+        if (status === 'delivered' || status === 'cancelled') {
+            if (!order?.createdAt) return true; // keep it visible if createdAt is missing
+            const createdMs = new Date(order.createdAt).getTime();
+            return createdMs >= sevenDaysAgoMs;
+        }
+        return true;
+    });
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -106,64 +119,100 @@ const OrderHistory = () => {
                         <p className="text-gray-400 mt-2 mb-6 text-xs">Your purchase history will appear here once you place an order.</p>
                         <Button onClick={() => navigate('/all-products')}>Start Shopping</Button>
                     </div>
+                ) : visibleOrders.length === 0 ? (
+                    <div className="text-center py-16 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                        <div className="w-20 h-20 bg-white shadow-inner rounded-full flex items-center justify-center mx-auto mb-5">
+                            <ShoppingBag className="w-8 h-8 text-gray-200" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900">No recent orders to show</h3>
+                        <p className="text-gray-400 mt-2 mb-6 text-xs">Delivered and cancelled orders are shown for 7 days.</p>
+                        <Button onClick={() => navigate('/all-products')}>Start Shopping</Button>
+                    </div>
                 ) : (
                     <div className="w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                         <div className="min-w-[900px]">
                             {/* Table Header */}
                             <div className="grid grid-cols-[2.5fr_1fr_0.5fr_1.2fr_1.2fr] px-6 mb-4">
-                                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#F59115]">Product details</span>
+                                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#F59115]">Order details</span>
                                 <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 text-center">Price</span>
-                                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 text-center">Qty</span>
+                                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 text-center">Items</span>
                                 <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 text-center">Est. Delivery</span>
                                 <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 text-right">Order Status</span>
                             </div>
 
-                            {/* Order Items Rows */}
+                            {/* Order Rows */}
                             <div className="space-y-3">
-                                {orders.flatMap(order => 
-                                    order.items.map(item => ({ ...item, createdAt: order.createdAt, orderStatus: order.orderStatus }))
-                                ).map((item, idx) => {
+                                {visibleOrders.map((order, idx) => {
+                                    const orderItems = Array.isArray(order.items) ? order.items : [];
+                                    const firstItem = orderItems[0] || {};
+                                    const previewItems = orderItems.slice(0, 2);
+                                    const extraCount = Math.max(0, orderItems.length - previewItems.length);
+
                                     // Calculate delivery date (3 days after order)
-                                    const deliveryDate = new Date(item.createdAt || new Date());
+                                    const deliveryDate = new Date(order.createdAt || new Date());
                                     deliveryDate.setDate(deliveryDate.getDate() + 3);
-                                    
                                     const formattedDeliveryDate = deliveryDate.toLocaleDateString('en-GB', {
                                         day: 'numeric',
                                         month: 'short',
                                         year: 'numeric'
                                     });
 
+                                    // Prefer backend totalAmount, fall back to sum of items.
+                                    const totalAmount =
+                                        typeof order.totalAmount === 'number'
+                                            ? order.totalAmount
+                                            : orderItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0);
+
                                     return (
                                         <div
-                                            key={`${item.id}-${idx}`}
+                                            key={order._id || idx}
                                             className="grid grid-cols-[2.5fr_1fr_0.5fr_1.2fr_1.2fr] items-center bg-white border border-gray-100 rounded-2xl p-3 px-6 transition-all hover:border-orange-200 shadow-sm hover:shadow-md group"
                                         >
-                                            {/* Product Info */}
+                                            {/* Order Info */}
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 bg-gray-50 rounded-xl overflow-hidden border border-gray-100 p-1.5 shrink-0 group-hover:scale-105 transition-transform">
-                                                    {item.image ? (
-                                                        <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                                                    {firstItem?.image ? (
+                                                        <img src={firstItem.image} alt={firstItem.name} className="w-full h-full object-contain" />
                                                     ) : (
                                                         <Package className="w-full h-full text-gray-200 p-1.5" />
                                                     )}
                                                 </div>
                                                 <div className="min-w-0 pr-4">
-                                                    <h3 className="text-[14px] font-bold text-[#272727] mb-0.5 truncate">{item.name || 'Dry Fruit Product'}</h3>
-                                                    <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Ordered: {new Date(item.createdAt).toLocaleDateString()}</p>
+                                                    <h3 className="text-[14px] font-bold text-[#272727] mb-0.5 truncate">
+                                                        {order._id ? `Order #${order._id.slice(-8).toUpperCase()}` : 'Order'}
+                                                    </h3>
+                                                    <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">
+                                                        Ordered: {new Date(order.createdAt).toLocaleDateString()}
+                                                    </p>
+                                                    <div className="mt-1 flex items-center gap-2">
+                                                        <p className="text-[9px] text-gray-700 font-bold truncate">
+                                                            {previewItems.map((it, pIdx) => (
+                                                                <span key={it.id || pIdx}>
+                                                                    {pIdx > 0 ? ', ' : ''}
+                                                                    {it.name ? `${it.name}` : 'Item'} x{it.quantity || 1}
+                                                                </span>
+                                                            ))}
+                                                        </p>
+                                                        {extraCount > 0 && (
+                                                            <span className="text-[9px] font-bold text-[#F59115] whitespace-nowrap">
+                                                                +{extraCount} more
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
 
                                             {/* Price */}
                                             <div className="text-center font-medium">
                                                 <span className="text-[14px] text-gray-900 border-b border-orange-100 pb-0.5">
-                                                    {formatPrice(item.price)}
+                                                    {formatPrice(totalAmount)}
                                                 </span>
                                             </div>
 
-                                            {/* Quantity */}
+                                            {/* Items Count */}
                                             <div className="text-center">
                                                 <span className="text-[14px] font-bold text-[#F59115] bg-orange-50/50 w-7 h-7 flex items-center justify-center rounded-lg mx-auto">
-                                                    {item.quantity}
+                                                    {orderItems.length}
                                                 </span>
                                             </div>
 
@@ -176,10 +225,10 @@ const OrderHistory = () => {
 
                                             {/* Status Badge */}
                                             <div className="flex justify-end">
-                                                <div className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 transition-all ${getStatusClass(item.orderStatus)}`}>
-                                                    <span className="shrink-0 scale-90">{getStatusIcon(item.orderStatus)}</span>
+                                                <div className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 transition-all ${getStatusClass(order.orderStatus)}`}>
+                                                    <span className="shrink-0 scale-90">{getStatusIcon(order.orderStatus)}</span>
                                                     <span className="text-[9px] font-bold uppercase tracking-widest whitespace-nowrap">
-                                                        {item.orderStatus || 'Processing'}
+                                                        {order.orderStatus || 'Processing'}
                                                     </span>
                                                 </div>
                                             </div>
