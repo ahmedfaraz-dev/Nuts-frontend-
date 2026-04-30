@@ -21,6 +21,7 @@ import Profile from "./Pages/Profile";
 import ProtectedRoute from "./Components/Auth/ProtectedRoute";
 import OrderHistory from "./Pages/OrderHistory";
 import Orders from "./Components/dashboard/Orders";
+import TestCurrency from "./test-currency";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -64,6 +65,10 @@ export const route = createBrowserRouter([
             <OrderHistory />
           </ProtectedRoute>
         ),
+      },
+      {
+        path: "test-currency",
+        element: <TestCurrency />,
       },
     ],
   },

@@ -49,7 +49,7 @@ const Navbar = () => {
   const navigate = useNavigate()
   const { totalItems } = useCart()
   const { user, logout, authLoading } = useAuth()
-  const { currency, setCurrency } = useCurrency()
+  const { currency, setCurrency, availableCurrencies, loading, lastUpdated, refreshRates } = useCurrency()
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -114,12 +114,12 @@ const Navbar = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-                  className="flex items-center gap-1.5 px-2 py-1.5 bg-gray-50 border border-gray-100 rounded-lg hover:border-orange-200 transition-all group"
+                  className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-all duration-150"
                   title="Change Currency"
                 >
-                  <Globe className="w-4 h-4 text-gray-400 group-hover:text-[#F59115]" />
-                  <span className="text-xs font-bold text-gray-600 group-hover:text-[#F59115]">{currency}</span>
-                  <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform ${isCurrencyDropdownOpen ? 'rotate-180' : ''}`} />
+                  <Globe className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm font-medium text-gray-700">{currency}</span>
+                  <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform duration-150 ${isCurrencyDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {isCurrencyDropdownOpen && (
@@ -128,21 +128,22 @@ const Navbar = () => {
                       className="fixed inset-0 z-[60]" 
                       onClick={() => setIsCurrencyDropdownOpen(false)}
                     />
-                    <div className="absolute top-full right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-[70] py-1 min-w-[100px] overflow-hidden">
-                      {['PKR', 'USD'].map((curr) => (
+                    <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[70] py-2 min-w-[140px]">
+                      {Object.entries(availableCurrencies).map(([currCode, currInfo]) => (
                         <button
-                          key={curr}
+                          key={currCode}
                           onClick={() => {
-                            setCurrency(curr);
+                            setCurrency(currCode);
                             setIsCurrencyDropdownOpen(false);
                           }}
-                          className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-colors ${
-                            currency === curr 
-                              ? 'bg-orange-50 text-[#F59115]' 
-                              : 'text-gray-600 hover:bg-gray-50'
+                          className={`w-full text-left px-3 py-2 text-sm transition-colors flex items-center justify-between ${
+                            currency === currCode 
+                              ? 'bg-gray-100 text-gray-900 font-medium' 
+                              : 'text-gray-700 hover:bg-gray-50'
                           }`}
                         >
-                          {curr}
+                          <span>{currCode}</span>
+                          <span className="text-gray-500">{currInfo.symbol}</span>
                         </button>
                       ))}
                     </div>
@@ -150,13 +151,13 @@ const Navbar = () => {
                 )}
               </div>
 
-              {/* Cart Button */}
-              <button
-                onClick={() => navigate('/cart')}
-                className="relative p-1 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <img src="/images/cart.svg" alt="cart" className="w-6 h-6" />
-                {totalItems > 0 && (
+            {/* Cart Button */}
+            <button
+              onClick={() => navigate('/cart')}
+              className="relative p-1 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <img src="/images/cart.svg" alt="cart" className="w-6 h-6" />
+              {totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-[#F59115] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                     {totalItems > 9 ? '9+' : totalItems}
                   </span>
