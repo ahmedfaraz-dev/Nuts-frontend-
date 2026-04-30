@@ -429,7 +429,7 @@ const ProductList = ({ limit }) => {
             <div className="p-6 border-t border-gray-50">
               <button
                 onClick={() => setShowMobileFilters(false)}
-                className="w-full py-4 bg-[#F59115] text-white font-bold rounded-2xl shadow-lg shadow-orange-100"
+                className="w-full py-4 bg-[#F59115] hover:bg-orange-600 text-white font-bold rounded-2xl shadow-lg shadow-orange-100"
               >
                 Show {filteredProducts.length} Products
               </button>

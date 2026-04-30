@@ -231,7 +231,7 @@ const CustomerDetails = () => {
               </label>
               <button
                 onClick={handleContinue}
-                className="w-full md:w-auto bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 px-10 rounded-lg transition-transform active:scale-95"
+                className="w-full md:w-auto bg-[#F59115] hover:bg-orange-600 text-white font-semibold py-4 px-10 rounded-lg transition-transform active:scale-95"
               >
                 Continue To Shipping
               </button>

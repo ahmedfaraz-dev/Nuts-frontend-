@@ -92,7 +92,7 @@ const Register = () => {
                     <p className="text-gray-500 text-sm leading-relaxed">{success}</p>
                     <button
                         onClick={() => navigate('/login')}
-                        className="mt-8 w-full bg-[#F59115] hover:bg-[#e0800f] text-white font-semibold py-3 rounded-lg transition"
+                        className="mt-8 w-full bg-[#F59115] hover:bg-orange-600 text-white font-semibold py-3 rounded-lg transition"
                     >
                         Go to Login
                     </button>
@@ -275,7 +275,7 @@ const Register = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-[#F59115] hover:bg-[#e0800f] active:scale-[0.98] disabled:opacity-60
+                        className="w-full bg-[#F59115] hover:bg-orange-600 active:scale-[0.98] disabled:opacity-60
                                    text-white font-semibold py-3 rounded-lg transition-all duration-200"
                     >
                         {loading ? (

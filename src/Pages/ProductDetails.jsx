@@ -359,7 +359,7 @@ const ProductDetails = () => {
                             </button>
                             <button
                                 onClick={() => { setCartModalOpen(false); navigate('/customer-details'); }}
-                                className="w-full py-2.5 bg-[#F59115] hover:bg-[#e0800f] text-white rounded-xl font-semibold transition text-sm"
+                                className="w-full py-2.5 bg-[#F59115] hover:bg-orange-600 text-white rounded-xl font-semibold transition text-sm"
                             >
                                 Proceed to Checkout
                             </button>

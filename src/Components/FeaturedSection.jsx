@@ -38,7 +38,7 @@ const FeaturedCard = ({ title, highlight, offer, image }) => {
 
         <div className="mt-auto">
           <button
-            className="bg-[#F59115] text-white font-extrabold text-[12px] px-8 py-3 uppercase tracking-tighter hover:bg-[#d87d12] transition-all duration-300 transform active:scale-95 shadow-md hover:shadow-orange-200/50 hover:shadow-xl cursor-pointer rounded-lg"
+            className="bg-[#F59115] hover:bg-orange-600 text-white font-bold px-6 py-2 rounded-2xl cursor-pointer transition-all duration-200"
             onClick={(e) => {
               e.stopPropagation();
               handleBuyNow();

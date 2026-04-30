@@ -91,7 +91,7 @@ const Contact = () => {
                 )}
 
                 <div className="mt-3 ">
-                  <button className="bg-[#F59115] hover:bg-[#ff8d01] text-white text-[16px] px-3 py-1 rounded cursor-pointer">
+                  <button className="bg-[#F59115] hover:bg-orange-600 text-white text-[16px] px-3 py-1 rounded cursor-pointer">
                     Submit
                   </button>
                 </div>

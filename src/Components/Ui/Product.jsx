@@ -111,7 +111,7 @@ const Product = ({ item }) => {
           <Link to={`/product/${item.id}`} tabIndex={isOutOfStock ? -1 : 0}>
             <button
               disabled={isOutOfStock}
-              className="inline-flex items-center gap-1.5 bg-[#F59115] hover:bg-[#d87d12] active:scale-95 disabled:bg-gray-100 disabled:cursor-not-allowed text-white disabled:text-gray-400 text-[11px] font-bold px-3.5 py-2 rounded-xl cursor-pointer transition-all duration-200 shadow-sm hover:shadow-orange-200/70 hover:shadow-lg whitespace-nowrap"
+              className="inline-flex items-center gap-1.5 bg-[#F59115] hover:bg-orange-600 active:scale-95 disabled:bg-gray-100 disabled:cursor-not-allowed text-white disabled:text-gray-400 text-[11px] font-bold px-3.5 py-2 rounded-xl cursor-pointer transition-all duration-200 shadow-sm hover:shadow-orange-200/70 hover:shadow-lg whitespace-nowrap"
             >
               <ShoppingBag size={12} className="shrink-0" />
               {isOutOfStock ? "Sold Out" : "Buy Now"}

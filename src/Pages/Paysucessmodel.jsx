@@ -56,7 +56,7 @@ const Paysucessmodel = () => {
 
         {/* Action Button - Brand color and rounded corners matched */}
         <button
-          className="w-full bg-[#F59115] hover:bg-[#e68415] text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg active:scale-[0.98] text-lg"
+          className="w-full bg-[#F59115] hover:bg-orange-600 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg active:scale-[0.98] text-lg"
           onClick={handleBackToHome}
         >
           Back To Home
