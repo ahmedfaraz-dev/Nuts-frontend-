@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Currency Test</title>
+</head>
+<body>
+    <h1>Currency Test</h1>
+    <button onclick="clearCache()">Clear Cache</button>
+    <button onclick="testAPI()">Test API</button>
+    <div id="result"></div>
+
+    <script>
+        function clearCache() {
+            localStorage.removeItem('exchange_rates');
+            localStorage.removeItem('exchange_rates_time');
+            document.getElementById('result').innerHTML = 'Cache cleared!';
+        }
+
+        async function testAPI() {
+            try {
+                const response = await fetch('https://api.exchangerate.host/latest?base=USD&symbols=PKR,EUR,GBP,AED,SAR');
+                const data = await response.json();
+                document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (err) {
+                document.getElementById('result').innerHTML = 'Error: ' + err.message;
+            }
+        }
+    </script>
+</body>
+</html>
