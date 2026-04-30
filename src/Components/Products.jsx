@@ -73,7 +73,7 @@ const ProductList = ({ limit }) => {
 
     // 1. Apply Search Query Filter
     if (query) {
-      result = result.filter((p) => 
+      result = result.filter((p) =>
         p.title?.toLowerCase().includes(lowerQ) ||
         p.desc?.toLowerCase().includes(lowerQ)
       );
@@ -82,7 +82,7 @@ const ProductList = ({ limit }) => {
     // 2. Apply Category Filter
     if (activeCategory !== "All") {
       result = result.filter((p) => {
-        const matchesCategory = 
+        const matchesCategory =
           p.title?.toLowerCase().includes(activeCategory.toLowerCase()) ||
           (p.desc && p.desc.toLowerCase().includes(activeCategory.toLowerCase()));
         return matchesCategory;
@@ -135,7 +135,7 @@ const ProductList = ({ limit }) => {
         const validCat = categories.find(c => c.toLowerCase() === categoryParam.toLowerCase());
         if (validCat) setActiveCategory(validCat);
       }
-      
+
       if (discountParam) {
         const dVal = parseInt(discountParam);
         if (!isNaN(dVal)) setActiveDiscount(dVal);
@@ -147,10 +147,10 @@ const ProductList = ({ limit }) => {
 
         // Improved category matching (handles singular/plural and containing strings)
         const matchedCategory = categories.find(
-          (cat) => 
-            cat !== "All" && 
-            (lowerQ.includes(cat.toLowerCase().replace(/s$/, '')) || 
-             cat.toLowerCase().includes(lowerQ))
+          (cat) =>
+            cat !== "All" &&
+            (lowerQ.includes(cat.toLowerCase().replace(/s$/, '')) ||
+              cat.toLowerCase().includes(lowerQ))
         );
 
         if (matchedCategory) {
@@ -281,7 +281,7 @@ const ProductList = ({ limit }) => {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
             <div>
-              <h2 className="text-xl font-bold text-gray-900 md:text-3xl tracking-tight">
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-900">
                 {query && !limit ? (
                   <>
                     Search results for{" "}
@@ -291,11 +291,7 @@ const ProductList = ({ limit }) => {
                   limit ? "Our Products" : "Explore Premium Nuts"
                 )}
               </h2>
-              <p className="text-gray-400 text-sm mt-2 font-medium">
-                {limit
-                  ? "Discover our selection of premium quality dry fruits."
-                  : "Handpicked quality dry fruits from around the world."}
-              </p>
+
             </div>
 
             {!limit && (
@@ -351,7 +347,7 @@ const ProductList = ({ limit }) => {
                 <div className="mt-16 flex justify-center">
                   <button
                     onClick={() => navigate('/all-products')}
-                    className="group relative flex items-center gap-3 px-10 py-5 bg-gray-900 text-white font-bold rounded-2xl hover:bg-[#F59115] transition-all duration-500 shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:shadow-[0_20px_40px_rgba(245,145,21,0.3)] hover:-translate-y-1 active:scale-95 overflow-hidden"
+                    className="group cursor-pointer relative flex items-center gap-3 px-10 py-5 bg-gray-900 text-white font-bold rounded-2xl hover:bg-[#F59115] transition-all duration-500 shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:shadow-[0_20px_40px_rgba(245,145,21,0.3)] hover:-translate-y-1 active:scale-95 overflow-hidden"
                   >
                     <span className="relative z-10">See All Products</span>
                     <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-2 transition-transform duration-500 ease-out" />

@@ -6,10 +6,9 @@ const VideoSection = () => {
       <div className="w-full px-4 md:px-8 lg:px-16 py-16">
         <div className="max-w-7xl mx-auto">
           {/* Heading */}
-          <h2 className="text-2xl font-semibold mb-6">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-900 mb-6">
             How Our Products Made
           </h2>
-
           {/* Video Container */}
           <div
             className="

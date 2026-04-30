@@ -83,8 +83,9 @@ const DealsSection = () => {
     <section className="w-full bg-white">
       <div className="w-full px-4 md:px-8 lg:px-16 py-16">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-semibold mb-8">Our Best Deals</h2>
-
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-900 mb-8">
+            Our Best Deals
+          </h2>
           <div className="flex items-stretch gap-6">
             {/* Hot Deal Panel */}
             <div className="w-64 shrink-0 flex flex-col justify-center items-center gap-6 bg-[#7a0026] text-white rounded-2xl p-6 min-h-[420px]">

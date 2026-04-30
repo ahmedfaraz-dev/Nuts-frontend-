@@ -23,7 +23,9 @@ const Home = () => {
       <section className="w-full bg-white">
         <div className="w-full px-4 md:px-8 lg:px-16 py-7">
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-xl font-medium">Best Products</h1>
+         <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-900">
+  Best Products
+</h1>
             <div className="mt-4 flex gap-6 max-w-full overflow-x-auto overflow-y-hidden no-scrollbar">
               {productData?.map((items) => (
                 <BestProducts
