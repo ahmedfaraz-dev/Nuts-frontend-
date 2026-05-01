@@ -174,36 +174,73 @@ const ProductList = ({ limit }) => {
       if (query && !categoryParam) {
         const lowerQ = query.toLowerCase();
 
-        // Improved category matching (handles singular/plural and containing strings)
-        const matchedCategory = categories.find(
-          (cat) =>
-            cat !== "All" &&
-            (lowerQ.includes(cat.toLowerCase().replace(/s$/, '')) ||
-              cat.toLowerCase().includes(lowerQ))
+        // Find all products that match the search query
+        const matchingProducts = products.filter((p) =>
+          p.title?.toLowerCase().includes(lowerQ) ||
+          p.desc?.toLowerCase().includes(lowerQ)
         );
 
-        if (matchedCategory) {
-          setActiveCategory(matchedCategory);
-        }
+        if (matchingProducts.length > 0) {
+          // Create a category map to get category names from IDs
+          const categoryMap = {};
+          categoriesData.forEach(cat => {
+            categoryMap[cat._id || cat.id] = cat.name;
+          });
 
-        // Find matches for discount
-        const matchedProduct = products.find((p) =>
-          p.title?.toLowerCase().includes(lowerQ)
-        );
+          // Find the most common category among matching products
+          const categoryCount = {};
+          matchingProducts.forEach(product => {
+            if (product.category && categoryMap[product.category]) {
+              const categoryName = categoryMap[product.category];
+              categoryCount[categoryName] = (categoryCount[categoryName] || 0) + 1;
+            }
+          });
 
-        if (matchedProduct && matchedProduct.activeDeal?.discount && !discountParam) {
-          const discountVal = matchedProduct.activeDeal.discount;
-          const bestDiscount = [...discounts]
-            .sort((a, b) => b.value - a.value)
-            .find((d) => discountVal >= d.value);
+          // Get the category with the most matches
+          const mostCommonCategory = Object.entries(categoryCount)
+            .sort(([, a], [, b]) => b - a)[0]?.[0];
 
-          if (bestDiscount) {
-            setActiveDiscount(bestDiscount.value);
+          if (mostCommonCategory && categories.includes(mostCommonCategory)) {
+            setActiveCategory(mostCommonCategory);
+          }
+
+          // Find matches for discount from the first matching product
+          const firstMatchedProduct = matchingProducts[0];
+          if (firstMatchedProduct && firstMatchedProduct.activeDeal?.discount && !discountParam) {
+            const discountVal = firstMatchedProduct.activeDeal.discount;
+            const bestDiscount = [...discounts]
+              .sort((a, b) => b.value - a.value)
+              .find((d) => discountVal >= d.value);
+
+            if (bestDiscount) {
+              setActiveDiscount(bestDiscount.value);
+            }
+          }
+        } else {
+          // Fallback: Try to match category name directly in the query
+          const matchedCategory = categories.find(
+            (cat) =>
+              cat !== "All" &&
+              (lowerQ.includes(cat.toLowerCase().replace(/s$/, '')) ||
+                cat.toLowerCase().includes(lowerQ))
+          );
+
+          if (matchedCategory) {
+            setActiveCategory(matchedCategory);
           }
         }
       }
     }
-  }, [query, products, categoryParam, discountParam]);
+  }, [query, products, categoryParam, discountParam, categories]);
+
+  // Reset filters when search query is cleared
+  useEffect(() => {
+    if (!query && !categoryParam && !discountParam) {
+      setActiveCategory("All");
+      setPriceRange([0, 5000]);
+      setActiveDiscount(null);
+    }
+  }, [query, categoryParam, discountParam]);
 
   if (loading)
     return (
@@ -309,7 +346,7 @@ const ProductList = ({ limit }) => {
       <div className="w-full py-20 px-4 md:px-8 lg:px-16">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-            <div>
+            <div className="flex items-center gap-4">
               <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-900">
                 {query && !limit ? (
                   <>
@@ -320,6 +357,20 @@ const ProductList = ({ limit }) => {
                   limit ? "Our Products" : "Explore Premium Nuts"
                 )}
               </h2>
+              {query && !limit && (
+                <button
+                  onClick={() => {
+                    setSearchParams({});
+                    setActiveCategory("All");
+                    setPriceRange([0, 5000]);
+                    setActiveDiscount(null);
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-100 hover:border-gray-300 transition-all duration-300"
+                >
+                  <X size={16} />
+                  Clear Search
+                </button>
+              )}
 
             </div>
 
