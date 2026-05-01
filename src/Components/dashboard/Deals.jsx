@@ -129,7 +129,12 @@ export default function Deals() {
 
     setActionLoading(true);
     try {
-      const res = await adminApi.deleteDeal(deal.product, dealId);
+      // Extract product ID correctly - deal.product can be object or string
+      const productId = typeof deal.product === "object" && deal.product !== null 
+        ? deal.product._id 
+        : deal.product;
+      
+      const res = await adminApi.deleteDeal(productId, dealId);
       if (res.success) {
         // Refresh silently
         await fetchData(true);

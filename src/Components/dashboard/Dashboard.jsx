@@ -19,10 +19,11 @@ export default function Dashboard() {
   const loadStats = async (isRefresh = false) => {
     if (!isRefresh) setLoading(true);
     try {
-      const [prodRes, catRes, orderRes] = await Promise.all([
-        adminApi.getAllProducts(),
-        adminApi.getCategories().catch(() => ({ success: true, data: [] })),
-        adminApi.getAllOrders().catch(() => ({ success: true, orders: [] }))
+      const [prodRes, catRes, orderRes, dealsRes] = await Promise.all([
+        adminApi.getAllProducts(1, 1000), // Get all products for accurate counts
+        adminApi.getCategories(),
+        adminApi.getAllOrders().catch(() => ({ success: true, orders: [] })),
+        adminApi.getDeals().catch(() => ({ success: true, data: [] }))
       ]);
 
       if (prodRes.success) {
@@ -31,20 +32,28 @@ export default function Dashboard() {
 
         setStats(prev => prev.map(s => {
           if (s.label === "Total Products") return { ...s, value: prods.length };
-          if (s.label === "Active Deals") return { ...s, value: prods.filter(p => p.activeDeal).length };
           return s;
         }));
       }
 
       if (catRes.success) {
+        const categories = catRes.data || [];
         setStats(prev => prev.map(s => {
-          if (s.label === "Categories") return { ...s, value: catRes.data?.length || 0 };
+          if (s.label === "Categories") return { ...s, value: categories.length };
+          return s;
+        }));
+      }
+
+      if (dealsRes.success) {
+        const deals = dealsRes.data || [];
+        setStats(prev => prev.map(s => {
+          if (s.label === "Active Deals") return { ...s, value: deals.length };
           return s;
         }));
       }
 
       if (orderRes.success) {
-        const orders = orderRes.orders || [];
+        const orders = orderRes.orders || orderRes.data?.orders || [];
         setRecentOrders(orders.slice(0, 5));
         setStats(prev => prev.map(s => {
           if (s.label === "Total Orders") return { ...s, value: orders.length };
