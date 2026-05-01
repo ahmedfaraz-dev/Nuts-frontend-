@@ -1,5 +1,6 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LayoutDashboard, Package, Tag, Zap, Store, LogOut, X, ShoppingBag } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
 
 const navItems = [
   { to: "/admin-dashboard", label: "Dashboard", icon: LayoutDashboard, end: true },
@@ -11,10 +12,17 @@ const navItems = [
 
 export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const isActive = (path, end) => {
     if (end) return location.pathname === path;
     return location.pathname.startsWith(path);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
   };
 
   return (
@@ -73,7 +81,7 @@ export default function Sidebar({ isOpen, onClose }) {
             <Store size={18} />
             Back to Home
           </Link>
-          <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors w-full cursor-pointer">
+          <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors w-full cursor-pointer">
             <LogOut size={18} />
             Logout
           </button>

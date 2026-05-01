@@ -147,7 +147,6 @@ export default function Dashboard() {
               {recentProducts.map((product) => (
                 <tr key={product._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-3 text-gray-900 font-medium truncate max-w-[150px]">{product.name}</td>
-                  <td className="px-5 py-3 text-gray-500 font-mono text-xs">{product.slug}</td>
                   <td className="px-5 py-3 text-gray-600">{formatPrice(product.price)}</td>
                   <td className="px-5 py-3 text-gray-600">{product.stock}</td>
                   <td className="px-5 py-3">
