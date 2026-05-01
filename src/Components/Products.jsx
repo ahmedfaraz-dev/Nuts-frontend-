@@ -57,7 +57,7 @@ const ProductList = ({ limit }) => {
       try {
         const [productsResponse, categoriesResponse] = await Promise.all([
           userApi.getAllProducts(),
-          adminApi.getCategories()
+          userApi.getCategories()
         ]);
 
         if (categoriesResponse.success) {
