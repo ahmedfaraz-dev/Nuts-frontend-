@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { userApi } from "../Api/userApi";
+import { adminApi } from "../Api/adminApi";
 import Product from "./Ui/Product";
 import { SearchX, ChevronLeft, ChevronRight, ArrowRight, SlidersHorizontal, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +9,7 @@ import { useCurrency } from "../contexts/CurrencyContext";
 
 const ProductList = ({ limit }) => {
   const [products, setProducts] = useState([]);
+  const [categoriesData, setCategoriesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
@@ -26,7 +28,23 @@ const ProductList = ({ limit }) => {
   const currentPage = pageParam < 1 ? 1 : pageParam;
   const itemsPerPage = 6;
 
-  const categories = ["All", "Cashews", "Almonds", "Walnuts", "Pistachios", "Dates", "Mix Dry Fruits"];
+  const categories = useMemo(() => {
+    if (categoriesData.length === 0) return ["All"];
+    
+    const categoryMap = {};
+    categoriesData.forEach(cat => {
+      categoryMap[cat._id || cat.id] = cat.name;
+    });
+    
+    const usedCategories = new Set();
+    products.forEach(product => {
+      if (product.category && categoryMap[product.category]) {
+        usedCategories.add(categoryMap[product.category]);
+      }
+    });
+    
+    return ["All", ...Array.from(usedCategories).sort()];
+  }, [products, categoriesData]);
   const discounts = [
     { label: "10% Off or more", value: 10 },
     { label: "20% Off or more", value: 20 },
@@ -35,12 +53,19 @@ const ProductList = ({ limit }) => {
   ];
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
-        const response = await userApi.getAllProducts();
+        const [productsResponse, categoriesResponse] = await Promise.all([
+          userApi.getAllProducts(),
+          adminApi.getCategories()
+        ]);
 
-        if (response.success) {
-          const rawProducts = response.data || [];
+        if (categoriesResponse.success) {
+          setCategoriesData(categoriesResponse.data || []);
+        }
+
+        if (productsResponse.success) {
+          const rawProducts = productsResponse.data || [];
 
           const mappedProducts = rawProducts.map((item) => ({
             id: item._id || item.id,
@@ -50,20 +75,21 @@ const ProductList = ({ limit }) => {
             image: item.images?.[0] || "/images/placeholder.png",
             activeDeal: item.activeDeal || null,
             stock: item.stock,
+            category: item.category,
           }));
 
           setProducts(mappedProducts);
         } else {
-          setError(response.message || "Failed to fetch products");
+          setError(productsResponse.message || "Failed to fetch products");
         }
       } catch (err) {
-        setError(err?.response?.data?.message || "Failed to fetch product data");
+        setError(err?.response?.data?.message || "Failed to fetch data");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchData();
   }, []);
 
   const lowerQ = query.toLowerCase();
@@ -81,11 +107,14 @@ const ProductList = ({ limit }) => {
 
     // 2. Apply Category Filter
     if (activeCategory !== "All") {
+      const categoryMap = {};
+      categoriesData.forEach(cat => {
+        categoryMap[cat._id || cat.id] = cat.name;
+      });
+      
       result = result.filter((p) => {
-        const matchesCategory =
-          p.title?.toLowerCase().includes(activeCategory.toLowerCase()) ||
-          (p.desc && p.desc.toLowerCase().includes(activeCategory.toLowerCase()));
-        return matchesCategory;
+        const categoryName = categoryMap[p.category];
+        return categoryName === activeCategory;
       });
     }
 
