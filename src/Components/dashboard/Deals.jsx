@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Loader2, AlertCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, AlertCircle, Search } from "lucide-react";
 import { adminApi } from "../../Api/adminApi";
 import DealForm from "./DealForm";
 import Pagination from "./Pagination";
@@ -18,6 +18,7 @@ export default function Deals() {
   const [showForm, setShowForm] = useState(false);
   const [editingDeal, setEditingDeal] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -162,9 +163,20 @@ export default function Deals() {
     );
   }
 
-  // Pagination logic
-  const totalPages = Math.ceil(deals.length / itemsPerPage);
-  const displayedDeals = deals.slice(
+  // Pagination logic with search filter
+  const filteredDeals = deals.filter(deal => {
+    if (!searchTerm) return true;
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      getProductName(deal.product).toLowerCase().includes(searchLower) ||
+      deal.discount.toString().includes(searchLower) ||
+      (deal.startDate && new Date(deal.startDate).toLocaleDateString().includes(searchLower)) ||
+      (deal.endDate && new Date(deal.endDate).toLocaleDateString().includes(searchLower))
+    );
+  });
+  
+  const totalPages = Math.ceil(filteredDeals.length / itemsPerPage);
+  const displayedDeals = filteredDeals.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -172,8 +184,20 @@ export default function Deals() {
   return (
     <div className="space-y-4">
       {/* Top bar */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">{deals.length} deals</p>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4 flex-1">
+          <div className="relative max-w-sm flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search deals..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] focus:ring-1 focus:ring-[#F59115]"
+            />
+          </div>
+          <p className="text-sm text-gray-500 whitespace-nowrap">{searchTerm ? `${filteredDeals.length} found` : `${deals.length} deals`}</p>
+        </div>
         <button
           onClick={handleAdd}
           className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#F59115] rounded-lg hover:bg-orange-600 transition-colors cursor-pointer disabled:opacity-50"

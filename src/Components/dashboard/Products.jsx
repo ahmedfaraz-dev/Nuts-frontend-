@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Loader2, AlertCircle, Image as ImageIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, AlertCircle, Image as ImageIcon, Search } from "lucide-react";
 import ProductForm from "./ProductForm";
 import Pagination from "./Pagination";
 import { adminApi } from "../../Api/adminApi";
@@ -17,6 +17,7 @@ export default function Products() {
   const [editingProduct, setEditingProduct] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -156,14 +157,34 @@ export default function Products() {
     );
   }
 
-  // Server-side pagination: use products directly
-  const displayedProducts = products;
+  // Server-side pagination: use products directly with search filter
+  const displayedProducts = products.filter(product => {
+    if (!searchTerm) return true;
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      product.name.toLowerCase().includes(searchLower) ||
+      (product.discription && product.discription.toLowerCase().includes(searchLower)) ||
+      (product.category?.name && product.category.name.toLowerCase().includes(searchLower))
+    );
+  });
   console.log(displayedProducts, "All ")
   return (
     <div className="space-y-4">
       {/* Top bar */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">{totalItems} products</p>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4 flex-1">
+          <div className="relative max-w-sm flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] focus:ring-1 focus:ring-[#F59115]"
+            />
+          </div>
+          <p className="text-sm text-gray-500 whitespace-nowrap">{searchTerm ? `${displayedProducts.length} found` : `${totalItems} products`}</p>
+        </div>
         <button
           onClick={handleAdd}
           className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#F59115] rounded-lg hover:bg-orange-600 transition-colors cursor-pointer disabled:opacity-50"

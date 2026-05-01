@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2, AlertCircle, ShoppingBag, Eye, CheckCircle, Clock, Truck, Package, XCircle, ChevronDown, MoreHorizontal } from "lucide-react";
+import { Loader2, AlertCircle, ShoppingBag, Eye, CheckCircle, Clock, Truck, Package, XCircle, ChevronDown, MoreHorizontal, Search } from "lucide-react";
 import Pagination from "./Pagination";
 import { paymentApi } from "../../Api/paymentApi";
 import { useCurrency } from "../../contexts/CurrencyContext";
@@ -15,6 +15,7 @@ export default function Orders() {
   const [actionLoading, setActionLoading] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [statusTab, setStatusTab] = useState("Active");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -105,17 +106,24 @@ export default function Orders() {
 
   const filteredOrders = (orders || []).filter(order => {
     const status = (order?.orderStatus || "").toLowerCase();
-
-    if (statusTab === "Active") {
-      return status !== "delivered" && status !== "cancelled";
-    }
-    if (statusTab === "Delivered") {
-      return status === "delivered";
-    }
-    if (statusTab === "Cancelled") {
-      return status === "cancelled";
-    }
-    return true;
+    
+    // Status tab filter
+    const statusMatch = statusTab === "Active" 
+      ? status !== "delivered" && status !== "cancelled"
+      : statusTab === "Delivered" 
+        ? status === "delivered"
+        : statusTab === "Cancelled" 
+          ? status === "cancelled"
+          : true;
+    
+    // Search filter
+    const searchMatch = !searchTerm || (
+      order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.customerInfo?.name && order.customerInfo.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      status.includes(searchTerm.toLowerCase())
+    );
+    
+    return statusMatch && searchMatch;
   });
 
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
@@ -128,9 +136,21 @@ export default function Orders() {
     <div className="space-y-4 font-display">
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            {filteredOrders.length} shown / {orders.length} total
-          </p>
+          <div className="flex items-center gap-4 flex-1">
+            <div className="relative max-w-sm flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search orders..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] focus:ring-1 focus:ring-[#F59115]"
+              />
+            </div>
+            <p className="text-sm text-gray-500 whitespace-nowrap">
+              {searchTerm ? `${filteredOrders.length} found` : `${filteredOrders.length} shown / ${orders.length} total`}
+            </p>
+          </div>
           <button 
             onClick={() => fetchOrders(true)}
             className="flex items-center gap-2 text-[10px] font-bold text-gray-400 hover:text-[#F59115] transition-colors uppercase tracking-widest"
