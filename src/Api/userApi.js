@@ -45,6 +45,12 @@ const userApi = {
         return res.data;
     },
 
+    // CATEGORIES
+    getCategories: async () => {
+        const res = await httpClient.get('/user/categories');
+        return res.data;
+    },
+
     // PROFILE MANAGEMENT (Frontend ready, backend to be added by user)
     updateAccount: async (data) => {
         console.warn("updateAccount backend not attached");
