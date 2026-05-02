@@ -70,7 +70,7 @@ const Cart = () => {
                                 <div className="flex items-center gap-2 border border-gray-200 rounded-full px-3 py-1.5">
                                     <button
                                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                        className="w-6 h-6 rounded-full bg-gray-100 hover:bg-orange-100 flex items-center justify-center transition"
+                                        className="w-6 h-6 rounded-full bg-gray-100 hover:bg-orange-100 flex items-center justify-center transition cursor-pointer"
                                     >
                                         <Minus className="w-3 h-3 text-gray-600" />
                                     </button>
@@ -80,7 +80,7 @@ const Cart = () => {
                                     <button
                                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                         disabled={item.quantity >= 10}
-                                        className="w-6 h-6 rounded-full bg-gray-100 hover:bg-orange-100 flex items-center justify-center transition disabled:opacity-40"
+                                        className="w-6 h-6 rounded-full bg-gray-100 hover:bg-orange-100 flex items-center justify-center transition cursor-pointer"
                                     >
                                         <Plus className="w-3 h-3 text-gray-600" />
                                     </button>
@@ -93,7 +93,7 @@ const Cart = () => {
                                 {/* Remove */}
                                 <button
                                     onClick={() => removeFromCart(item.id)}
-                                    className="p-2 rounded-full hover:bg-red-50 transition shrink-0"
+                                    className="p-2 rounded-full hover:bg-red-50 transition shrink-0 cursor-pointer"
                                 >
                                     <Trash2 className="w-4 h-4 text-red-400" />
                                 </button>

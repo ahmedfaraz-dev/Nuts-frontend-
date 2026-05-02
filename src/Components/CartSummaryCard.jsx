@@ -60,10 +60,10 @@ const CartSummaryCard = () => {
             </button>
 
             <button className="w-full py-2 border border-orange-400 text-orange-400 rounded-md hover:bg-orange-50 transition">
-              View Cart
+              View Cart here
             </button>
 
-            <button className="w-full py-2 bg-orange-400 text-white rounded-md hover:bg-orange-500 transition">
+            <button className="w-full py-2 bg-orange-400 text-white rounded-md hover:bg-orange-500 transitio">
               Proceed Check Out
             </button>
           </div>

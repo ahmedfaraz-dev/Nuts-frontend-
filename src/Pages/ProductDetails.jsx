@@ -184,7 +184,7 @@ const ProductDetails = () => {
                             <div className="py-2 flex border-gray-200 border px-5 items-center w-fit gap-3 rounded">
                                 <p className="text-sm font-medium text-gray-700">Quantity</p>
                                 <button
-                                    className="w-7 h-7 rounded-full bg-[#F59115] flex items-center justify-center disabled:bg-gray-200 disabled:cursor-not-allowed"
+                                    className="w-7 h-7 rounded-full bg-[#F59115] flex items-center justify-center disabled:bg-gray-200 cursor-pointer"
                                     onClick={handleDecrement}
                                     disabled={quantity === 1}
                                 >
@@ -192,7 +192,7 @@ const ProductDetails = () => {
                                 </button>
                                 <span className="text-base font-semibold w-5 text-center">{quantity}</span>
                                 <button
-                                    className="w-7 h-7 rounded-full bg-[#F59115] flex items-center justify-center disabled:bg-gray-200 disabled:cursor-not-allowed"
+                                    className="w-7 h-7 rounded-full bg-[#F59115] flex items-center justify-center disabled:bg-gray-200 cursor-pointer"
                                     onClick={handleIncrement}
                                     disabled={quantity === maxQty}
                                 >
@@ -353,13 +353,13 @@ const ProductDetails = () => {
 
                             <button
                                 onClick={() => { setCartModalOpen(false); navigate('/cart'); }}
-                                className="w-full py-2.5 border border-[#F59115] text-[#F59115] rounded-xl font-medium hover:bg-orange-50 transition text-sm"
+                                className="w-full py-2.5 border border-[#F59115] text-[#F59115] rounded-xl font-medium hover:bg-orange-50 transition text-sm cursor-pointer"
                             >
                                 View Cart
                             </button>
                             <button
                                 onClick={() => { setCartModalOpen(false); navigate('/customer-details'); }}
-                                className="w-full py-2.5 bg-[#F59115] hover:bg-orange-600 text-white rounded-xl font-semibold transition text-sm"
+                                className="w-full py-2.5 bg-[#F59115] hover:bg-orange-600 text-white rounded-xl font-semibold transition text-sm cursor-pointer"
                             >
                                 Proceed to Checkout
                             </button>
