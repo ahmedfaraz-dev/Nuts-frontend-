@@ -1,20 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext.jsx';
 import { httpClient } from '../Api/axiosInstance.js';
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
-import { getCountries } from '../utils/countryServise.js';
 
 const initialForm = {
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    contactNumber: '',
-    // address (backend expects addresses array min 1)
-    city: '',
-    country: '',
-    zip: '',
+    confirmPassword: ''
 };
 
 const Register = () => {
@@ -28,8 +21,6 @@ const Register = () => {
     const [success, setSuccess] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [countries, setCountries] = useState([]);
-    const [loadingCountries, setLoadingCountries] = useState(true);
 
     const handleChange = (e) => {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -49,36 +40,9 @@ const Register = () => {
         if (!form.confirmPassword || form.confirmPassword.length < 8)
             errs.confirmPassword = 'Passwrod must be at least 8 characters long';
         if (form.confirmPassword !== form.password)
-            errs.confirmPassword = 'Password and Conform Password should be same'
-        if (!form.contactNumber.trim())
-            errs.contactNumber = 'Contact number is required';
-        if (!form.city.trim() || form.city.trim().length < 2)
-            errs.city = 'City must be at least 2 characters';
-        if (!form.country.trim() || form.country.trim().length < 2)
-            errs.country = 'Country must be at least 2 characters';
-        if (!form.zip) errs.zip = 'ZIP code is required';
-        else if (isNaN(Number(form.zip)) || !Number.isInteger(Number(form.zip)))
-            errs.zip = 'ZIP must be a valid integer number';
+            errs.confirmPassword = 'Password and Conform Password should be same';
         return errs;
     };
-    
-    /-Fetch countries-/
-    useEffect(()=>{
-        const loadCountries = async () => {
-            try {
-                const data = await getCountries();
-                setCountries( data );
-                console.log(data);
-                
-            } catch (error) {
-                console.error("Country load error", error)
-            } finally {
-                setLoadingCountries(false)
-            }
-        }
-
-        loadCountries();
-    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -90,13 +54,7 @@ const Register = () => {
             const payload = {
                 name: form.name.trim(),
                 email: form.email.trim(),
-                password: form.password,
-                contactNumber: form.contactNumber.trim(),
-                addresses: [{
-                    city: form.city.trim(),
-                    country: form.country.trim(),
-                    zip: parseInt(form.zip, 10),   // backend expects a number
-                }],
+                password: form.password
             };
             // const res = await register(payload);
             const response = await httpClient.post("/user/register", payload);
@@ -264,91 +222,6 @@ const Register = () => {
                                 {errors.confirmPassword && (
                                     <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
                                 )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* ── Address Section ── */}
-                    <div>
-                        <p className="text-xs font-semibold text-[#F59B2B] uppercase tracking-wider mb-3">
-                            Address
-                        </p>
-                        <div className="space-y-4">
-
-                            {/* City + Country */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-[#272727] mb-1" htmlFor="reg-country">
-                                        Country
-                                    </label>
-                                    <input
-                                        id="reg-country"
-                                        type="text"
-                                        name="country"
-                                        value={form.country}
-                                        onChange={handleChange}
-                                        placeholder="Pakistan"
-                                        className={`w-full px-4 py-3 border rounded-lg text-sm outline-none transition
-                                                    focus:ring-2 focus:ring-[#F59115] focus:border-[#F59115]
-                                                    ${errors.country ? 'border-red-400' : 'border-gray-200'}`}
-                                    />
-                                    {errors.country && <p className="text-red-500 text-xs mt-1">{errors.country}</p>}
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-[#272727] mb-1" htmlFor="reg-city">
-                                        City
-                                    </label>
-                                    <input
-                                        id="reg-city"
-                                        type="text"
-                                        name="city"
-                                        value={form.city}
-                                        onChange={handleChange}
-                                        placeholder="Gilgit"
-                                        className={`w-full px-4 py-3 border rounded-lg text-sm outline-none transition
-                                            focus:ring-2 focus:ring-[#F59115] focus:border-[#F59115]
-                                            ${errors.city ? 'border-red-400' : 'border-gray-200'}`}
-                                    />
-                                    {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
-                                </div>
-                            </div>
-
-                            {/* Contact Number */}
-                            <div>
-                                <label className="block text-sm font-medium text-[#272727] mb-1" htmlFor="reg-contact">
-                                    Contact Number
-                                </label>
-                                <input
-                                    id="reg-contact"
-                                    type="tel"
-                                    name="contactNumber"
-                                    value={form.contactNumber}
-                                    onChange={handleChange}
-                                    placeholder="03001234567"
-                                    className={`w-full px-4 py-3 border rounded-lg text-sm outline-none transition
-                                        focus:ring-2 focus:ring-[#F59115] focus:border-[#F59115]
-                                        ${errors.contactNumber ? 'border-red-400' : 'border-gray-200'}`}
-                                />
-                                {errors.contactNumber && <p className="text-red-500 text-xs mt-1">{errors.contactNumber}</p>}
-                            </div>
-
-                            {/* ZIP */}
-                            <div>
-                                <label className="block text-sm font-medium text-[#272727] mb-1" htmlFor="reg-zip">
-                                    ZIP / Postal Code
-                                </label>
-                                <input
-                                    id="reg-zip"
-                                    type="number"
-                                    name="zip"
-                                    value={form.zip}
-                                    onChange={handleChange}
-                                    placeholder="15100"
-                                    className={`w-full px-4 py-3 border rounded-lg text-sm outline-none transition
-                                        focus:ring-2 focus:ring-[#F59115] focus:border-[#F59115]
-                                        ${errors.zip ? 'border-red-400' : 'border-gray-200'}`}
-                                />
-                                {errors.zip && <p className="text-red-500 text-xs mt-1">{errors.zip}</p>}
                             </div>
                         </div>
                     </div>
