@@ -68,11 +68,11 @@ const userApi = {
   },
 
   // GOOGLE OAUTH
- googleLogin: () => {
-  const BACKEND_URL = "https://nut-backend-production-73f0.up.railway.app";
+  googleLogin: () => {
+    const BACKEND_URL = "https://nut-backend-production-73f0.up.railway.app";
 
-  window.location.href = `${BACKEND_URL}/api/v1/auth/google`;
-},
+    window.location.href = `${BACKEND_URL}/api/v1/auth/google`;
+  },
 
   handleGoogleCallback: async (code, state) => {
     const res = await httpClient.get("/auth/google/callback", {
