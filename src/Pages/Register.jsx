@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { httpClient } from '../Api/axiosInstance.js';
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
+import GoogleOAuthButton from '../Components/Auth/GoogleOAuthButton.jsx';
 
 const initialForm = {
     name: '',
@@ -240,6 +241,19 @@ const Register = () => {
                             </span>
                         ) : 'Create Account'}
                     </button>
+
+                    {/* Divider */}
+                    <div className="relative my-6">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                        </div>
+                    </div>
+
+                    {/* Google OAuth Button */}
+                    <GoogleOAuthButton disabled={loading} text="Continue with Google" />
 
                     {/* Login link */}
                     <p className="text-center text-sm text-gray-500">

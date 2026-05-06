@@ -22,6 +22,8 @@ import ProtectedRoute from "./Components/Auth/ProtectedRoute";
 import OrderHistory from "./Pages/OrderHistory";
 import Orders from "./Components/dashboard/Orders";
 import TestCurrency from "./test-currency";
+import OAuthCallback from "./Pages/OAuthCallback";
+import OAuthFailed from "./Pages/OAuthFailed";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -113,6 +115,14 @@ export const route = createBrowserRouter([
       {
         path: "register",
         element: <Register />,
+      },
+      {
+        path: "auth/google/callback",
+        element: <OAuthCallback />,
+      },
+      {
+        path: "auth/google/failed",
+        element: <OAuthFailed />,
       },
       // Checkout routes wrapped in Stripe Elements
       {

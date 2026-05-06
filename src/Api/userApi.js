@@ -2,71 +2,84 @@ import { httpClient } from "./axiosInstance";
 
 // MOCK: Local authentication for development without backend
 const MOCK_USER = {
-    name: "Admin User",
-    email: "admin@example.com",
-    role: "admin",
-    avatar: { url: null }
+  name: "Admin User",
+  email: "admin@example.com",
+  role: "admin",
+  avatar: { url: null },
 };
 
 const userApi = {
-    register: async (userData) => {
-        const res = await httpClient.post("/user/register", userData);
-        return res.data;
-    },
+  register: async (userData) => {
+    const res = await httpClient.post("/user/register", userData);
+    return res.data;
+  },
 
-    login: async (credentials) => {
-        const res = await httpClient.post("/auth/login", credentials);
-        return res.data;
-    },
+  login: async (credentials) => {
+    const res = await httpClient.post("/auth/login", credentials);
+    return res.data;
+  },
 
-    getCurrentUser: async () => {
-        const res = await httpClient.get('/user/get-user');
-        return res.data;
-    },
+  getCurrentUser: async () => {
+    const res = await httpClient.get("/user/get-user");
+    return res.data;
+  },
 
-    logout: async () => {
-        console.log("Mock Logout");
-        return { success: true };
-    },
+  logout: async () => {
+    console.log("Mock Logout");
+    return { success: true };
+  },
 
-    // PRODUCT FETCHING
-    getProducts: async (params) => {
-        const res = await httpClient.get('/user/products', { params });
-        return res.data;
-    },
+  // PRODUCT FETCHING
+  getProducts: async (params) => {
+    const res = await httpClient.get("/user/products", { params });
+    return res.data;
+  },
 
-    getAllProducts: async () => {
-        const res = await httpClient.get('/product/all-products');
-        return res.data;
-    },
+  getAllProducts: async () => {
+    const res = await httpClient.get("/product/all-products");
+    return res.data;
+  },
 
-    getProductById: async (id) => {
-        const res = await httpClient.get(`/user/productss/${id}`);
-        return res.data;
-    },
+  getProductById: async (id) => {
+    const res = await httpClient.get(`/user/productss/${id}`);
+    return res.data;
+  },
 
-    // CATEGORIES
-    getCategories: async () => {
-        const res = await httpClient.get('/user/categories');
-        return res.data;
-    },
+  // CATEGORIES
+  getCategories: async () => {
+    const res = await httpClient.get("/user/categories");
+    return res.data;
+  },
 
-    // PROFILE MANAGEMENT (Frontend ready, backend to be added by user)
-    updateAccount: async (data) => {
-        console.warn("updateAccount backend not attached");
-        return { success: true, message: "Profile updated (Local Only)" };
-    },
+  // PROFILE MANAGEMENT (Frontend ready, backend to be added by user)
+  updateAccount: async (data) => {
+    console.warn("updateAccount backend not attached");
+    return { success: true, message: "Profile updated (Local Only)" };
+  },
 
-    updatePassword: async (data) => {
-        console.warn("updatePassword backend not attached");
-        return { success: true, message: "Password updated (Local Only)" };
-    },
+  updatePassword: async (data) => {
+    console.warn("updatePassword backend not attached");
+    return { success: true, message: "Password updated (Local Only)" };
+  },
 
-    updateAvatar: async (formData) => {
-        console.warn("updateAvatar backend not attached");
-        return { success: true, avatar: { url: "path/to/new/avatar" } };
-    },
+  updateAvatar: async (formData) => {
+    console.warn("updateAvatar backend not attached");
+    return { success: true, avatar: { url: "path/to/new/avatar" } };
+  },
+
+  // GOOGLE OAUTH
+ googleLogin: () => {
+  const BACKEND_URL = "https://nut-backend-production-73f0.up.railway.app";
+
+  window.location.href = `${BACKEND_URL}/api/v1/auth/google`;
+},
+
+  handleGoogleCallback: async (code, state) => {
+    const res = await httpClient.get("/auth/google/callback", {
+      params: { code, state },
+    });
+    return res.data;
+  },
 };
 
 export { userApi };
-
