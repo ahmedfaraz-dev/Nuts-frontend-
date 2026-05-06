@@ -8,7 +8,7 @@ const OAuthCallback = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const data = await userApi.getProfile(); // call /me API
+        const data = await userApi.getCurrentUser(); // call /me API
 
         if (data.user?.role === "admin") {
           navigate("/admin-dashboard", { replace: true });
