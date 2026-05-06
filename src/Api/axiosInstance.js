@@ -2,52 +2,35 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 export const httpClient = axios.create({
-  baseURL: "http://localhost:8000/api/v1",
+  baseURL: "https://nut-backend-production-73f0.up.railway.app/api/v1",
+  // baseURL: "http://localhost:8000/api/v1",
   timeout: 14000,
-
-  // IMPORTANT: enables cookie-based auth
-  withCredentials: true,
 });
 
-// ==============================
-// REQUEST INTERCEPTOR
-// ==============================
 httpClient.interceptors.request.use(
   (config) => {
-    /**
-     * SAFE HYBRID MODE:
-     * - If backend still uses Bearer token for SOME routes → keep support
-     * - If cookie auth is used → ignore token safely
-     */
+    // Check Cookies first, then localStorage as fallback
+    const token = Cookies.get("token") || localStorage.getItem("token");
 
-    const token =
-      Cookies.get("token") || localStorage.getItem("token");
-
-    // Only attach Authorization if token exists AND route explicitly needs it
-    if (token && config.headers?.useAuthHeader) {
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-
-    // Always clean up custom flag (avoid sending to backend)
-    delete config.headers?.useAuthHeader;
 
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// ==============================
-// RESPONSE INTERCEPTOR
-// ==============================
+// :white_check_mark: Response Interceptor
 httpClient.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error(
       "API Error:",
       error.response?.data || error.message
+
     );
 
-    // Handle only real auth failures (not all errors)
     if (error.response?.status === 401) {
       handleSessionExpiration();
     }
@@ -56,21 +39,16 @@ httpClient.interceptors.response.use(
   }
 );
 
-// ==============================
-// SESSION HANDLER
-// ==============================
+// :point_right: Handle session expiration
 function handleSessionExpiration() {
-  Cookies.remove("token", { path: "/" });
+  Cookies.remove("token", { path: '/' });
   localStorage.removeItem("token");
 
+  // Only redirect if not already on login or register pages to avoid loops
   const publicPaths = ["/login", "/register"];
-  const isPublicPath = publicPaths.some((path) =>
-    window.location.pathname.startsWith(path)
-  );
+  const isPublicPath = publicPaths.some(path => window.location.pathname.startsWith(path));
 
   if (!isPublicPath) {
     window.location.href = "/login";
   }
 }
-
-export default httpClient;
