@@ -4,6 +4,7 @@ import { Package, Calendar, CreditCard, ChevronRight, ShoppingBag, ArrowLeft, Cl
 import { paymentApi } from '../Api/paymentApi';
 import { useCurrency } from '../contexts/CurrencyContext';
 import Button from '../Components/Ui/Button';
+import { SkeletonImage, SkeletonText, SkeletonButton } from '../Components/Ui/Skeletons';
 
 const OrderHistory = () => {
     const [orders, setOrders] = useState([]);
@@ -76,17 +77,6 @@ const OrderHistory = () => {
         return true;
     });
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin" />
-                    <p className="text-gray-500 font-medium font-sans">Loading your orders...</p>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen bg-gray-50/30 py-12 px-4 sm:px-6 lg:px-8 font-display">
             <div className="max-w-[1100px] mx-auto bg-white rounded-2xl p-8 sm:p-10 shadow-sm border border-gray-100">
@@ -110,7 +100,48 @@ const OrderHistory = () => {
                     </div>
                 )}
 
-                {orders.length === 0 ? (
+                {loading ? (
+                    <div className="w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                        <div className="min-w-[900px]">
+                            <div className="grid grid-cols-[2.5fr_1fr_0.5fr_1.2fr_1.2fr] px-6 mb-4">
+                                <SkeletonText className="h-3 w-24" />
+                                <SkeletonText className="h-3 w-12 mx-auto" />
+                                <SkeletonText className="h-3 w-12 mx-auto" />
+                                <SkeletonText className="h-3 w-20 mx-auto" />
+                                <SkeletonText className="h-3 w-20 ml-auto" />
+                            </div>
+                            <div className="space-y-3">
+                                {Array.from({ length: 4 }).map((_, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="grid grid-cols-[2.5fr_1fr_0.5fr_1.2fr_1.2fr] items-center bg-white border border-gray-100 rounded-2xl p-3 px-6 shadow-sm"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <SkeletonImage className="w-12 h-12 rounded-xl shrink-0" />
+                                            <div className="min-w-0 pr-4 space-y-2 w-full">
+                                                <SkeletonText className="h-4 w-40 rounded-lg" />
+                                                <SkeletonText className="h-3 w-28 rounded-lg" />
+                                                <SkeletonText className="h-3 w-56 rounded-lg" />
+                                            </div>
+                                        </div>
+                                        <div className="text-center">
+                                            <SkeletonText className="h-5 w-20 rounded-lg mx-auto" />
+                                        </div>
+                                        <div className="text-center">
+                                            <SkeletonText className="h-7 w-7 rounded-lg mx-auto" />
+                                        </div>
+                                        <div className="text-center">
+                                            <SkeletonText className="h-4 w-24 rounded-lg mx-auto" />
+                                        </div>
+                                        <div className="flex justify-end">
+                                            <SkeletonButton className="h-8 w-28 rounded-xl" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                ) : orders.length === 0 ? (
                     <div className="text-center py-16 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
                         <div className="w-20 h-20 bg-white shadow-inner rounded-full flex items-center justify-center mx-auto mb-5">
                             <ShoppingBag className="w-8 h-8 text-gray-200" />

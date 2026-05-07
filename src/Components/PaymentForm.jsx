@@ -9,12 +9,14 @@ import {
 } from "@stripe/react-stripe-js";
 import Cookies from "js-cookie";
 import { useCart } from "../contexts/CartContext.jsx";
+import { useCurrency } from "../contexts/CurrencyContext.jsx";
 
 const PaymentForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
   const { cartItems, clearCart } = useCart();
+  const { currency, setCurrency, availableCurrencies } = useCurrency();
 
   const stripe = useStripe();
   const elements = useElements();
@@ -64,7 +66,7 @@ const PaymentForm = () => {
       const token = Cookies.get("token") || localStorage.getItem("token");
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/create-payment-intent`,
+        `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/v1/create-payment-intent`,
         {
           method: "POST",
           headers: {
@@ -77,6 +79,7 @@ const PaymentForm = () => {
               quantity: item.quantity,
             })),
             customerData,
+            currency,
           }),
         }
       );
@@ -159,6 +162,22 @@ const PaymentForm = () => {
             <div className="border border-gray-200 rounded-md p-4 bg-white focus-within:border-orange-400 transition-colors">
               <CardNumberElement options={elementOptions} />
             </div>
+          </div>
+
+          {/* Name On Card */}
+          <div className="space-y-2">
+            <label className="block text-[#333] text-lg font-medium">Currency</label>
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              className="w-full border border-gray-200 rounded-md p-4 bg-white focus:outline-none focus:border-orange-400 transition-colors"
+            >
+              {Object.entries(availableCurrencies).map(([code, info]) => (
+                <option key={code} value={code}>
+                  {code} - {info.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Name On Card */}

@@ -8,6 +8,7 @@ import { useCurrency } from '../contexts/CurrencyContext.jsx';
 import { useNavigate, useParams } from "react-router-dom";
 import { useCart } from '../contexts/CartContext.jsx';
 import { userApi } from '../Api/userApi.js';
+import { SkeletonImage, SkeletonText, SkeletonButton } from '../Components/Ui/Skeletons';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -91,21 +92,6 @@ const ProductDetails = () => {
         setCartModalOpen(true);
     }
 
-    if (loading) {
-        return (
-            <div className="h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F59115]"></div>
-            </div>
-        );
-    }
-
-    if (error || !product) {
-        return (
-            <div className="h-screen flex items-center justify-center text-gray-500">
-                {error || 'Product not found.'}
-            </div>
-        );
-    }
     const cartTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     return (
@@ -123,171 +109,220 @@ const ProductDetails = () => {
 
                     {/* MAIN GRID */}
                     <div className="grid grid-cols-[160px_474px_482px] gap-3 h-[550px]">
+                        {loading ? (
+                            <>
+                                {/* COLUMN 1: Thumbnails */}
+                                <div className="flex flex-col gap-6 h-full overflow-y-auto">
+                                    {Array.from({ length: 3 }).map((_, idx) => (
+                                        <SkeletonImage key={idx} className="w-full h-[170px] rounded-xl" />
+                                    ))}
+                                </div>
 
-                        {/* COLUMN 1: Thumbnails */}
-                        <div className="flex flex-col gap-6 h-full overflow-y-auto">
-                            {images.map((img, idx) => (
-                                <img
-                                    key={idx}
-                                    src={img}
-                                    alt={`${product.name} view ${idx + 1}`}
-                                    onClick={() => setSelectedImage(idx)}
-                                    onError={(e) => { e.target.src = '/images/placeholder.png'; }}
-                                    className={`w-full h-[170px] object-cover rounded-xl cursor-pointer transition-all duration-200 ${selectedImage === idx
-                                        ? 'ring-2 ring-[#F59115] opacity-100'
-                                        : 'opacity-60 hover:opacity-80'
-                                        }`}
-                                />
-                            ))}
-                        </div>
+                                {/* COLUMN 2: Main Image */}
+                                <div className="h-full">
+                                    <SkeletonImage className="w-full h-full rounded-xl" />
+                                </div>
 
-                        {/* COLUMN 2: Main Image */}
-                        <div className="h-full ">
-                            <img
-                                src={images[selectedImage]}
-                                alt={product.name}
-                                onError={(e) => { e.target.src = '/images/placeholder.png'; }}
-                                className="w-full h-full object-cover rounded-xl transition-all duration-300"
-                            />
-                        </div>
-
-                        {/* COLUMN 3: Product Details */}
-                        <div className="flex flex-col h-full pl-5">
-
-                            <h1 className="flex-1 text-[20px] font-medium pr-10">{product.name}</h1>
-
-                            {product?.activeDeal && (
-                                <p className="py-5 text-[#F59B2B] font-medium flex items-center gap-2">
-                                    Special Price: {product.activeDeal.discount}% OFF
-                                </p>
-                            )}
-
-                            <div className="flex items-baseline gap-3">
-                                <h3 className="text-[20px] font-bold text-[#F59115]">
-                                    {formatPrice(getFinalPrice())}
-                                </h3>
-                                {product?.activeDeal && (
-                                    <span className="text-gray-400 line-through text-sm">
-                                        {formatPrice(product.price)}
-                                    </span>
-                                )}
-                                <span className="text-sm font-medium text-gray-500">per item</span>
-                            </div>
-
-                            <h3 className="py-5 text-[20px] text-[#F59B2B]">Description</h3>
-
-                            <p className="flex-1 text-gray-600 text-sm leading-relaxed">
-                                {description || 'Premium quality dry fruit for health and wellness.'}
-                            </p>
-
-                            {/* Quantity Control */}
-                            <div className="py-2 flex border-gray-200 border px-5 items-center w-fit gap-3 rounded">
-                                <p className="text-sm font-medium text-gray-700">Quantity</p>
+                                {/* COLUMN 3: Product Details */}
+                                <div className="flex flex-col h-full pl-5 gap-4">
+                                    <SkeletonText className="h-6 w-3/4" />
+                                    <SkeletonText className="h-5 w-1/2" />
+                                    <SkeletonText className="h-32 w-full" />
+                                    <SkeletonText className="h-10 w-40 rounded-lg" />
+                                    <div className="mt-auto flex gap-4">
+                                        <SkeletonButton className="h-12 w-full rounded-xl" />
+                                        <SkeletonButton className="h-12 w-full rounded-xl" />
+                                    </div>
+                                </div>
+                            </>
+                        ) : error || !product ? (
+                            <div className="col-span-3 flex flex-col items-center justify-center text-gray-500 gap-2">
+                                <p>{error || 'Product not found.'}</p>
                                 <button
-                                    className="w-7 h-7 rounded-full bg-[#F59115] flex items-center justify-center disabled:bg-gray-200 cursor-pointer"
-                                    onClick={handleDecrement}
-                                    disabled={quantity === 1}
+                                    onClick={() => navigate('/')}
+                                    className="flex items-center gap-2 text-sm text-[#F59115] hover:underline font-semibold"
                                 >
-                                    <ChevronDown className="w-4 h-4 text-white" />
-                                </button>
-                                <span className="text-base font-semibold w-5 text-center">{quantity}</span>
-                                <button
-                                    className="w-7 h-7 rounded-full bg-[#F59115] flex items-center justify-center disabled:bg-gray-200 cursor-pointer"
-                                    onClick={handleIncrement}
-                                    disabled={quantity === maxQty}
-                                >
-                                    <ChevronUp className="w-4 h-4 text-white" />
+                                    <ArrowLeft size={16} />
+                                    Back to home
                                 </button>
                             </div>
+                        ) : (
+                            <>
+                                {/* COLUMN 1: Thumbnails */}
+                                <div className="flex flex-col gap-6 h-full overflow-y-auto">
+                                    {images.map((img, idx) => (
+                                        <img
+                                            key={idx}
+                                            src={img}
+                                            alt={`${product.name} view ${idx + 1}`}
+                                            onClick={() => setSelectedImage(idx)}
+                                            onError={(e) => { e.target.src = '/images/placeholder.png'; }}
+                                            className={`w-full h-[170px] object-cover rounded-xl cursor-pointer transition-all duration-200 ${selectedImage === idx
+                                                ? 'ring-2 ring-[#F59115] opacity-100'
+                                                : 'opacity-60 hover:opacity-80'
+                                                }`}
+                                        />
+                                    ))}
+                                </div>
 
-                            <div className="flex-1 text-[20px] py-8">
-                                <p className="text-sm text-gray-500">Usually deliver in 3 days</p>
-                            </div>
+                                {/* COLUMN 2: Main Image */}
+                                <div className="h-full ">
+                                    <img
+                                        src={images[selectedImage]}
+                                        alt={product.name}
+                                        onError={(e) => { e.target.src = '/images/placeholder.png'; }}
+                                        className="w-full h-full object-cover rounded-xl transition-all duration-300"
+                                    />
+                                </div>
 
-                            <div className="flex gap-4 mt-auto">
-                                <Button onClick={handleAddToCart}>Add to Cart</Button>
-                                <Button onClick={handleCustomerDetails}>Buy Now</Button>
-                            </div>
-                        </div>
+                                {/* COLUMN 3: Product Details */}
+                                <div className="flex flex-col h-full pl-5">
+
+                                    <h1 className="flex-1 text-[20px] font-medium pr-10">{product.name}</h1>
+
+                                    {product?.activeDeal && (
+                                        <p className="py-5 text-[#F59B2B] font-medium flex items-center gap-2">
+                                            Special Price: {product.activeDeal.discount}% OFF
+                                        </p>
+                                    )}
+
+                                    <div className="flex items-baseline gap-3">
+                                        <h3 className="text-[20px] font-bold text-[#F59115]">
+                                            {formatPrice(getFinalPrice())}
+                                        </h3>
+                                        {product?.activeDeal && (
+                                            <span className="text-gray-400 line-through text-sm">
+                                                {formatPrice(product.price)}
+                                            </span>
+                                        )}
+                                        <span className="text-sm font-medium text-gray-500">per item</span>
+                                    </div>
+
+                                    <h3 className="py-5 text-[20px] text-[#F59B2B]">Description</h3>
+
+                                    <p className="flex-1 text-gray-600 text-sm leading-relaxed">
+                                        {description || 'Premium quality dry fruit for health and wellness.'}
+                                    </p>
+
+                                    {/* Quantity Control */}
+                                    <div className="py-2 flex border-gray-200 border px-5 items-center w-fit gap-3 rounded">
+                                        <p className="text-sm font-medium text-gray-700">Quantity</p>
+                                        <button
+                                            className="w-7 h-7 rounded-full bg-[#F59115] flex items-center justify-center disabled:bg-gray-200 cursor-pointer"
+                                            onClick={handleDecrement}
+                                            disabled={quantity === 1}
+                                        >
+                                            <ChevronDown className="w-4 h-4 text-white" />
+                                        </button>
+                                        <span className="text-base font-semibold w-5 text-center">{quantity}</span>
+                                        <button
+                                            className="w-7 h-7 rounded-full bg-[#F59115] flex items-center justify-center disabled:bg-gray-200 cursor-pointer"
+                                            onClick={handleIncrement}
+                                            disabled={quantity === maxQty}
+                                        >
+                                            <ChevronUp className="w-4 h-4 text-white" />
+                                        </button>
+                                    </div>
+
+                                    <div className="flex-1 text-[20px] py-8">
+                                        <p className="text-sm text-gray-500">Usually deliver in 3 days</p>
+                                    </div>
+
+                                    <div className="flex gap-4 mt-auto">
+                                        <Button onClick={handleAddToCart}>Add to Cart</Button>
+                                        <Button onClick={handleCustomerDetails}>Buy Now</Button>
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </section>
 
             {/* Product Details Section */}
-            <section className="w-full">
-                <div className="max-w-[1280px] mx-auto px-16 py-10">
-                    <h3 className="text-[20px] font-medium mb-4">
-                        Product Details of {product.name}
-                    </h3>
-
-                    <div className="rounded-xl shadow-md shadow-black/10 overflow-hidden bg-white">
-
-                        {/* IMAGE SECTION */}
-                        <div
-                            className="h-[500px] bg-cover bg-center"
-                            style={{
-                                backgroundImage: `
-                                    linear-gradient(to bottom, rgba(255,255,255,0) 60%, rgba(255,255,255,1) 100%),
-                                    url(${images[0]})
-                                `,
-                            }}
-                        />
-
-                        {/* COLLAPSIBLE DETAILS */}
-                        <div
-                            className={`
-                                overflow-hidden
-                                transition-[max-height,opacity] duration-500 ease-in-out
-                                ${open ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"}
-                            `}
-                        >
-                            <div className="p-6 space-y-6">
-
-                                <div className="text-gray-700">
-                                    <h1 className="text-2xl font-medium mb-2">
-                                        Products Details Of {product.name}
-                                    </h1>
-                                    <ul className="flex flex-wrap gap-4 list-disc list-inside marker:text-orange-500">
-                                        <li>High Quality</li>
-                                        <li>Fresh</li>
-                                        <li>Imported</li>
-                                        <li>Original</li>
-                                        <li>Hand Made</li>
-                                    </ul>
-                                </div>
-
-                                <div className="text-gray-700">
-                                    <h1 className="text-2xl font-medium mb-2">
-                                        Product Description
-                                    </h1>
-                                    <p className="text-gray-600 leading-relaxed">
-                                        {description || 'Our premium dry food is made from high-quality ingredients, ensuring you get the best nutrition and taste.'}
-                                    </p>
-                                </div>
-
-                                <div className="text-gray-700">
-                                    <h1 className="text-2xl font-medium mb-2">
-                                        Specification Of {product.name}
-                                    </h1>
-                                    <ul className="flex gap-4 list-disc list-inside marker:text-orange-500">
-                                        <li>Hunza Organics</li>
-                                        <li>Stock: {product.stock} units</li>
-                                    </ul>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        {/* BUTTON */}
-                        <div className="flex justify-center py-6">
-                            <Button onClick={() => setOpen(prev => !prev)}>
-                                {open ? "Hide Details" : "See more Details"}
-                            </Button>
-                        </div>
-
+            {loading ? (
+                <section className="w-full">
+                    <div className="max-w-[1280px] mx-auto px-16 py-10">
+                        <SkeletonText className="h-6 w-1/3 mb-4" />
+                        <SkeletonImage className="h-[500px] w-full rounded-xl" />
                     </div>
-                </div>
-            </section>
+                </section>
+            ) : !error && product ? (
+                <section className="w-full">
+                    <div className="max-w-[1280px] mx-auto px-16 py-10">
+                        <h3 className="text-[20px] font-medium mb-4">
+                            Product Details of {product.name}
+                        </h3>
+
+                        <div className="rounded-xl shadow-md shadow-black/10 overflow-hidden bg-white">
+
+                            {/* IMAGE SECTION */}
+                            <div
+                                className="h-[500px] bg-cover bg-center"
+                                style={{
+                                    backgroundImage: `
+                                        linear-gradient(to bottom, rgba(255,255,255,0) 60%, rgba(255,255,255,1) 100%),
+                                        url(${images[0]})
+                                    `,
+                                }}
+                            />
+
+                            {/* COLLAPSIBLE DETAILS */}
+                            <div
+                                className={`
+                                    overflow-hidden
+                                    transition-[max-height,opacity] duration-500 ease-in-out
+                                    ${open ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"}
+                                `}
+                            >
+                                <div className="p-6 space-y-6">
+
+                                    <div className="text-gray-700">
+                                        <h1 className="text-2xl font-medium mb-2">
+                                            Products Details Of {product.name}
+                                        </h1>
+                                        <ul className="flex flex-wrap gap-4 list-disc list-inside marker:text-orange-500">
+                                            <li>High Quality</li>
+                                            <li>Fresh</li>
+                                            <li>Imported</li>
+                                            <li>Original</li>
+                                            <li>Hand Made</li>
+                                        </ul>
+                                    </div>
+
+                                    <div className="text-gray-700">
+                                        <h1 className="text-2xl font-medium mb-2">
+                                            Product Description
+                                        </h1>
+                                        <p className="text-gray-600 leading-relaxed">
+                                            {description || 'Our premium dry food is made from high-quality ingredients, ensuring you get the best nutrition and taste.'}
+                                        </p>
+                                    </div>
+
+                                    <div className="text-gray-700">
+                                        <h1 className="text-2xl font-medium mb-2">
+                                            Specification Of {product.name}
+                                        </h1>
+                                        <ul className="flex gap-4 list-disc list-inside marker:text-orange-500">
+                                            <li>Hunza Organics</li>
+                                            <li>Stock: {product.stock} units</li>
+                                        </ul>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            {/* BUTTON */}
+                            <div className="flex justify-center py-6">
+                                <Button onClick={() => setOpen(prev => !prev)}>
+                                    {open ? "Hide Details" : "See more Details"}
+                                </Button>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+            ) : null}
 
             <section>
                 <Testmonial />

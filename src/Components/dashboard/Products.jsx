@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, Loader2, AlertCircle, Image as ImageIcon, Search 
 import ProductForm from "./ProductForm";
 import Pagination from "./Pagination";
 import { adminApi } from "../../Api/adminApi";
+import { SkeletonTableRow } from "../../Components/Ui/Skeletons";
 import { useCurrency } from "../../contexts/CurrencyContext";
 
 export default function Products() {
@@ -136,26 +137,6 @@ export default function Products() {
 
 
 
-  if (loading) {
-    return (
-      <div className="h-96 flex flex-col items-center justify-center text-gray-500">
-        <Loader2 className="w-8 h-8 animate-spin mb-2 text-[#F59115]" />
-        <p className="text-sm">Loading products...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="h-96 flex flex-col items-center justify-center text-red-500 bg-red-50 rounded-lg border border-red-100 p-6">
-        <AlertCircle className="w-8 h-8 mb-2" />
-        <p className="text-sm font-medium">{error}</p>
-        <button onClick={fetchData} className="mt-4 text-sm text-[#F59115] hover:underline font-semibold">
-          Try Again
-        </button>
-      </div>
-    );
-  }
 
   // Server-side pagination: use products directly with search filter
   const displayedProducts = products.filter(product => {
@@ -211,65 +192,85 @@ export default function Products() {
             </tr>
           </thead>
           <tbody>
-            {displayedProducts.map((product) => (
-              <tr key={product._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
-                <td className="px-5 py-3 whitespace-nowrap">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded bg-gray-100 flex-shrink-0 overflow-hidden border border-gray-200">
-                      {product.images?.[0] ? (
-                        <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-300">
-                          <ImageIcon size={16} />
-                        </div>
-                      )}
-                    </div>
-                    <span className="text-gray-900 font-medium">{product.name}</span>
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <SkeletonTableRow key={i} />
+              ))
+            ) : error ? (
+              <tr>
+                <td colSpan={8} className="px-5 py-8 text-center">
+                  <div className="flex flex-col items-center justify-center text-red-500 bg-red-50 rounded-lg border border-red-100 p-6">
+                    <AlertCircle className="w-8 h-8 mb-2" />
+                    <p className="text-sm font-medium">{error}</p>
+                    <button onClick={() => fetchData()} className="mt-4 text-sm text-[#F59115] hover:underline font-semibold">
+                      Try Again
+                    </button>
                   </div>
                 </td>
-                <td className="px-5 py-3 text-gray-500 max-w-[200px] truncate" title={product.discription}>
-                  {product.discription || "—"}
-                </td>
-                <td className="px-5 py-3 text-gray-600">{formatPrice(product.price)}</td>
-                <td className="px-5 py-3 text-gray-600">{product.stock}</td>
-                <td className="px-5 py-3 text-gray-600">{product.category.name || "unknown"}</td>
-                <td className="px-5 py-3">
-                  <span
-                    className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${product.isActive
-                      ? "bg-green-50 text-green-700"
-                      : "bg-gray-100 text-gray-500"
-                      }`}
-                  >
-                    {product.isActive ? "Active" : "Inactive"}
-                  </span>
-                </td>
-                <td className="px-5 py-3 text-gray-600"> {product?.activeDeal?.discount !== undefined
-                  ? product.activeDeal.discount + "%"
-                  : "No Deals"}</td>
-                <td className="px-5 py-3 text-right whitespace-nowrap">
-                  <button
-                    onClick={() => handleEdit(product)}
-                    className="p-1.5 text-gray-400 hover:text-[#F59115] transition-colors cursor-pointer"
-                    title="Edit"
-                  >
-                    <Pencil size={15} />
-                  </button>
-                  <button
-                    onClick={() => setDeleteConfirm(product._id)}
-                    className="p-1.5 text-gray-400 hover:text-red-500 transition-colors ml-1 cursor-pointer"
-                    title="Delete"
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </td>
               </tr>
-            ))}
-            {products.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-5 py-8 text-center text-sm text-gray-400">
-                  No products found. Add your first product.
-                </td>
-              </tr>
+            ) : (
+              <>
+                {displayedProducts.map((product) => (
+                  <tr key={product._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                    <td className="px-5 py-3 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded bg-gray-100 flex-shrink-0 overflow-hidden border border-gray-200">
+                          {product.images?.[0] ? (
+                            <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-300">
+                              <ImageIcon size={16} />
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-gray-900 font-medium">{product.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 py-3 text-gray-500 max-w-[200px] truncate" title={product.discription}>
+                      {product.discription || "—"}
+                    </td>
+                    <td className="px-5 py-3 text-gray-600">{formatPrice(product.price)}</td>
+                    <td className="px-5 py-3 text-gray-600">{product.stock}</td>
+                    <td className="px-5 py-3 text-gray-600">{product.category.name || "unknown"}</td>
+                    <td className="px-5 py-3">
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${product.isActive
+                          ? "bg-green-50 text-green-700"
+                          : "bg-gray-100 text-gray-500"
+                          }`}
+                      >
+                        {product.isActive ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3 text-gray-600"> {product?.activeDeal?.discount !== undefined
+                      ? product.activeDeal.discount + "%"
+                      : "No Deals"}</td>
+                    <td className="px-5 py-3 text-right whitespace-nowrap">
+                      <button
+                        onClick={() => handleEdit(product)}
+                        className="p-1.5 text-gray-400 hover:text-[#F59115] transition-colors cursor-pointer"
+                        title="Edit"
+                      >
+                        <Pencil size={15} />
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirm(product._id)}
+                        className="p-1.5 text-gray-400 hover:text-red-500 transition-colors ml-1 cursor-pointer"
+                        title="Delete"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {products.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="px-5 py-8 text-center text-sm text-gray-400">
+                      No products found. Add your first product.
+                    </td>
+                  </tr>
+                )}
+              </>
             )}
           </tbody>
         </table>

@@ -11,8 +11,15 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 
     if (authLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="w-8 h-8 border-4 border-[#F59115] border-t-transparent rounded-full animate-spin" />
+            <div className="min-h-screen bg-gray-50/30 py-12 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-[1100px] mx-auto bg-white rounded-2xl p-8 sm:p-10 shadow-sm border border-gray-100">
+                    <div className="animate-pulse space-y-4">
+                        <div className="h-6 w-44 rounded bg-gray-200" />
+                        <div className="h-24 w-full rounded-2xl bg-gray-200" />
+                        <div className="h-24 w-full rounded-2xl bg-gray-200" />
+                        <div className="h-24 w-full rounded-2xl bg-gray-200" />
+                    </div>
+                </div>
             </div>
         );
     }

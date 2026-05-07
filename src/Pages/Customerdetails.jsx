@@ -9,7 +9,7 @@ const REQUIRED_FIELDS = ["email", "firstName", "lastName", "address", "city", "p
 const CustomerDetails = () => {
   const navigate = useNavigate();
   const { cartItems } = useCart();
-  const { formatPrice } = useCurrency();
+  const { formatPrice, currency, setCurrency, availableCurrencies } = useCurrency();
 
   const subTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const delivery = cartItems.length > 0 ? 250 : 0; // consistent with backend and Cart.jsx
@@ -243,6 +243,21 @@ const CustomerDetails = () => {
         {/* Right Section: Order Summary */}
         <div className="w-full sm:w-[90vw] md:w-[70vw] lg:w-112.5 bg-[#FDFDFD] py-6 px-4 sm:px-8 md:py-12 shrink-0 mx-auto mt-8 lg:mt-0 rounded-lg shadow-md">
           <h2 className="text-xl font-bold mb-8 text-[#272727]">Your Order</h2>
+
+          <div className="mb-6">
+            <label className="block text-sm text-gray-600 mb-2">Display Currency</label>
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              className="w-full border border-gray-200 rounded-md p-3 bg-white focus:outline-none focus:border-orange-400"
+            >
+              {Object.entries(availableCurrencies).map(([code, info]) => (
+                <option key={code} value={code}>
+                  {code} - {info.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div className="flex flex-col gap-4 mb-8">
             {cartItems.map((item) => (

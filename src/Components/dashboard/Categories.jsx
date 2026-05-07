@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Loader2, AlertCircle, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, AlertCircle, Search, Loader2 } from "lucide-react";
 import { adminApi } from "../../Api/adminApi";
+import { SkeletonCategoryRow, SkeletonText, SkeletonButton } from "../../Components/Ui/Skeletons";
 import CategoryForm from "./CategoryForm";
 import Pagination from "./Pagination";
 
@@ -129,26 +130,6 @@ export default function Categories() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="h-96 flex flex-col items-center justify-center text-gray-500">
-        <Loader2 className="w-8 h-8 animate-spin mb-2 text-[#F59115]" />
-        <p className="text-sm">Loading categories...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="h-96 flex flex-col items-center justify-center text-red-500 bg-red-50 rounded-lg border border-red-100 p-6 text-center">
-        <AlertCircle className="w-8 h-8 mb-2" />
-        <p className="text-sm font-medium">{error}</p>
-        <button onClick={fetchData} className="mt-4 text-sm text-[#F59115] hover:underline font-semibold">
-          Try Again
-        </button>
-      </div>
-    );
-  }
 
   // Pagination logic with search filter
   const filteredCategories = categories.filter(category => {
@@ -170,29 +151,39 @@ export default function Categories() {
   return (
     <div className="space-y-4">
       {/* Top bar */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4 flex-1">
-          <div className="relative max-w-sm flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search categories..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] focus:ring-1 focus:ring-[#F59115]"
-            />
+      {loading ? (
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 flex-1">
+            <SkeletonText className="h-10 w-full max-w-sm rounded-lg" />
+            <SkeletonText className="h-4 w-24" />
           </div>
-          <p className="text-sm text-gray-500 whitespace-nowrap">{searchTerm ? `${filteredCategories.length} found` : `${categories.length} categories`}</p>
+          <SkeletonButton className="h-9 w-36 rounded-lg" />
         </div>
-        <button
-          onClick={handleAdd}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#F59115] rounded-lg hover:bg-orange-600 transition-colors cursor-pointer disabled:opacity-50"
-          disabled={actionLoading}
-        >
-          <Plus size={16} />
-          Add Category
-        </button>
-      </div>
+      ) : (
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 flex-1">
+            <div className="relative max-w-sm flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search categories..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] focus:ring-1 focus:ring-[#F59115]"
+              />
+            </div>
+            <p className="text-sm text-gray-500 whitespace-nowrap">{searchTerm ? `${filteredCategories.length} found` : `${categories.length} categories`}</p>
+          </div>
+          <button
+            onClick={handleAdd}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#F59115] rounded-lg hover:bg-orange-600 transition-colors cursor-pointer disabled:opacity-50"
+            disabled={actionLoading}
+          >
+            <Plus size={16} />
+            Add Category
+          </button>
+        </div>
+      )}
 
       {/* Table */}
       <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
@@ -206,35 +197,55 @@ export default function Categories() {
             </tr>
           </thead>
           <tbody>
-            {displayedCategories.map((category) => (
-              <tr key={category._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
-                <td className="px-5 py-3 text-gray-900 font-medium">{category.name}</td>
-                <td className="px-5 py-3 text-gray-500 font-mono text-xs">{category.slug}</td>
-                <td className="px-5 py-3 text-gray-600">{getParentName(category.parentCategoryId)}</td>
-                <td className="px-5 py-3 text-right whitespace-nowrap">
-                  <button
-                    onClick={() => handleEdit(category)}
-                    className="p-1.5 text-gray-400 hover:text-[#F59115] transition-colors cursor-pointer"
-                    title="Edit"
-                  >
-                    <Pencil size={15} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteAttempt(category._id)}
-                    className="p-1.5 text-gray-400 hover:text-red-500 transition-colors ml-1 cursor-pointer"
-                    title="Delete"
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {categories.length === 0 && (
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <SkeletonCategoryRow key={i} />
+              ))
+            ) : error ? (
               <tr>
-                <td colSpan={4} className="px-5 py-8 text-center text-sm text-gray-400">
-                  No categories found. Add your first category.
+                <td colSpan={4} className="px-5 py-8 text-center">
+                  <div className="flex flex-col items-center justify-center text-red-500 bg-red-50 rounded-lg border border-red-100 p-6">
+                    <AlertCircle className="w-8 h-8 mb-2" />
+                    <p className="text-sm font-medium">{error}</p>
+                    <button onClick={() => fetchData()} className="mt-4 text-sm text-[#F59115] hover:underline font-semibold">
+                      Try Again
+                    </button>
+                  </div>
                 </td>
               </tr>
+            ) : (
+              <>
+                {displayedCategories.map((category) => (
+                  <tr key={category._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                    <td className="px-5 py-3 text-gray-900 font-medium">{category.name}</td>
+                    <td className="px-5 py-3 text-gray-500 font-mono text-xs">{category.slug}</td>
+                    <td className="px-5 py-3 text-gray-600">{getParentName(category.parentCategoryId)}</td>
+                    <td className="px-5 py-3 text-right whitespace-nowrap">
+                      <button
+                        onClick={() => handleEdit(category)}
+                        className="p-1.5 text-gray-400 hover:text-[#F59115] transition-colors cursor-pointer"
+                        title="Edit"
+                      >
+                        <Pencil size={15} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteAttempt(category._id)}
+                        className="p-1.5 text-gray-400 hover:text-red-500 transition-colors ml-1 cursor-pointer"
+                        title="Delete"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {categories.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="px-5 py-8 text-center text-sm text-gray-400">
+                      No categories found. Add your first category.
+                    </td>
+                  </tr>
+                )}
+              </>
             )}
           </tbody>
         </table>

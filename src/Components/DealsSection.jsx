@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { userApi } from "../Api/userApi";
 import Product from "./Ui/Product";
+import { SkeletonProductCard } from "./Ui/Skeletons";
 
 // Live countdown to a given endDate
 const useCountdown = (endDate) => {
@@ -107,8 +108,12 @@ const DealsSection = () => {
             {/* Scrollable Product Cards */}
             <div className="flex-1 overflow-x-auto no-scrollbar">
               {loading ? (
-                <div className="flex items-center justify-center h-full min-h-[420px]">
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#F59115]" />
+                <div className="flex gap-5 pb-2" style={{ width: "max-content" }}>
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="w-56 shrink-0">
+                      <SkeletonProductCard />
+                    </div>
+                  ))}
                 </div>
               ) : dealProducts.length === 0 ? (
                 <div className="flex items-center justify-center h-full min-h-[420px] text-gray-400 text-sm">
