@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Loader2, AlertCircle, ShoppingBag, Eye, CheckCircle, Clock, Truck, Package, XCircle, ChevronDown, MoreHorizontal, Search } from "lucide-react";
+import { AlertCircle, ShoppingBag, Eye, CheckCircle, Clock, Truck, Package, XCircle, ChevronDown, MoreHorizontal, Search } from "lucide-react";
 import Pagination from "./Pagination";
 import { paymentApi } from "../../Api/paymentApi";
 import { useCurrency } from "../../contexts/CurrencyContext";
+import { SkeletonOrderRow, SkeletonText, SkeletonButton } from "../../Components/Ui/Skeletons";
 
 const STATUS_FLOW = ["Processing", "Confirmed", "Shipped", "Delivered", "Cancelled"];
 
@@ -83,26 +84,6 @@ export default function Orders() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="h-96 flex flex-col items-center justify-center text-gray-500">
-        <Loader2 className="w-8 h-8 animate-spin mb-2 text-[#F59115]" />
-        <p className="text-sm tracking-wide">Loading orders...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="h-96 flex flex-col items-center justify-center text-red-500 bg-red-50 rounded-lg border border-red-100 p-6">
-        <AlertCircle className="w-8 h-8 mb-2" />
-        <p className="text-sm font-medium">{error}</p>
-        <button onClick={fetchOrders} className="mt-4 text-sm text-[#F59115] hover:underline font-semibold">
-          Try Again
-        </button>
-      </div>
-    );
-  }
 
   const filteredOrders = (orders || []).filter(order => {
     const status = (order?.orderStatus || "").toLowerCase();
@@ -134,55 +115,72 @@ export default function Orders() {
 
   return (
     <div className="space-y-4 font-display">
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 flex-1">
-            <div className="relative max-w-sm flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search orders..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] focus:ring-1 focus:ring-[#F59115]"
-              />
+      {loading ? (
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 flex-1">
+              <SkeletonText className="h-10 w-full max-w-sm rounded-lg" />
+              <SkeletonText className="h-4 w-32" />
             </div>
-            <p className="text-sm text-gray-500 whitespace-nowrap">
-              {searchTerm ? `${filteredOrders.length} found` : `${filteredOrders.length} shown / ${orders.length} total`}
-            </p>
+            <SkeletonButton className="h-8 w-28 rounded-lg" />
           </div>
-          <button 
-            onClick={() => fetchOrders(true)}
-            className="flex items-center gap-2 text-[10px] font-bold text-gray-400 hover:text-[#F59115] transition-colors uppercase tracking-widest"
-          >
-            <Clock className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            Refresh Data
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <SkeletonButton className="h-9 w-24 rounded-xl" />
+            <SkeletonButton className="h-9 w-28 rounded-xl" />
+            <SkeletonButton className="h-9 w-28 rounded-xl" />
+          </div>
         </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          {[
-            { key: "Active", label: "Active" },
-            { key: "Delivered", label: "Delivered" },
-            { key: "Cancelled", label: "Cancelled" },
-          ].map(tab => (
+      ) : (
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 flex-1">
+              <div className="relative max-w-sm flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search orders..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] focus:ring-1 focus:ring-[#F59115]"
+                />
+              </div>
+              <p className="text-sm text-gray-500 whitespace-nowrap">
+                {searchTerm ? `${filteredOrders.length} found` : `${filteredOrders.length} shown / ${orders.length} total`}
+              </p>
+            </div>
             <button
-              key={tab.key}
-              onClick={() => {
-                setStatusTab(tab.key);
-                setCurrentPage(1);
-              }}
-              className={`px-4 py-2 rounded-xl border text-[10px] font-bold uppercase tracking-widest transition-all ${
-                statusTab === tab.key
-                  ? "bg-[#F59115]/10 border-[#F59115] text-[#F59115]"
-                  : "bg-white border-gray-200 text-gray-500 hover:text-gray-800 hover:border-orange-200"
-              }`}
+              onClick={() => fetchOrders(true)}
+              className="flex items-center gap-2 text-[10px] font-bold text-gray-400 hover:text-[#F59115] transition-colors uppercase tracking-widest"
             >
-              {tab.label}
+              <Clock className="w-3.5 h-3.5" />
+              Refresh Data
             </button>
-          ))}
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            {[
+              { key: "Active", label: "Active" },
+              { key: "Delivered", label: "Delivered" },
+              { key: "Cancelled", label: "Cancelled" },
+            ].map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => {
+                  setStatusTab(tab.key);
+                  setCurrentPage(1);
+                }}
+                className={`px-4 py-2 rounded-xl border text-[10px] font-bold uppercase tracking-widest transition-all ${
+                  statusTab === tab.key
+                    ? "bg-[#F59115]/10 border-[#F59115] text-[#F59115]"
+                    : "bg-white border-gray-200 text-gray-500 hover:text-gray-800 hover:border-orange-200"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="bg-white border border-gray-200 rounded-xl overflow-x-auto shadow-sm">
         <table className="w-full text-sm">
@@ -196,74 +194,94 @@ export default function Orders() {
             </tr>
           </thead>
           <tbody>
-            {displayedOrders.map((order) => (
-              <tr key={order._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
-                <td className="px-5 py-5 whitespace-nowrap">
-                  <button
-                    onClick={() => setSelectedOrder(order)}
-                    className="font-bold text-gray-900 hover:text-[#F59115] transition-colors flex flex-col items-start group"
-                  >
-                    <span className="text-sm">#{order._id.slice(-8).toUpperCase()}</span>
-                  </button>
-                </td>
-                <td className="px-5 py-5">
-                  <div className="flex flex-col">
-                    <span className="text-sm text-gray-900 font-bold leading-tight">{order.customerInfo?.name}</span>
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <SkeletonOrderRow key={i} />
+              ))
+            ) : error ? (
+              <tr>
+                <td colSpan={5} className="px-5 py-12 text-center">
+                  <div className="flex flex-col items-center justify-center text-red-500 bg-red-50 rounded-lg border border-red-100 p-6">
+                    <AlertCircle className="w-8 h-8 mb-2" />
+                    <p className="text-sm font-medium">{error}</p>
+                    <button onClick={() => fetchOrders(true)} className="mt-4 text-sm text-[#F59115] hover:underline font-semibold">
+                      Try Again
+                    </button>
                   </div>
                 </td>
-                <td className="px-5 py-5 text-sm text-gray-600 font-medium">
-                  {new Date(order.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                </td>
-                <td className="px-5 py-5 text-sm text-gray-900 font-bold">
-                  {formatPrice(order.totalAmount)}
-                </td>
-                <td className="px-5 py-5 relative dropdown-container">
-                  <button
-                    onClick={() => setOpenDropdownId(openDropdownId === order._id ? null : order._id)}
-                    className={`px-4 py-1.5 rounded-xl text-[10px] font-bold border uppercase tracking-widest cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 group ${getStatusStyle(order.orderStatus)}`}
-                  >
-                    {order.orderStatus}
-                    <ChevronDown size={12} className={`transition-transform duration-200 ${openDropdownId === order._id ? 'rotate-180' : ''}`} />
-                  </button>
+              </tr>
+            ) : (
+              <>
+                {displayedOrders.map((order) => (
+                  <tr key={order._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
+                    <td className="px-5 py-5 whitespace-nowrap">
+                      <button
+                        onClick={() => setSelectedOrder(order)}
+                        className="font-bold text-gray-900 hover:text-[#F59115] transition-colors flex flex-col items-start group"
+                      >
+                        <span className="text-sm">#{order._id.slice(-8).toUpperCase()}</span>
+                      </button>
+                    </td>
+                    <td className="px-5 py-5">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-900 font-bold leading-tight">{order.customerInfo?.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 py-5 text-sm text-gray-600 font-medium">
+                      {new Date(order.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </td>
+                    <td className="px-5 py-5 text-sm text-gray-900 font-bold">
+                      {formatPrice(order.totalAmount)}
+                    </td>
+                    <td className="px-5 py-5 relative dropdown-container">
+                      <button
+                        onClick={() => setOpenDropdownId(openDropdownId === order._id ? null : order._id)}
+                        className={`px-4 py-1.5 rounded-xl text-[10px] font-bold border uppercase tracking-widest cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 group ${getStatusStyle(order.orderStatus)}`}
+                      >
+                        {order.orderStatus}
+                        <ChevronDown size={12} className={`transition-transform duration-200 ${openDropdownId === order._id ? 'rotate-180' : ''}`} />
+                      </button>
 
-                  {openDropdownId === order._id && (
-                    <div className="absolute left-5 mt-2 w-56 bg-white border border-gray-100 rounded-2xl shadow-2xl z-100 py-3 animate-in fade-in zoom-in duration-200">
-                      <div className="px-5 py-2 border-b border-gray-50 mb-2">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Update Order Status</p>
-                      </div>
-                      <div className="space-y-1">
-                        {STATUS_FLOW.map(status => (
-                          <button
-                            key={status}
-                            onClick={() => {
-                              handleUpdateStatus(order._id, status);
-                              setOpenDropdownId(null);
-                            }}
-                            disabled={actionLoading}
-                            className={`w-full text-left px-5 py-2.5 text-xs font-bold transition-all flex items-center justify-between group ${order.orderStatus === status
-                              ? 'text-[#F59115] bg-orange-50/50'
-                              : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
-                              }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className={`w-1.5 h-1.5 rounded-full ${order.orderStatus === status ? 'bg-[#F59115]' : 'bg-gray-200 group-hover:bg-gray-400'}`}></div>
-                              {status}
-                            </div>
-                            {order.orderStatus === status && <CheckCircle size={14} className="text-[#F59115]" />}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {filteredOrders.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-5 py-12 text-center text-sm text-gray-400 italic">
-                  No orders found in the database.
-                </td>
-              </tr>
+                      {openDropdownId === order._id && (
+                        <div className="absolute left-5 mt-2 w-56 bg-white border border-gray-100 rounded-2xl shadow-2xl z-100 py-3 animate-in fade-in zoom-in duration-200">
+                          <div className="px-5 py-2 border-b border-gray-50 mb-2">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Update Order Status</p>
+                          </div>
+                          <div className="space-y-1">
+                            {STATUS_FLOW.map(status => (
+                              <button
+                                key={status}
+                                onClick={() => {
+                                  handleUpdateStatus(order._id, status);
+                                  setOpenDropdownId(null);
+                                }}
+                                disabled={actionLoading}
+                                className={`w-full text-left px-5 py-2.5 text-xs font-bold transition-all flex items-center justify-between group ${order.orderStatus === status
+                                  ? 'text-[#F59115] bg-orange-50/50'
+                                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                                  }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-1.5 h-1.5 rounded-full ${order.orderStatus === status ? 'bg-[#F59115]' : 'bg-gray-200 group-hover:bg-gray-400'}`}></div>
+                                  {status}
+                                </div>
+                                {order.orderStatus === status && <CheckCircle size={14} className="text-[#F59115]" />}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+                {filteredOrders.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-5 py-12 text-center text-sm text-gray-400 italic">
+                      No orders found in the database.
+                    </td>
+                  </tr>
+                )}
+              </>
             )}
           </tbody>
         </table>

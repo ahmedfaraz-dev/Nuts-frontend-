@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Package, Tag, Zap, ArrowRight, Loader2, ShoppingBag } from "lucide-react";
+import { Package, Tag, Zap, ArrowRight, ShoppingBag } from "lucide-react";
 import { adminApi } from "../../Api/adminApi";
 import { useCurrency } from "../../contexts/CurrencyContext";
+import { SkeletonStatCard, SkeletonDashboardProductRow, SkeletonDashboardOrderRow, SkeletonText, SkeletonButton } from "../../Components/Ui/Skeletons";
 
 export default function Dashboard() {
   const { formatPrice } = useCurrency();
@@ -71,76 +72,83 @@ export default function Dashboard() {
     loadStats();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="h-96 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#F59115]" />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 font-display">
       {/* Stat cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Link
-              key={stat.label}
-              to={stat.to}
-              className="bg-white border border-gray-200 rounded-lg p-5 flex items-center gap-4 hover:border-[#F59115]/40 transition-colors"
-            >
-              <div className={`w-10 h-10 rounded-lg ${stat.bg} flex items-center justify-center`}>
-                <Icon size={20} className={stat.color} />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                <p className="text-sm text-gray-500">{stat.label}</p>
-              </div>
-            </Link>
-          );
-        })}
+        {loading
+          ? Array.from({ length: 4 }).map((_, i) => <SkeletonStatCard key={i} />)
+          : stats.map((stat) => {
+              const Icon = stat.icon;
+              return (
+                <Link
+                  key={stat.label}
+                  to={stat.to}
+                  className="bg-white border border-gray-200 rounded-lg p-5 flex items-center gap-4 hover:border-[#F59115]/40 transition-colors"
+                >
+                  <div className={`w-10 h-10 rounded-lg ${stat.bg} flex items-center justify-center`}>
+                    <Icon size={20} className={stat.color} />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                    <p className="text-sm text-gray-500">{stat.label}</p>
+                  </div>
+                </Link>
+              );
+            })}
       </div>
 
       {/* Quick actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Link
-          to="/admin-dashboard/products"
-          className="bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:border-[#F59115]/40 transition-colors flex items-center justify-between"
-        >
-          Manage Products <ArrowRight size={16} className="text-gray-400" />
-        </Link>
-        <Link
-          to="/admin-dashboard/categories"
-          className="bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:border-[#F59115]/40 transition-colors flex items-center justify-between"
-        >
-          Manage Categories <ArrowRight size={16} className="text-gray-400" />
-        </Link>
-        <Link
-          to="/admin-dashboard/deals"
-          className="bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:border-[#F59115]/40 transition-colors flex items-center justify-between"
-        >
-          Manage Deals <ArrowRight size={16} className="text-gray-400" />
-        </Link>
-        <Link
-          to="/admin-dashboard/orders"
-          className="bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:border-[#F59115]/40 transition-colors flex items-center justify-between"
-        >
-          Manage Orders <ArrowRight size={16} className="text-gray-400" />
-        </Link>
-      </div>
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <SkeletonButton className="h-12 w-full rounded-lg" />
+          <SkeletonButton className="h-12 w-full rounded-lg" />
+          <SkeletonButton className="h-12 w-full rounded-lg" />
+          <SkeletonButton className="h-12 w-full rounded-lg" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Link
+            to="/admin-dashboard/products"
+            className="bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:border-[#F59115]/40 transition-colors flex items-center justify-between"
+          >
+            Manage Products <ArrowRight size={16} className="text-gray-400" />
+          </Link>
+          <Link
+            to="/admin-dashboard/categories"
+            className="bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:border-[#F59115]/40 transition-colors flex items-center justify-between"
+          >
+            Manage Categories <ArrowRight size={16} className="text-gray-400" />
+          </Link>
+          <Link
+            to="/admin-dashboard/deals"
+            className="bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:border-[#F59115]/40 transition-colors flex items-center justify-between"
+          >
+            Manage Deals <ArrowRight size={16} className="text-gray-400" />
+          </Link>
+          <Link
+            to="/admin-dashboard/orders"
+            className="bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:border-[#F59115]/40 transition-colors flex items-center justify-between"
+          >
+            Manage Orders <ArrowRight size={16} className="text-gray-400" />
+          </Link>
+        </div>
+      )}
 
       {/* Recent products */}
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
         <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-gray-900">Recent Products</h3>
-          <Link
-            to="/admin-dashboard/products"
-            className="text-xs font-medium text-[#F59115] hover:underline"
-          >
-            View all
-          </Link>
+          {loading ? (
+            <SkeletonText className="h-4 w-16" />
+          ) : (
+            <Link
+              to="/admin-dashboard/products"
+              className="text-xs font-medium text-[#F59115] hover:underline"
+            >
+              View all
+            </Link>
+          )}
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -153,24 +161,26 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {recentProducts.map((product) => (
-                <tr key={product._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
-                  <td className="px-5 py-3 text-gray-900 font-medium truncate max-w-[150px]">{product.name}</td>
-                  <td className="px-5 py-3 text-gray-600">{formatPrice(product.price)}</td>
-                  <td className="px-5 py-3 text-gray-600">{product.stock}</td>
-                  <td className="px-5 py-3">
-                    <span
-                      className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${product.isActive
-                        ? "bg-green-50 text-green-700"
-                        : "bg-gray-100 text-gray-500"
-                        }`}
-                    >
-                      {product.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-              {recentProducts.length === 0 && (
+              {loading
+                ? Array.from({ length: 5 }).map((_, i) => <SkeletonDashboardProductRow key={i} />)
+                : recentProducts.map((product) => (
+                    <tr key={product._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                      <td className="px-5 py-3 text-gray-900 font-medium truncate max-w-[150px]">{product.name}</td>
+                      <td className="px-5 py-3 text-gray-600">{formatPrice(product.price)}</td>
+                      <td className="px-5 py-3 text-gray-600">{product.stock}</td>
+                      <td className="px-5 py-3">
+                        <span
+                          className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${product.isActive
+                            ? "bg-green-50 text-green-700"
+                            : "bg-gray-100 text-gray-500"
+                            }`}
+                        >
+                          {product.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+              {!loading && recentProducts.length === 0 && (
                 <tr>
                   <td colSpan={4} className="px-5 py-8 text-center text-gray-400">No products found.</td>
                 </tr>
@@ -183,12 +193,16 @@ export default function Dashboard() {
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
         <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 className="text-sm font-bold text-gray-900">Recent Orders</h3>
-          <Link
-            to="/admin-dashboard/orders"
-            className="text-xs font-medium text-[#F59115] hover:underline"
-          >
-            View all
-          </Link>
+          {loading ? (
+            <SkeletonText className="h-4 w-16" />
+          ) : (
+            <Link
+              to="/admin-dashboard/orders"
+              className="text-xs font-medium text-[#F59115] hover:underline"
+            >
+              View all
+            </Link>
+          )}
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -201,23 +215,25 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {recentOrders.map((order) => (
-                <tr key={order._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
-                  <td className="px-5 py-3 text-gray-900 font-bold uppercase text-[10px]">#{order._id.slice(-8)}</td>
-                  <td className="px-5 py-3">
-                    <div className="flex flex-col">
-                      <span className="text-gray-900 font-medium text-xs">{order.customerInfo?.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-gray-900 font-bold">{formatPrice(order.totalAmount)}</td>
-                  <td className="px-5 py-3">
-                    <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${order.orderStatus === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
-                      {order.orderStatus}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-              {recentOrders.length === 0 && (
+              {loading
+                ? Array.from({ length: 5 }).map((_, i) => <SkeletonDashboardOrderRow key={i} />)
+                : recentOrders.map((order) => (
+                    <tr key={order._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                      <td className="px-5 py-3 text-gray-900 font-bold uppercase text-[10px]">#{order._id.slice(-8)}</td>
+                      <td className="px-5 py-3">
+                        <div className="flex flex-col">
+                          <span className="text-gray-900 font-medium text-xs">{order.customerInfo?.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3 text-gray-900 font-bold">{formatPrice(order.totalAmount)}</td>
+                      <td className="px-5 py-3">
+                        <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${order.orderStatus === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+                          {order.orderStatus}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+              {!loading && recentOrders.length === 0 && (
                 <tr>
                   <td colSpan={4} className="px-5 py-8 text-center text-gray-400 italic text-xs">No orders recently.</td>
                 </tr>

@@ -6,6 +6,7 @@ import Product from "./Ui/Product";
 import { SearchX, ChevronLeft, ChevronRight, ArrowRight, SlidersHorizontal, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCurrency } from "../contexts/CurrencyContext";
+import { SkeletonProductCard, SkeletonFilterPanel, SkeletonButton, SkeletonText } from "./Ui/Skeletons";
 
 const ProductList = ({ limit }) => {
   const [products, setProducts] = useState([]);
@@ -242,19 +243,6 @@ const ProductList = ({ limit }) => {
     }
   }, [query, categoryParam, discountParam]);
 
-  if (loading)
-    return (
-      <div className="w-full h-96 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F59115]"></div>
-      </div>
-    );
-
-  if (error)
-    return (
-      <div className="w-full h-96 flex items-center justify-center text-red-500 bg-red-50 p-6 rounded-xl border border-red-100">
-        <p className="font-medium text-center">{error}</p>
-      </div>
-    );
 
   const FilterContent = () => (
     <div className="flex flex-col gap-8">
@@ -389,13 +377,13 @@ const ProductList = ({ limit }) => {
             {!limit && (
               <aside className="hidden lg:block w-72 shrink-0 sticky top-24 h-fit">
                 <div className="bg-white rounded-3xl p-8 border border-gray-100/50">
-                  <FilterContent />
+                  {loading ? <SkeletonFilterPanel /> : <FilterContent />}
                 </div>
               </aside>
             )}
 
             <div className="flex-1">
-              {noMatch && (
+              {noMatch && !loading && (
                 <div className="mb-8 flex items-start gap-4 bg-orange-50 border border-orange-200/50 rounded-2xl p-5 animate-in fade-in slide-in-from-top-4 duration-500">
                   <div className="p-3 bg-white rounded-xl shadow-sm">
                     <SearchX className="w-6 h-6 text-[#F59115]" />
@@ -409,7 +397,33 @@ const ProductList = ({ limit }) => {
                 </div>
               )}
 
-              {paginatedProducts.length > 0 ? (
+              {error && !loading ? (
+                <div className="w-full h-96 flex items-center justify-center text-red-500 bg-red-50 p-6 rounded-xl border border-red-100">
+                  <p className="font-medium text-center">{error}</p>
+                </div>
+              ) : loading ? (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+                    {Array.from({ length: limit || 6 }).map((_, i) => (
+                      <SkeletonProductCard key={i} />
+                    ))}
+                  </div>
+                  {!limit && (
+                    <div className="mt-24 flex flex-col items-center justify-center gap-10">
+                      <div className="flex items-center gap-4">
+                        <SkeletonButton className="h-14 w-14 rounded-2xl" />
+                        <div className="flex items-center gap-2">
+                          <SkeletonButton className="h-14 w-14 rounded-2xl" />
+                          <SkeletonButton className="h-14 w-14 rounded-2xl" />
+                          <SkeletonButton className="h-14 w-14 rounded-2xl" />
+                        </div>
+                        <SkeletonButton className="h-14 w-14 rounded-2xl" />
+                      </div>
+                      <SkeletonText className="h-4 w-64 rounded-full" />
+                    </div>
+                  )}
+                </>
+              ) : paginatedProducts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
                   {paginatedProducts.map((item) => (
                     <Product key={item.id} item={item} />
