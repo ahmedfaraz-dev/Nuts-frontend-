@@ -11,8 +11,10 @@ export const useCurrency = () => {
 };
 
 export const CurrencyProvider = ({ children }) => {
+    const supportedCurrencyCodes = ["PKR", "USD", "EUR", "GBP", "INR"];
     const [currency, setCurrency] = useState(() => {
-        return localStorage.getItem("site_currency") || "PKR";
+        const savedCurrency = localStorage.getItem("site_currency");
+        return supportedCurrencyCodes.includes(savedCurrency) ? savedCurrency : "PKR";
     });
     
     const [exchangeRates, setExchangeRates] = useState({
@@ -20,8 +22,7 @@ export const CurrencyProvider = ({ children }) => {
         PKR: 280,
         EUR: 0.85,
         GBP: 0.73,
-        AED: 3.67,
-        SAR: 3.75
+        INR: 83
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -33,8 +34,7 @@ export const CurrencyProvider = ({ children }) => {
         USD: { symbol: '$', name: 'US Dollar' },
         EUR: { symbol: '€', name: 'Euro' },
         GBP: { symbol: '£', name: 'British Pound' },
-        AED: { symbol: 'د.إ', name: 'UAE Dirham' },
-        SAR: { symbol: '﷼', name: 'Saudi Riyal' }
+        INR: { symbol: '₹', name: 'Indian Rupee' }
     };
 
     // Fetch exchange rates from API
@@ -60,7 +60,7 @@ export const CurrencyProvider = ({ children }) => {
             }
 
             // Fetch fresh rates from Exchangerate.host (free API)
-            const response = await fetch('https://api.exchangerate.host/latest?base=USD&symbols=PKR,EUR,GBP,AED,SAR');
+            const response = await fetch('https://api.exchangerate.host/latest?base=USD&symbols=PKR,EUR,GBP,INR');
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -77,8 +77,7 @@ export const CurrencyProvider = ({ children }) => {
                     PKR: data.rates.PKR || 280, // Fallback if missing
                     EUR: data.rates.EUR || 0.85,
                     GBP: data.rates.GBP || 0.73,
-                    AED: data.rates.AED || 3.67,
-                    SAR: data.rates.SAR || 3.75
+                    INR: data.rates.INR || 83
                 };
                 
                 console.log('Final Rates:', rates);
@@ -99,8 +98,7 @@ export const CurrencyProvider = ({ children }) => {
                 PKR: 280,
                 EUR: 0.85,
                 GBP: 0.73,
-                AED: 3.67,
-                SAR: 3.75
+                INR: 83
             };
             setExchangeRates(fallbackRates);
         } finally {
