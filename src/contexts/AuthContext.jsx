@@ -1,12 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { userApi } from '../Api/userApi.js';
 import Cookies from 'js-cookie';
-import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const navigate = useNavigate();
+
     const [user, setUser] = useState(null);
     const [authLoading, setAuthLoading] = useState(true);
 
@@ -87,8 +86,6 @@ export const AuthProvider = ({ children }) => {
             });
 
             setUser(null);
-
-            navigate("/logout");
         }
     };
 
