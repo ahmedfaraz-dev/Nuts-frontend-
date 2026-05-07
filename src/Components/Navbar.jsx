@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext.jsx'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import { useCurrency } from '../contexts/CurrencyContext.jsx'
-import { User, LogOut, ChevronDown, LayoutDashboard, Globe } from 'lucide-react'
+import { User, ChevronDown, LayoutDashboard, Globe, Bell } from 'lucide-react'
+import { paymentApi } from '../Api/paymentApi.js'
+import { getPendingRatingItems } from '../utils/ratingUtils.js'
 
 const PRIMARY_TABS = [
   { id: 'dryfood', label: 'Dry food' },
@@ -46,10 +49,31 @@ const Navbar = () => {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('dryfood')
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false)
+  const [pendingRatingsCount, setPendingRatingsCount] = useState(0)
   const navigate = useNavigate()
   const { totalItems } = useCart()
   const { user, logout, authLoading } = useAuth()
   const { currency, setCurrency, availableCurrencies, loading, lastUpdated, refreshRates } = useCurrency()
+
+  useEffect(() => {
+    const loadRatingNotifications = async () => {
+      if (!user) {
+        setPendingRatingsCount(0)
+        return
+      }
+      try {
+        const response = await paymentApi.getMyOrders()
+        const orderData = response.data?.orders || (Array.isArray(response.data) ? response.data : [])
+        const ratedProductIds = JSON.parse(localStorage.getItem('ratedProductIds') || '[]')
+        const pending = getPendingRatingItems(orderData, ratedProductIds)
+        setPendingRatingsCount(pending.length)
+      } catch (error) {
+        setPendingRatingsCount(0)
+      }
+    }
+
+    loadRatingNotifications()
+  }, [user])
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -168,6 +192,18 @@ const Navbar = () => {
               <div className="flex items-center gap-4">
                 {user ? (
                   <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => navigate('/order-history')}
+                      className="relative p-2 text-gray-400 hover:text-[#F59115] hover:bg-orange-50 rounded-lg transition-all cursor-pointer"
+                      title="Rating notifications"
+                    >
+                      <Bell className="w-5 h-5" />
+                      {pendingRatingsCount > 0 && (
+                        <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-[#F59115] text-white text-[10px] font-bold flex items-center justify-center">
+                          {pendingRatingsCount > 9 ? '9+' : pendingRatingsCount}
+                        </span>
+                      )}
+                    </button>
                     <button
                       onClick={() => navigate('/profile')}
                       className="flex items-center p-0.5 bg-gray-50 rounded-full border border-gray-100 hover:border-orange-200 transition-all cursor-pointer group"

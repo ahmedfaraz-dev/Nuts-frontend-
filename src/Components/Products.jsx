@@ -192,6 +192,9 @@ const ProductList = ({ limit }) => {
             activeDeal: item.activeDeal || null,
             stock: item.stock,
             category: item.category,
+            averageRating: item.averageRating ?? item.avgRating ?? item.ratingsAverage,
+            ratingsCount: item.ratingsCount ?? item.numOfReviews ?? item.reviewCount ?? item.totalRatings,
+            reviews: Array.isArray(item.reviews) ? item.reviews : [],
           }));
 
           setProducts(mappedProducts);
@@ -206,6 +209,10 @@ const ProductList = ({ limit }) => {
     };
 
     fetchData();
+
+    const handleRatingSubmitted = () => fetchData();
+    window.addEventListener('rating-submitted', handleRatingSubmitted);
+    return () => window.removeEventListener('rating-submitted', handleRatingSubmitted);
   }, []);
 
   const lowerQ = query.toLowerCase();

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { Clock, ShoppingBag, Flame } from "lucide-react";
+import { Clock, ShoppingBag, Flame, Star } from "lucide-react";
 import { useCurrency } from "../../contexts/CurrencyContext";
+import { getProductRatingSummary } from "../../utils/ratingUtils";
 
 const Product = ({ item }) => {
   const deal = item.activeDeal;
@@ -21,6 +22,7 @@ const Product = ({ item }) => {
 
   const isOutOfStock = item.stock === 0;
   const isLowStock = !isOutOfStock && item.stock > 0 && item.stock <= 5;
+  const { average, count } = getProductRatingSummary(item);
 
   return (
     <div className="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-400 flex flex-col h-full border border-gray-100/80">
@@ -87,7 +89,7 @@ const Product = ({ item }) => {
         )}
 
         {/* ── Price + CTA ── */}
-        <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+        <div className="mt-auto pt-3 border-t border-gray-100 flex items-end justify-between gap-2">
 
           {/* Price */}
           <div className="flex flex-col leading-none">
@@ -107,16 +109,27 @@ const Product = ({ item }) => {
             )}
           </div>
 
-          {/* Buy Now Button */}
-          <Link to={`/product/${item.id}`} tabIndex={isOutOfStock ? -1 : 0}>
-            <button
-              disabled={isOutOfStock}
-              className="inline-flex items-center gap-1.5 bg-[#F59115] hover:bg-orange-600 active:scale-95 disabled:bg-gray-100 disabled:cursor-not-allowed text-white disabled:text-gray-400 text-[11px] font-bold px-3.5 py-2 rounded-xl cursor-pointer transition-all duration-200 shadow-sm hover:shadow-orange-200/70 hover:shadow-lg whitespace-nowrap"
-            >
-              <ShoppingBag size={12} className="shrink-0" />
-              {isOutOfStock ? "Sold Out" : "Buy Now"}
-            </button>
-          </Link>
+          <div className="flex flex-col items-end gap-1.5">
+            <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-600">
+              <Star size={12} className="text-amber-500 fill-amber-500" />
+              {count > 0 ? (
+                <span>
+                  {average.toFixed(1)} ({count})
+                </span>
+              ) : (
+                <span>No ratings</span>
+              )}
+            </div>
+            <Link to={`/product/${item.id}`} tabIndex={isOutOfStock ? -1 : 0}>
+              <button
+                disabled={isOutOfStock}
+                className="inline-flex items-center gap-1.5 bg-[#F59115] hover:bg-orange-600 active:scale-95 disabled:bg-gray-100 disabled:cursor-not-allowed text-white disabled:text-gray-400 text-[11px] font-bold px-3.5 py-2 rounded-xl cursor-pointer transition-all duration-200 shadow-sm hover:shadow-orange-200/70 hover:shadow-lg whitespace-nowrap"
+              >
+                <ShoppingBag size={12} className="shrink-0" />
+                {isOutOfStock ? "Sold Out" : "Buy Now"}
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
