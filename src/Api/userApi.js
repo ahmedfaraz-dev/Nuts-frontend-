@@ -19,14 +19,13 @@ const userApi = {
     return res.data;
   },
 
+  logout: async () => {
+       await httpClient.post("/auth/logout")
+   },
+   
   getCurrentUser: async () => {
     const res = await httpClient.get("/user/get-user");
     return res.data;
-  },
-
-  logout: async () => {
-    console.log("Mock Logout");
-    return { success: true };
   },
 
   // PRODUCT FETCHING

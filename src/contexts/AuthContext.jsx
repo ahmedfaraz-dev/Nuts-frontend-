@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
         const restoreSession = async () => {
             // Optimization: Only try to restore if a token exists
             const token = Cookies.get("token") || localStorage.getItem("token");
-            
+
             if (!token) {
                 console.log("No auth token found, skipping session restoration.");
                 setAuthLoading(false);
@@ -75,12 +75,19 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         try {
             await userApi.logout();
-        } catch (err) {
-            console.error("Logout error:", err);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            localStorage.removeItem("token");
+
+            Cookies.remove("token", {
+                path: "/",
+            });
+
+            setUser(null);
+
+            navigate("/login");
         }
-        setUser(null);
-        Cookies.remove("token", { path: '/' });
-        localStorage.removeItem("token");
     };
 
     return (
