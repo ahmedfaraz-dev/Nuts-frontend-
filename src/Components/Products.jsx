@@ -8,6 +8,119 @@ import { useNavigate } from "react-router-dom";
 import { useCurrency } from "../contexts/CurrencyContext";
 import { SkeletonProductCard, SkeletonFilterPanel, SkeletonButton, SkeletonText } from "./Ui/Skeletons";
 
+const FilterContent = ({
+  categories,
+  activeCategory,
+  setActiveCategory,
+  formatPrice,
+  priceRange,
+  priceMinInput,
+  setPriceMinInput,
+  priceMaxInput,
+  setPriceMaxInput,
+  handlePriceInputKeyDown,
+  applyPriceFilter,
+  discounts,
+  activeDiscount,
+  setActiveDiscount,
+  onResetAll,
+}) => (
+  <div className="flex flex-col gap-8">
+    <div>
+      <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+        Categories
+        <span className="w-1.5 h-1.5 rounded-full bg-[#F59115]"></span>
+      </h3>
+      <div className="flex flex-col gap-2">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={`text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${activeCategory === cat
+              ? "bg-[#F59115] text-white shadow-lg shadow-orange-200"
+              : "text-gray-500 hover:bg-orange-50 hover:text-[#F59115]"
+              }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <div>
+      <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+        Price Range
+        <span className="w-1.5 h-1.5 rounded-full bg-[#F59115]"></span>
+      </h3>
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <input
+            inputMode="numeric"
+            type="text"
+            value={priceMinInput}
+            onChange={(e) => setPriceMinInput(e.target.value.replace(/[^\d]/g, ""))}
+            onKeyDown={handlePriceInputKeyDown}
+            placeholder="Min"
+            className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm font-semibold text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#F59115]/30 focus:border-[#F59115]"
+            aria-label="Minimum price"
+          />
+          <input
+            inputMode="numeric"
+            type="text"
+            value={priceMaxInput}
+            onChange={(e) => setPriceMaxInput(e.target.value.replace(/[^\d]/g, ""))}
+            onKeyDown={handlePriceInputKeyDown}
+            placeholder="Max"
+            className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm font-semibold text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#F59115]/30 focus:border-[#F59115]"
+            aria-label="Maximum price"
+          />
+          <button
+            type="button"
+            onClick={applyPriceFilter}
+            className="shrink-0 w-10 h-9 rounded-md bg-[#F59115] hover:bg-orange-600 text-white flex items-center justify-center transition-colors"
+            aria-label="Apply price filter"
+            title="Apply"
+          >
+            <ArrowRight size={16} />
+          </button>
+        </div>
+        <div className="text-[11px] font-bold text-gray-400 flex items-center justify-between">
+          <span>{formatPrice(priceRange[0])}</span>
+          <span>{formatPrice(priceRange[1])}</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+        Discount
+        <span className="w-1.5 h-1.5 rounded-full bg-[#F59115]"></span>
+      </h3>
+      <div className="flex flex-wrap gap-2">
+        {discounts.map((d) => (
+          <button
+            key={d.value}
+            onClick={() => setActiveDiscount(activeDiscount === d.value ? null : d.value)}
+            className={`px-3 py-2 rounded-xl text-[11px] font-bold border-2 transition-all duration-300 ${activeDiscount === d.value
+              ? "bg-[#F59115] border-[#F59115] text-white shadow-md shadow-orange-100"
+              : "border-gray-100 text-gray-500 hover:border-orange-200 hover:text-[#F59115]"
+              }`}
+          >
+            {d.label}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <button
+      onClick={onResetAll}
+      className="w-full py-3 rounded-xl border-2 border-dashed border-gray-200 text-sm font-bold text-gray-400 hover:border-[#F59115] hover:text-[#F59115] transition-all duration-300"
+    >
+      Reset All Filters
+    </button>
+  </div>
+);
+
 const ProductList = ({ limit }) => {
   const [products, setProducts] = useState([]);
   const [categoriesData, setCategoriesData] = useState([]);
@@ -20,6 +133,8 @@ const ProductList = ({ limit }) => {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
   const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [priceMinInput, setPriceMinInput] = useState("");
+  const [priceMaxInput, setPriceMaxInput] = useState("");
   const [activeDiscount, setActiveDiscount] = useState(null);
 
   const query = limit ? "" : (searchParams.get("q")?.trim() || "");
@@ -128,7 +243,7 @@ const ProductList = ({ limit }) => {
     }
 
     // 4. Apply Price Range Filter
-    result = result.filter((p) => p.price <= priceRange[1]);
+    result = result.filter((p) => p.price >= priceRange[0] && p.price <= priceRange[1]);
 
     return result;
   }, [products, query, lowerQ, activeCategory, activeDiscount, priceRange]);
@@ -239,95 +354,41 @@ const ProductList = ({ limit }) => {
     if (!query && !categoryParam && !discountParam) {
       setActiveCategory("All");
       setPriceRange([0, 5000]);
+      setPriceMinInput("");
+      setPriceMaxInput("");
       setActiveDiscount(null);
     }
   }, [query, categoryParam, discountParam]);
 
+  const applyPriceFilter = () => {
+    const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 
-  const FilterContent = () => (
-    <div className="flex flex-col gap-8">
-      <div>
-        <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-          Categories
-          <span className="w-1.5 h-1.5 rounded-full bg-[#F59115]"></span>
-        </h3>
-        <div className="flex flex-col gap-2">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${activeCategory === cat
-                ? "bg-[#F59115] text-white shadow-lg shadow-orange-200"
-                : "text-gray-500 hover:bg-orange-50 hover:text-[#F59115]"
-                }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
+    const minRaw = Number(priceMinInput);
+    const maxRaw = Number(priceMaxInput);
 
-      <div>
-        <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-          Price Range
-          <span className="w-1.5 h-1.5 rounded-full bg-[#F59115]"></span>
-        </h3>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between text-xs font-bold text-gray-400">
-            <span>{formatPrice(0)}</span>
-            <span>{formatPrice(5000)}</span>
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="5000"
-            step="100"
-            value={priceRange[1]}
-            onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-            className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#F59115]"
-          />
-          <div className="flex items-center justify-between">
-            <div className="px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-xs font-bold text-gray-700">
-              Up to {formatPrice(priceRange[1])}
-            </div>
-          </div>
-        </div>
-      </div>
+    const min = Number.isFinite(minRaw) ? clamp(Math.floor(minRaw), 0, 5000) : 0;
+    const max = Number.isFinite(maxRaw) ? clamp(Math.floor(maxRaw), 0, 5000) : 5000;
 
-      <div>
-        <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-          Discount
-          <span className="w-1.5 h-1.5 rounded-full bg-[#F59115]"></span>
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {discounts.map((d) => (
-            <button
-              key={d.value}
-              onClick={() => setActiveDiscount(activeDiscount === d.value ? null : d.value)}
-              className={`px-3 py-2 rounded-xl text-[11px] font-bold border-2 transition-all duration-300 ${activeDiscount === d.value
-                ? "bg-[#F59115] border-[#F59115] text-white shadow-md shadow-orange-100"
-                : "border-gray-100 text-gray-500 hover:border-orange-200 hover:text-[#F59115]"
-                }`}
-            >
-              {d.label}
-            </button>
-          ))}
-        </div>
-      </div>
+    const finalMin = Math.min(min, max);
+    const finalMax = Math.max(min, max);
 
-      <button
-        onClick={() => {
-          setActiveCategory("All");
-          setPriceRange([0, 5000]);
-          setActiveDiscount(null);
-          setSearchParams({}); // Clears q, category, and discount from the URL
-        }}
-        className="w-full py-3 rounded-xl border-2 border-dashed border-gray-200 text-sm font-bold text-gray-400 hover:border-[#F59115] hover:text-[#F59115] transition-all duration-300"
-      >
-        Reset All Filters
-      </button>
-    </div>
-  );
+    setPriceMinInput(String(finalMin));
+    setPriceMaxInput(String(finalMax));
+    setPriceRange([finalMin, finalMax]);
+  };
+
+  const handlePriceInputKeyDown = (e) => {
+    if (e.key === "Enter") applyPriceFilter();
+  };
+
+  const resetAllFilters = () => {
+    setActiveCategory("All");
+    setPriceRange([0, 5000]);
+    setPriceMinInput("");
+    setPriceMaxInput("");
+    setActiveDiscount(null);
+    setSearchParams({}); // Clears q, category, and discount from the URL
+  };
 
   return (
     <div className="w-full bg-white">
@@ -351,6 +412,8 @@ const ProductList = ({ limit }) => {
                     setSearchParams({});
                     setActiveCategory("All");
                     setPriceRange([0, 5000]);
+                    setPriceMinInput("");
+                    setPriceMaxInput("");
                     setActiveDiscount(null);
                   }}
                   className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-100 hover:border-gray-300 transition-all duration-300"
@@ -377,7 +440,27 @@ const ProductList = ({ limit }) => {
             {!limit && (
               <aside className="hidden lg:block w-72 shrink-0 sticky top-24 h-fit">
                 <div className="bg-white rounded-3xl p-8 border border-gray-100/50">
-                  {loading ? <SkeletonFilterPanel /> : <FilterContent />}
+                  {loading ? (
+                    <SkeletonFilterPanel />
+                  ) : (
+                    <FilterContent
+                      categories={categories}
+                      activeCategory={activeCategory}
+                      setActiveCategory={setActiveCategory}
+                      formatPrice={formatPrice}
+                      priceRange={priceRange}
+                      priceMinInput={priceMinInput}
+                      setPriceMinInput={setPriceMinInput}
+                      priceMaxInput={priceMaxInput}
+                      setPriceMaxInput={setPriceMaxInput}
+                      handlePriceInputKeyDown={handlePriceInputKeyDown}
+                      applyPriceFilter={applyPriceFilter}
+                      discounts={discounts}
+                      activeDiscount={activeDiscount}
+                      setActiveDiscount={setActiveDiscount}
+                      onResetAll={resetAllFilters}
+                    />
+                  )}
                 </div>
               </aside>
             )}
@@ -518,7 +601,23 @@ const ProductList = ({ limit }) => {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-              <FilterContent />
+              <FilterContent
+                categories={categories}
+                activeCategory={activeCategory}
+                setActiveCategory={setActiveCategory}
+                formatPrice={formatPrice}
+                priceRange={priceRange}
+                priceMinInput={priceMinInput}
+                setPriceMinInput={setPriceMinInput}
+                priceMaxInput={priceMaxInput}
+                setPriceMaxInput={setPriceMaxInput}
+                handlePriceInputKeyDown={handlePriceInputKeyDown}
+                applyPriceFilter={applyPriceFilter}
+                discounts={discounts}
+                activeDiscount={activeDiscount}
+                setActiveDiscount={setActiveDiscount}
+                onResetAll={resetAllFilters}
+              />
             </div>
             <div className="p-6 border-t border-gray-50">
               <button
