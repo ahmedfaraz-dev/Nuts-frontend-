@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { Clock, ShoppingBag, Flame } from "lucide-react";
+import { Clock, ShoppingBag, Flame, Star } from "lucide-react";
 import { useCurrency } from "../../contexts/CurrencyContext";
+import { getProductRatingSummary } from "../../utils/ratingUtils";
 
 const Product = ({ item }) => {
   const deal = item.activeDeal;
@@ -21,6 +22,7 @@ const Product = ({ item }) => {
 
   const isOutOfStock = item.stock === 0;
   const isLowStock = !isOutOfStock && item.stock > 0 && item.stock <= 5;
+  const { average, count } = getProductRatingSummary(item);
 
   return (
     <div className="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-400 flex flex-col h-full border border-gray-100/80">
@@ -78,16 +80,37 @@ const Product = ({ item }) => {
           {item.desc || "Premium quality dry fruit for health and wellness."}
         </p>
 
-        {/* Deal End Date */}
-        {hasDeal && deal.endDate && (
-          <div className="inline-flex items-center gap-1 text-[10px] text-orange-500 font-semibold bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full w-fit">
-            <Clock size={9} />
-            Deal ends {formatEndDate(deal.endDate)}
-          </div>
-        )}
+        {/* Rating + Deal End Date row */}
+        <div className="flex items-center justify-between gap-2">
+          {hasDeal && deal.endDate && (
+            <div className="inline-flex items-center gap-1 text-[10px] text-orange-500 font-semibold bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full w-fit">
+              <Clock size={9} />
+              Deal ends {formatEndDate(deal.endDate)}
+            </div>
+          )}
+
+          {count > 0 && (
+            <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-gray-600">
+              <div className="flex items-center gap-0.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    size={11}
+                    className={
+                      star <= Math.round(average)
+                        ? "text-amber-500 fill-amber-500"
+                        : "text-gray-300"
+                    }
+                  />
+                ))}
+              </div>
+              <span className="text-gray-500">({count})</span>
+            </div>
+          )}
+        </div>
 
         {/* ── Price + CTA ── */}
-        <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+        <div className="mt-auto pt-3 border-t border-gray-100 flex items-end justify-between gap-2">
 
           {/* Price */}
           <div className="flex flex-col leading-none">
@@ -107,16 +130,17 @@ const Product = ({ item }) => {
             )}
           </div>
 
-          {/* Buy Now Button */}
-          <Link to={`/product/${item.id}`} tabIndex={isOutOfStock ? -1 : 0}>
-            <button
-              disabled={isOutOfStock}
-              className="inline-flex items-center gap-1.5 bg-[#F59115] hover:bg-orange-600 active:scale-95 disabled:bg-gray-100 disabled:cursor-not-allowed text-white disabled:text-gray-400 text-[11px] font-bold px-3.5 py-2 rounded-xl cursor-pointer transition-all duration-200 shadow-sm hover:shadow-orange-200/70 hover:shadow-lg whitespace-nowrap"
-            >
-              <ShoppingBag size={12} className="shrink-0" />
-              {isOutOfStock ? "Sold Out" : "Buy Now"}
-            </button>
-          </Link>
+          <div className="flex flex-col items-end gap-1.5">
+            <Link to={`/product/${item.id}`} tabIndex={isOutOfStock ? -1 : 0}>
+              <button
+                disabled={isOutOfStock}
+                className="inline-flex items-center gap-1.5 bg-[#F59115] hover:bg-orange-600 active:scale-95 disabled:bg-gray-100 disabled:cursor-not-allowed text-white disabled:text-gray-400 text-[11px] font-bold px-3.5 py-2 rounded-xl cursor-pointer transition-all duration-200 shadow-sm hover:shadow-orange-200/70 hover:shadow-lg whitespace-nowrap"
+              >
+                <ShoppingBag size={12} className="shrink-0" />
+                {isOutOfStock ? "Sold Out" : "Buy Now"}
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Button from '../Components/Ui/Button.jsx'
-import { ChevronUp, ChevronDown, X, ShoppingCart, ArrowLeft } from "lucide-react";
+import { ChevronUp, ChevronDown, X, ShoppingCart, ArrowLeft, Star } from "lucide-react";
 import imgFour from '../assets/ProductImages/shbackgound.png'
 import Testmonial from '../Components/Testmonial.jsx'
 import VideoSection from '../Components/VideoSection.jsx'
@@ -8,7 +8,10 @@ import { useCurrency } from '../contexts/CurrencyContext.jsx';
 import { useNavigate, useParams } from "react-router-dom";
 import { useCart } from '../contexts/CartContext.jsx';
 import { userApi } from '../Api/userApi.js';
+import { ratingApi } from '../Api/ratingApi.js';
 import { SkeletonImage, SkeletonText, SkeletonButton } from '../Components/Ui/Skeletons';
+import { getProductRatingSummary } from '../utils/ratingUtils.js';
+import { useAuth } from '../contexts/AuthContext.jsx';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -20,8 +23,11 @@ const ProductDetails = () => {
     const [quantity, setQuantity] = useState(1);
     const [open, setOpen] = useState(false);
     const [cartModalOpen, setCartModalOpen] = useState(false);
+    const [reviews, setReviews] = useState([]);
+    const [reviewsLoading, setReviewsLoading] = useState(false);
     const navigate = useNavigate();
     const { addToCart, cartItems, totalItems } = useCart();
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -39,7 +45,30 @@ const ProductDetails = () => {
                 setLoading(false);
             }
         };
+        const fetchReviews = async () => {
+            try {
+                setReviewsLoading(true);
+                const response = await ratingApi.getProductReviews(id);
+                if (response.success) {
+                    setReviews(response.reviews || []);
+                }
+            } catch (err) {
+                console.error("Failed to fetch reviews:", err);
+            } finally {
+                setReviewsLoading(false);
+            }
+        };
         fetchProduct();
+        fetchReviews();
+
+        const handleRatingSubmitted = (e) => {
+            if (e.detail?.productId === id) {
+                fetchProduct();
+                fetchReviews();
+            }
+        };
+        window.addEventListener('rating-submitted', handleRatingSubmitted);
+        return () => window.removeEventListener('rating-submitted', handleRatingSubmitted);
     }, [id]);
     
     // Derived values - defined before helpers for safety
@@ -51,6 +80,8 @@ const ProductDetails = () => {
     ];
     const description = product?.discription || product?.description || '';
     const maxQty = product?.stock ? Math.min(product.stock, 10) : 10;
+    const ratingSummary = getProductRatingSummary(product);
+    const canRateHint = Boolean(user);
 
     const getFinalPrice = () => {
         if (!product) return 0;
@@ -197,6 +228,16 @@ const ProductDetails = () => {
                                         )}
                                         <span className="text-sm font-medium text-gray-500">per item</span>
                                     </div>
+                                    {(ratingSummary.count > 0 || reviews.length > 0) && (
+                                        <div className="mt-3 inline-flex items-center gap-2 text-sm text-gray-700">
+                                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                                            <span>
+                                                {ratingSummary.count > 0
+                                                    ? `${ratingSummary.average.toFixed(1)} average (${ratingSummary.count} review${ratingSummary.count > 1 ? "s" : ""})`
+                                                    : `${reviews.length} review${reviews.length > 1 ? "s" : ""}`}
+                                            </span>
+                                        </div>
+                                    )}
 
                                     <h3 className="py-5 text-[20px] text-[#F59B2B]">Description</h3>
 
@@ -307,6 +348,119 @@ const ProductDetails = () => {
                                             <li>Hunza Organics</li>
                                             <li>Stock: {product.stock} units</li>
                                         </ul>
+                                    </div>
+                                    <div className="text-gray-700">
+                                        <h1 className="text-2xl font-medium mb-2">
+                                            Customer Ratings & Reviews
+                                        </h1>
+                                        {(ratingSummary.count > 0 || reviews.length > 0) && (
+                                            <div className="flex flex-col sm:flex-row items-start gap-6 sm:gap-10 mb-6">
+                                                {/* Left: Average + Stars + Count */}
+                                                <div className="flex flex-col gap-2">
+                                                    <div className="flex items-baseline gap-1">
+                                                        <span className="text-5xl font-bold text-gray-800">
+                                                            {ratingSummary.average.toFixed(1)}
+                                                        </span>
+                                                        <span className="text-lg font-medium text-gray-400">/5</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-0.5">
+                                                        {[1,2,3,4,5].map(star => (
+                                                            <Star
+                                                                key={star}
+                                                                size={22}
+                                                                className={star <= Math.round(ratingSummary.average)
+                                                                    ? "text-amber-400 fill-amber-400"
+                                                                    : "text-gray-300"
+                                                                }
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                    <p className="text-sm text-gray-500 font-medium">
+                                                        {ratingSummary.count} Rating{ratingSummary.count > 1 ? "s" : ""}
+                                                    </p>
+                                                </div>
+
+                                                {/* Right: Star Distribution */}
+                                                {reviews.length > 0 && (
+                                                    <div className="space-y-2 w-fit">
+                                                        {[5,4,3,2,1].map(star => {
+                                                            const count = reviews.filter(r => Math.round(Number(r.rating)) === star).length;
+                                                            const pct = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+                                                            return (
+                                                                <div key={star} className="flex items-center gap-3 text-xs">
+                                                                    <div className="flex items-center gap-0.5 shrink-0">
+                                                                        {[1,2,3,4,5].map(s => (
+                                                                            <Star
+                                                                                key={s}
+                                                                                size={12}
+                                                                                className={s <= star
+                                                                                    ? "text-amber-400 fill-amber-400"
+                                                                                    : "text-gray-300"
+                                                                                }
+                                                                            />
+                                                                        ))}
+                                                                    </div>
+                                                                    <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden shrink-0">
+                                                                        <div
+                                                                            className="h-full bg-amber-400 rounded-full"
+                                                                            style={{ width: `${pct}%` }}
+                                                                        />
+                                                                    </div>
+                                                                    <span className="w-8 text-gray-600 text-right shrink-0 font-medium">{count}</span>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                        {reviewsLoading ? (
+                                            <div className="space-y-3">
+                                                {Array.from({ length: 3 }).map((_, idx) => (
+                                                    <div key={idx} className="border border-gray-100 rounded-xl p-4 bg-gray-50/60">
+                                                        <SkeletonText className="h-4 w-1/3 mb-2" />
+                                                        <SkeletonText className="h-3 w-full" />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : reviews.length > 0 ? (
+                                            <div className="space-y-3">
+                                                {reviews.map((review) => (
+                                                    <div key={review._id || review.id} className="border border-gray-100 rounded-xl p-4 bg-gray-50/60">
+                                                        <div className="flex items-center justify-between gap-3">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-xs font-bold text-[#F59115]">
+                                                                    {(review.userId?.name || "U").charAt(0).toUpperCase()}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-semibold text-sm text-gray-800">{review.userId?.name || "Verified Buyer"}</p>
+                                                                    <p className="text-[10px] text-gray-400">
+                                                                        {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ""}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="inline-flex items-center gap-1 text-xs text-gray-600">
+                                                                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                                                                {Number(review.rating || 0).toFixed(1)}
+                                                            </div>
+                                                        </div>
+                                                        <p className="font-semibold text-sm text-gray-800 mt-2">{review.title || "Customer review"}</p>
+                                                        <p className="text-sm text-gray-600 mt-1">
+                                                            {review.comment || "No comment provided."}
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className="text-gray-500 text-sm">
+                                                Delivered buyers can submit the first review.
+                                            </p>
+                                        )}
+                                        {!canRateHint && (
+                                            <p className="text-xs text-gray-500 mt-3">
+                                                Login required to submit a rating.
+                                            </p>
+                                        )}
                                     </div>
 
                                 </div>

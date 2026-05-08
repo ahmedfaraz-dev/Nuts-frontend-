@@ -1,16 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Calendar, CreditCard, ChevronRight, ShoppingBag, ArrowLeft, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Package, ShoppingBag, ArrowLeft, Clock, CheckCircle, XCircle, Star, X } from 'lucide-react';
 import { paymentApi } from '../Api/paymentApi';
 import { useCurrency } from '../contexts/CurrencyContext';
 import Button from '../Components/Ui/Button';
 import { SkeletonImage, SkeletonText, SkeletonButton } from '../Components/Ui/Skeletons';
+import { useAuth } from '../contexts/AuthContext';
+import { ratingApi } from '../Api/ratingApi';
+import { getOrderItemProductId, getPendingRatingItems } from '../utils/ratingUtils';
+import { userApi } from '../Api/userApi';
+import Cookies from 'js-cookie';
 
 const OrderHistory = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [pendingRatings, setPendingRatings] = useState([]);
+    const [ratingModalOpen, setRatingModalOpen] = useState(false);
+    const [selectedRatingItem, setSelectedRatingItem] = useState(null);
+    const [ratingValue, setRatingValue] = useState(5);
+    const [ratingTitle, setRatingTitle] = useState('');
+    const [ratingComment, setRatingComment] = useState('');
+    const [ratingSubmitting, setRatingSubmitting] = useState(false);
+    const [ratingFeedback, setRatingFeedback] = useState('');
+    const [fallbackUserId, setFallbackUserId] = useState('');
     const { formatPrice } = useCurrency();
+    const { user } = useAuth();
     const navigate = useNavigate();
     // API doesn't provide deliveredAt/cancelledAt, so we approximate the 7-day archive
     // window using the order's createdAt (same timestamp you already display).
@@ -23,6 +38,38 @@ const OrderHistory = () => {
             // Ensure we handle both { orders: [] } and direct array responses
             const orderData = response.data?.orders || (Array.isArray(response.data) ? response.data : []);
             setOrders(orderData);
+            const orderLinkedUserId =
+                orderData.find((order) =>
+                    order?.user ||
+                    order?.userId ||
+                    order?.customerInfo?.userId
+                )?.user?._id ||
+                orderData.find((order) =>
+                    order?.user ||
+                    order?.userId ||
+                    order?.customerInfo?.userId
+                )?.user?.id ||
+                orderData.find((order) =>
+                    order?.user ||
+                    order?.userId ||
+                    order?.customerInfo?.userId
+                )?.user ||
+                orderData.find((order) =>
+                    order?.user ||
+                    order?.userId ||
+                    order?.customerInfo?.userId
+                )?.userId ||
+                orderData.find((order) =>
+                    order?.user ||
+                    order?.userId ||
+                    order?.customerInfo?.userId
+                )?.customerInfo?.userId ||
+                '';
+            setFallbackUserId(orderLinkedUserId || '');
+
+            const ratedProductIds = JSON.parse(localStorage.getItem('ratedProductIds') || '[]');
+            const pending = getPendingRatingItems(orderData, ratedProductIds);
+            setPendingRatings(pending);
         } catch (err) {
             console.error("Error fetching orders:", err);
             setError("Failed to load your order history. Please try again later.");
@@ -38,6 +85,128 @@ const OrderHistory = () => {
         const interval = setInterval(() => fetchOrders(false), 30000);
         return () => clearInterval(interval);
     }, []);
+
+    const openRatingModal = (item) => {
+        setSelectedRatingItem(item);
+        setRatingValue(5);
+        setRatingTitle('');
+        setRatingComment('');
+        setRatingFeedback('');
+        setRatingModalOpen(true);
+    };
+
+    const closeRatingModal = () => {
+        setRatingModalOpen(false);
+        setSelectedRatingItem(null);
+    };
+
+    const resolveCurrentUserId = async () => {
+        const immediateUserId =
+            user?._id ||
+            user?.id ||
+            user?.userId ||
+            user?.user?._id ||
+            user?.user?.id;
+
+        if (immediateUserId) return immediateUserId;
+        if (fallbackUserId) return fallbackUserId;
+
+        // Decode JWT payload as another fallback when user object is partial.
+        try {
+            const token = Cookies.get("token") || localStorage.getItem("token");
+            if (token) {
+                const payloadBase64 = token.split('.')[1];
+                if (payloadBase64) {
+                    const normalized = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+                    const decoded = JSON.parse(atob(normalized));
+                    const tokenUserId = decoded?._id || decoded?.id || decoded?.userId || decoded?.sub;
+                    if (tokenUserId) return tokenUserId;
+                }
+            }
+        } catch (err) {
+            // no-op, continue to profile fallback
+        }
+
+        try {
+            const profileRes = await userApi.getCurrentUser();
+            const profileUser = profileRes?.user || profileRes?.data || profileRes;
+            return (
+                profileUser?._id ||
+                profileUser?.id ||
+                profileUser?.userId ||
+                profileUser?.user?._id ||
+                profileUser?.user?.id ||
+                null
+            );
+        } catch (err) {
+            return null;
+        }
+    };
+
+    const handleSubmitRating = async (e) => {
+        e.preventDefault();
+        setRatingFeedback('');
+
+        try {
+            setRatingSubmitting(true);
+            const userId = await resolveCurrentUserId();
+            const rawProductId =
+                selectedRatingItem?.productId?._id ||
+                selectedRatingItem?.productId?.id ||
+                selectedRatingItem?.productId;
+            const productId = rawProductId ? String(rawProductId) : '';
+
+            if (!productId) {
+                setRatingFeedback('Product not found for this order item.');
+                return;
+            }
+
+            if (!userId) {
+                setRatingFeedback('Please login again to submit your rating.');
+                return;
+            }
+
+            await ratingApi.submitProductRating({
+                userId,
+                productId,
+                rating: Number(ratingValue),
+                title: ratingTitle.trim() || 'Product rating',
+                comment: ratingComment.trim() || 'Rated by verified buyer',
+            });
+
+            const ratedProductIds = JSON.parse(localStorage.getItem('ratedProductIds') || '[]');
+            if (!ratedProductIds.includes(productId)) {
+                localStorage.setItem('ratedProductIds', JSON.stringify([...ratedProductIds, productId]));
+            }
+
+            setRatingFeedback('Thanks! Your rating has been submitted.');
+            setPendingRatings((prev) => prev.filter((entry) => entry.productId !== productId));
+
+            // Invalidate stale product data on other pages
+            window.dispatchEvent(new CustomEvent('rating-submitted', { detail: { productId } }));
+
+            // Refresh orders from server to stay in sync with backend state
+            fetchOrders(false);
+
+            setTimeout(() => {
+                closeRatingModal();
+            }, 700);
+        } catch (err) {
+            const data = err?.response?.data;
+            console.error("[OrderHistory] Rating submit error:", JSON.stringify(data, null, 2));
+            const validationErrors = data?.errors
+                ? Object.entries(data.errors).map(([k, v]) => `${k}: ${v}`).join("; ")
+                : "";
+            const apiMessage =
+                validationErrors ||
+                data?.message ||
+                data?.error ||
+                err?.message;
+            setRatingFeedback(apiMessage || 'Unable to submit rating. Please try again.');
+        } finally {
+            setRatingSubmitting(false);
+        }
+    };
 
     const getStatusIcon = (status) => {
         switch (status?.toLowerCase()) {
@@ -78,6 +247,7 @@ const OrderHistory = () => {
     });
 
     return (
+        <>
         <div className="min-h-screen bg-gray-50/30 py-12 px-4 sm:px-6 lg:px-8 font-display">
             <div className="max-w-[1100px] mx-auto bg-white rounded-2xl p-8 sm:p-10 shadow-sm border border-gray-100">
                 
@@ -91,7 +261,32 @@ const OrderHistory = () => {
 
                 <div className="flex items-center justify-between mb-16">
                     <h1 className="text-3xl font-bold text-[#272727]">Order History</h1>
+                    {pendingRatings.length > 0 && (
+                        <div className="px-4 py-2 rounded-xl bg-orange-50 border border-orange-100 text-orange-700 text-xs font-semibold">
+                            {pendingRatings.length} product{pendingRatings.length > 1 ? 's are' : ' is'} ready for rating
+                        </div>
+                    )}
                 </div>
+
+                {pendingRatings.length > 0 && (
+                    <div className="mb-8 bg-orange-50 border border-orange-100 rounded-2xl p-4 sm:p-5">
+                        <p className="text-sm text-orange-700 font-semibold mb-3">
+                            Your delivered orders are eligible for rating.
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                            {pendingRatings.slice(0, 4).map((item) => (
+                                <button
+                                    key={item.productId}
+                                    onClick={() => openRatingModal(item)}
+                                    className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-xl bg-white border border-orange-200 text-orange-700 hover:bg-orange-100 transition-colors cursor-pointer"
+                                >
+                                    <Star className="w-3.5 h-3.5" />
+                                    Rate {item.productName}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {error && (
                     <div className="bg-red-50 border border-red-100 text-red-700 p-4 rounded-xl mb-8 flex items-center gap-3">
@@ -195,10 +390,8 @@ const OrderHistory = () => {
                                             : orderItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0);
 
                                     return (
-                                        <div
-                                            key={order._id || idx}
-                                            className="grid grid-cols-[2.5fr_1fr_0.5fr_1.2fr_1.2fr] items-center bg-white border border-gray-100 rounded-2xl p-3 px-6 transition-all hover:border-orange-200 shadow-sm hover:shadow-md group"
-                                        >
+                                        <div key={order._id || idx} className="space-y-2">
+                                            <div className="grid grid-cols-[2.5fr_1fr_0.5fr_1.2fr_1.2fr] items-center bg-white border border-gray-100 rounded-2xl p-3 px-6 transition-all hover:border-orange-200 shadow-sm hover:shadow-md group">
                                             {/* Order Info */}
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 bg-gray-50 rounded-xl overflow-hidden border border-gray-100 p-1.5 shrink-0 group-hover:scale-105 transition-transform">
@@ -263,6 +456,40 @@ const OrderHistory = () => {
                                                     </span>
                                                 </div>
                                             </div>
+                                            </div>
+                                            {String(order.orderStatus || '').toLowerCase() === 'delivered' && (
+                                                <div className="px-4 py-3 rounded-xl border border-orange-100 bg-orange-50/70 flex flex-wrap items-center justify-between gap-2">
+                                                    <p className="text-xs text-orange-700 font-medium">
+                                                        Delivery completed. Please rate your product{orderItems.length > 1 ? 's' : ''}.
+                                                    </p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {orderItems.map((item, itemIdx) => {
+                                                            const productId = getOrderItemProductId(item);
+                                                            if (!productId) return null;
+                                                            const isPending = pendingRatings.some((entry) => entry.productId === productId);
+
+                                                            return (
+                                                                <button
+                                                                    key={`${productId}-${itemIdx}`}
+                                                                    disabled={!isPending}
+                                                                    onClick={() =>
+                                                                        openRatingModal({
+                                                                            productId,
+                                                                            orderId: order?._id || null,
+                                                                            productName: item?.name || item?.title || 'Product',
+                                                                            image: item?.image || '',
+                                                                        })
+                                                                    }
+                                                                    className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-orange-200 bg-white text-orange-700 disabled:text-gray-400 disabled:border-gray-200 disabled:bg-gray-100 disabled:cursor-not-allowed cursor-pointer"
+                                                                >
+                                                                    <Star className="w-3.5 h-3.5" />
+                                                                    {isPending ? `Rate ${item?.name || 'Product'}` : `${item?.name || 'Product'} rated`}
+                                                                </button>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     );
                                 })}
@@ -272,6 +499,76 @@ const OrderHistory = () => {
                 )}
             </div>
         </div>
+        {ratingModalOpen && selectedRatingItem && (
+            <>
+                <div className="fixed inset-0 z-40 bg-black/40" onClick={closeRatingModal} />
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-gray-100">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                            <h3 className="text-lg font-semibold text-gray-900">Rate {selectedRatingItem.productName}</h3>
+                            <button onClick={closeRatingModal} className="p-1 rounded-full hover:bg-gray-100 cursor-pointer">
+                                <X className="w-5 h-5 text-gray-500" />
+                            </button>
+                        </div>
+                        <form onSubmit={handleSubmitRating} className="p-6 space-y-4">
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 block mb-2">Your rating</label>
+                                <div className="flex items-center gap-1">
+                                    {[1, 2, 3, 4, 5].map((value) => (
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            onClick={() => setRatingValue(value)}
+                                            className="p-1 cursor-pointer"
+                                        >
+                                            <Star className={`w-6 h-6 ${value <= ratingValue ? 'text-amber-500 fill-amber-500' : 'text-gray-300'}`} />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 block mb-2">Title</label>
+                                <input
+                                    value={ratingTitle}
+                                    onChange={(e) => setRatingTitle(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-400"
+                                    placeholder="Amazing product"
+                                    maxLength={80}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 block mb-2">Comment</label>
+                                <textarea
+                                    value={ratingComment}
+                                    onChange={(e) => setRatingComment(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-400 min-h-24 resize-y"
+                                    placeholder="Very good quality"
+                                    maxLength={500}
+                                />
+                            </div>
+                            {ratingFeedback && (
+                                <p className={`text-sm ${ratingFeedback.includes('Thanks') ? 'text-green-600' : 'text-red-500'}`}>
+                                    {ratingFeedback}
+                                </p>
+                            )}
+                            <div className="flex justify-end gap-3 pt-2">
+                                <button type="button" onClick={closeRatingModal} className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-xl cursor-pointer">
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={ratingSubmitting}
+                                    className="px-4 py-2 text-sm font-semibold text-white bg-[#F59115] hover:bg-orange-600 rounded-xl disabled:opacity-60 cursor-pointer"
+                                >
+                                    {ratingSubmitting ? 'Submitting...' : 'Submit rating'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </>
+        )}
+        </>
     );
 };
 
