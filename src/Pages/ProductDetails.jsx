@@ -354,13 +354,64 @@ const ProductDetails = () => {
                                             Customer Ratings & Reviews
                                         </h1>
                                         {(ratingSummary.count > 0 || reviews.length > 0) && (
-                                            <div className="flex items-center gap-2 mb-3">
-                                                <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
-                                                <p className="text-gray-700 font-medium">
-                                                    {ratingSummary.count > 0
-                                                        ? `${ratingSummary.average.toFixed(1)} out of 5 (${ratingSummary.count} review${ratingSummary.count > 1 ? "s" : ""})`
-                                                        : `${reviews.length} review${reviews.length > 1 ? "s" : ""}`}
-                                                </p>
+                                            <div className="flex flex-col sm:flex-row items-start gap-6 sm:gap-10 mb-6">
+                                                {/* Left: Average + Stars + Count */}
+                                                <div className="flex flex-col gap-2">
+                                                    <div className="flex items-baseline gap-1">
+                                                        <span className="text-5xl font-bold text-gray-800">
+                                                            {ratingSummary.average.toFixed(1)}
+                                                        </span>
+                                                        <span className="text-lg font-medium text-gray-400">/5</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-0.5">
+                                                        {[1,2,3,4,5].map(star => (
+                                                            <Star
+                                                                key={star}
+                                                                size={22}
+                                                                className={star <= Math.round(ratingSummary.average)
+                                                                    ? "text-amber-400 fill-amber-400"
+                                                                    : "text-gray-300"
+                                                                }
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                    <p className="text-sm text-gray-500 font-medium">
+                                                        {ratingSummary.count} Rating{ratingSummary.count > 1 ? "s" : ""}
+                                                    </p>
+                                                </div>
+
+                                                {/* Right: Star Distribution */}
+                                                {reviews.length > 0 && (
+                                                    <div className="space-y-2 w-fit">
+                                                        {[5,4,3,2,1].map(star => {
+                                                            const count = reviews.filter(r => Math.round(Number(r.rating)) === star).length;
+                                                            const pct = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+                                                            return (
+                                                                <div key={star} className="flex items-center gap-3 text-xs">
+                                                                    <div className="flex items-center gap-0.5 shrink-0">
+                                                                        {[1,2,3,4,5].map(s => (
+                                                                            <Star
+                                                                                key={s}
+                                                                                size={12}
+                                                                                className={s <= star
+                                                                                    ? "text-amber-400 fill-amber-400"
+                                                                                    : "text-gray-300"
+                                                                                }
+                                                                            />
+                                                                        ))}
+                                                                    </div>
+                                                                    <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden shrink-0">
+                                                                        <div
+                                                                            className="h-full bg-amber-400 rounded-full"
+                                                                            style={{ width: `${pct}%` }}
+                                                                        />
+                                                                    </div>
+                                                                    <span className="w-8 text-gray-600 text-right shrink-0 font-medium">{count}</span>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                         {reviewsLoading ? (
