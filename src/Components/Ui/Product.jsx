@@ -80,13 +80,34 @@ const Product = ({ item }) => {
           {item.desc || "Premium quality dry fruit for health and wellness."}
         </p>
 
-        {/* Deal End Date */}
-        {hasDeal && deal.endDate && (
-          <div className="inline-flex items-center gap-1 text-[10px] text-orange-500 font-semibold bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full w-fit">
-            <Clock size={9} />
-            Deal ends {formatEndDate(deal.endDate)}
-          </div>
-        )}
+        {/* Rating + Deal End Date row */}
+        <div className="flex items-center justify-between gap-2">
+          {hasDeal && deal.endDate && (
+            <div className="inline-flex items-center gap-1 text-[10px] text-orange-500 font-semibold bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full w-fit">
+              <Clock size={9} />
+              Deal ends {formatEndDate(deal.endDate)}
+            </div>
+          )}
+
+          {count > 0 && (
+            <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-gray-600">
+              <div className="flex items-center gap-0.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    size={11}
+                    className={
+                      star <= Math.round(average)
+                        ? "text-amber-500 fill-amber-500"
+                        : "text-gray-300"
+                    }
+                  />
+                ))}
+              </div>
+              <span className="text-gray-500">({count})</span>
+            </div>
+          )}
+        </div>
 
         {/* ── Price + CTA ── */}
         <div className="mt-auto pt-3 border-t border-gray-100 flex items-end justify-between gap-2">
@@ -110,16 +131,6 @@ const Product = ({ item }) => {
           </div>
 
           <div className="flex flex-col items-end gap-1.5">
-            <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-600">
-              <Star size={12} className="text-amber-500 fill-amber-500" />
-              {count > 0 ? (
-                <span>
-                  {average.toFixed(1)} ({count})
-                </span>
-              ) : (
-                <span>No ratings</span>
-              )}
-            </div>
             <Link to={`/product/${item.id}`} tabIndex={isOutOfStock ? -1 : 0}>
               <button
                 disabled={isOutOfStock}
