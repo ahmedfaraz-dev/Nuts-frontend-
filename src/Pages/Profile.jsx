@@ -47,14 +47,7 @@ const Profile = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // These would be real API calls later
-      console.log("Updating profile with:", form);
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      // For now, just update local state to reflect changes
-      const updatedUser = {
-        ...user,
+      const response = await userApi.updateAccount({
         name: form.name,
         contactNumber: form.contactNumber,
         addresses: [
@@ -64,11 +57,11 @@ const Profile = () => {
             zip: parseInt(form.zip, 10) || 0,
           },
         ],
-      };
-      setUser(updatedUser);
+      });
+      setUser(response.data);
       setMessage({ type: "success", text: "Profile updated successfully!" });
     } catch (err) {
-      setMessage({ type: "error", text: "Failed to update profile." });
+      setMessage({ type: "error", text: err.response?.data?.message || "Failed to update profile." });
     } finally {
       setLoading(false);
     }

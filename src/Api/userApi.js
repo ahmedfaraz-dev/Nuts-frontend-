@@ -50,15 +50,15 @@ const userApi = {
     return res.data;
   },
 
-  // PROFILE MANAGEMENT (Frontend ready, backend to be added by user)
+  // PROFILE MANAGEMENT
   updateAccount: async (data) => {
-    console.warn("updateAccount backend not attached");
-    return { success: true, message: "Profile updated (Local Only)" };
+    const res = await httpClient.put("/user/update-account", data);
+    return res.data;
   },
 
   updatePassword: async (data) => {
-    console.warn("updatePassword backend not attached");
-    return { success: true, message: "Password updated (Local Only)" };
+    const res = await httpClient.put("/user/update-password", data);
+    return res.data;
   },
 
   updateAvatar: async (formData) => {
