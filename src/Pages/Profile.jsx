@@ -18,6 +18,7 @@ const Profile = () => {
   const { user, setUser, logout } = useAuth();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   const [form, setForm] = useState({
     name: user?.name || "",
@@ -46,14 +47,7 @@ const Profile = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // These would be real API calls later
-      console.log("Updating profile with:", form);
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      // For now, just update local state to reflect changes
-      const updatedUser = {
-        ...user,
+      const response = await userApi.updateAccount({
         name: form.name,
         contactNumber: form.contactNumber,
         addresses: [
@@ -63,11 +57,11 @@ const Profile = () => {
             zip: parseInt(form.zip, 10) || 0,
           },
         ],
-      };
-      setUser(updatedUser);
+      });
+      setUser(response.data);
       setMessage({ type: "success", text: "Profile updated successfully!" });
     } catch (err) {
-      setMessage({ type: "error", text: "Failed to update profile." });
+      setMessage({ type: "error", text: err.response?.data?.message || "Failed to update profile." });
     } finally {
       setLoading(false);
     }
@@ -79,21 +73,40 @@ const Profile = () => {
       setMessage({ type: "error", text: "Passwords do not match!" });
       return;
     }
+    if (passwordForm.newPassword.length < 6) {
+      setMessage({ type: "error", text: "New password must be at least 6 characters long!" });
+      return;
+    }
     setLoading(true);
     try {
-      console.log("Updating password...");
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      await userApi.updatePassword({
+        oldPassword: passwordForm.oldPassword,
+        newPassword: passwordForm.newPassword,
+      });
       setMessage({ type: "success", text: "Password updated successfully!" });
       setPasswordForm({
         oldPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
+      setShowPasswordForm(false);
     } catch (err) {
-      setMessage({ type: "error", text: "Failed to update password." });
+      setMessage({ type: "error", text: err.response?.data?.message || "Failed to update password." });
     } finally {
       setLoading(false);
     }
+  };
+
+  const togglePasswordForm = () => {
+    setShowPasswordForm(!showPasswordForm);
+  };
+
+  const isPasswordFormValid = () => {
+    return (
+      passwordForm.oldPassword.trim() !== "" &&
+      passwordForm.newPassword.trim() !== "" &&
+      passwordForm.confirmPassword.trim() !== ""
+    );
   };
 
   const handleImageUpload = (e) => {
@@ -328,73 +341,109 @@ const Profile = () => {
               </form>
             </div>
 
-            {/* Password Form */}
+            {/* Password Section */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="px-8 py-6 border-b border-gray-50">
+              <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
                 <h3 className="text-lg font-bold text-gray-900">
                   Change Password
                 </h3>
+                <button
+                  onClick={togglePasswordForm}
+                  className={`font-medium text-sm flex items-center gap-2 transition-colors ${
+                    isPasswordFormValid()
+                      ? "text-[#F59115] hover:text-orange-600"
+                      : "text-gray-400 hover:text-gray-500"
+                  }`}
+                >
+                  {showPasswordForm ? "Cancel" : "Update Password"}
+                  <ChevronRight className={`w-4 h-4 transition-transform ${showPasswordForm ? "rotate-90" : ""}`} />
+                </button>
               </div>
-              <form onSubmit={handleUpdatePassword} className="p-8 space-y-6">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Current Password
-                    </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="password"
-                        name="oldPassword"
-                        value={passwordForm.oldPassword}
-                        onChange={handlePasswordChange}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:ring-2 focus:ring-orange-400 transition-all"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              {/* Collapsible Password Form */}
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  showPasswordForm ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                }`}
+              >
+                <form onSubmit={handleUpdatePassword} className="p-8 space-y-6 border-t border-gray-50">
+                  <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        New Password
+                        Current Password
                       </label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
                           type="password"
-                          name="newPassword"
-                          value={passwordForm.newPassword}
+                          name="oldPassword"
+                          value={passwordForm.oldPassword}
                           onChange={handlePasswordChange}
                           className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:ring-2 focus:ring-orange-400 transition-all"
+                          placeholder="Enter current password"
+                          required
                         />
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Confirm New Password
-                      </label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <input
-                          type="password"
-                          name="confirmPassword"
-                          value={passwordForm.confirmPassword}
-                          onChange={handlePasswordChange}
-                          className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:ring-2 focus:ring-orange-400 transition-all"
-                        />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          New Password
+                        </label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <input
+                            type="password"
+                            name="newPassword"
+                            value={passwordForm.newPassword}
+                            onChange={handlePasswordChange}
+                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:ring-2 focus:ring-orange-400 transition-all"
+                            placeholder="Enter new password"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Confirm New Password
+                        </label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <input
+                            type="password"
+                            name="confirmPassword"
+                            value={passwordForm.confirmPassword}
+                            onChange={handlePasswordChange}
+                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:ring-2 focus:ring-orange-400 transition-all"
+                            placeholder="Confirm new password"
+                            required
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="pt-4">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="bg-gray-900 hover:bg-black text-white font-bold py-3 px-8 rounded-xl transition-all disabled:opacity-50"
-                  >
-                    Update Password
-                  </button>
-                </div>
-              </form>
+                  <div className="pt-4 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={togglePasswordForm}
+                      className="px-6 py-3 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading || !isPasswordFormValid()}
+                      className={`font-bold py-3 px-8 rounded-xl transition-all disabled:opacity-50 ${
+                        isPasswordFormValid()
+                          ? "bg-[#F59115] hover:bg-orange-600 text-white"
+                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      }`}
+                    >
+                      {loading ? "Updating..." : "Update Password"}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
