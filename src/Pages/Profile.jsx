@@ -23,10 +23,6 @@ const Profile = () => {
   const [form, setForm] = useState({
     name: user?.name || "",
     email: user?.email || "",
-    contactNumber: user?.contactNumber || "",
-    city: user?.addresses?.[0]?.city || "",
-    country: user?.addresses?.[0]?.country || "",
-    zip: user?.addresses?.[0]?.zip || "",
   });
 
   const [passwordForm, setPasswordForm] = useState({
@@ -49,14 +45,6 @@ const Profile = () => {
     try {
       const response = await userApi.updateAccount({
         name: form.name,
-        contactNumber: form.contactNumber,
-        addresses: [
-          {
-            city: form.city,
-            country: form.country,
-            zip: parseInt(form.zip, 10) || 0,
-          },
-        ],
       });
       setUser(response.data);
       setMessage({ type: "success", text: "Profile updated successfully!" });
@@ -263,70 +251,6 @@ const Profile = () => {
                     <p className="text-[10px] text-gray-400 mt-1 ml-1">
                       Email cannot be changed
                     </p>
-                  </div>
-                  <div className="col-span-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Contact Number
-                    </label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="tel"
-                        name="contactNumber"
-                        value={form.contactNumber}
-                        onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:ring-2 focus:ring-orange-400 transition-all"
-                        placeholder="+92 300 1234567"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-span-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      City
-                    </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="text"
-                        name="city"
-                        value={form.city}
-                        onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:ring-2 focus:ring-orange-400 transition-all"
-                        placeholder="Gilgit"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-span-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Country
-                    </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="text"
-                        name="country"
-                        value={form.country}
-                        onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:ring-2 focus:ring-orange-400 transition-all"
-                        placeholder="Pakistan"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-span-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ZIP Code
-                    </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="text"
-                        name="zip"
-                        value={form.zip}
-                        onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:ring-2 focus:ring-orange-400 transition-all"
-                        placeholder="15100"
-                      />
-                    </div>
                   </div>
                 </div>
                 <div className="pt-4">
