@@ -17,10 +17,6 @@ function testConversion(pkrAmount, targetCurrency) {
     }
 }
 
-console.log('Testing currency conversion:');
-console.log('788 PKR to USD:', testConversion(788, 'USD'));
-console.log('788 PKR to EUR:', testConversion(788, 'EUR'));
-console.log('788 PKR to GBP:', testConversion(788, 'GBP'));
 
 // Expected: 788 PKR should be ~2.81 USD (788/280)
 // Expected: 788 PKR should be ~2.39 EUR (788/280*0.85)
