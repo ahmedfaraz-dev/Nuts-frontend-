@@ -57,7 +57,7 @@ const userApi = {
   },
 
   updatePassword: async (data) => {
-    const res = await httpClient.put("/user/update-password", data);
+    const res = await httpClient.post("/auth/change-password", data);
     return res.data;
   },
 

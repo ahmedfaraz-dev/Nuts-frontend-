@@ -57,14 +57,49 @@ const Profile = () => {
 
   const handleUpdatePassword = async (e) => {
     e.preventDefault();
+    
+    // Validate current password
+    if (!passwordForm.oldPassword.trim()) {
+      setMessage({ type: "error", text: "Current password is required" });
+      return;
+    }
+    if (passwordForm.oldPassword.length < 8) {
+      setMessage({ type: "error", text: "Current password must be at least 8 characters long" });
+      return;
+    }
+    
+    // Validate new password
+    if (!passwordForm.newPassword.trim()) {
+      setMessage({ type: "error", text: "New password is required" });
+      return;
+    }
+    if (passwordForm.newPassword.length < 8) {
+      setMessage({ type: "error", text: "New password must be at least 8 characters long" });
+      return;
+    }
+    
+    // Validate confirm password
+    if (!passwordForm.confirmPassword.trim()) {
+      setMessage({ type: "error", text: "Please confirm your new password" });
+      return;
+    }
+    if (passwordForm.confirmPassword.length < 8) {
+      setMessage({ type: "error", text: "Confirm password must be at least 8 characters long" });
+      return;
+    }
+    
+    // Check if passwords match
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       setMessage({ type: "error", text: "Passwords do not match!" });
       return;
     }
-    if (passwordForm.newPassword.length < 6) {
-      setMessage({ type: "error", text: "New password must be at least 6 characters long!" });
+    
+    // Check if new password is different from current password
+    if (passwordForm.oldPassword === passwordForm.newPassword) {
+      setMessage({ type: "error", text: "New password must be different from current password" });
       return;
     }
+    
     setLoading(true);
     try {
       await userApi.updatePassword({
@@ -167,7 +202,7 @@ const Profile = () => {
               <div className="mt-8 pt-6 border-t border-gray-50">
                 <button
                   onClick={logout}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-red-100 text-red-600 rounded-xl hover:bg-red-50 transition-all font-medium"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-red-100 text-red-600 rounded-xl hover:bg-red-50 transition-all font-medium cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                   Logout
@@ -196,7 +231,7 @@ const Profile = () => {
               <div className="mt-8 pt-6 border-t border-gray-50">
                 <button
                   onClick={() => (window.location.href = "/order-history")}
-                  className="w-full flex items-center justify-between gap-2 px-4 py-3 bg-orange-50 text-orange-600 rounded-xl hover:bg-orange-100 transition-all font-bold text-sm group"
+                  className="w-full flex items-center justify-between gap-2 px-4 py-3 bg-orange-50 text-orange-600 rounded-xl hover:bg-orange-100 transition-all font-bold text-sm group cursor-pointer"
                 >
                   <div className="flex items-center gap-2">
                     <ShoppingBag className="w-4 h-4" />
@@ -257,7 +292,7 @@ const Profile = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="bg-[#F59115] hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-xl transition-all disabled:opacity-50"
+                    className="bg-[#F59115] hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-xl transition-all disabled:opacity-50 cursor-pointer"
                   >
                     {loading ? "Saving..." : "Save Changes"}
                   </button>
@@ -273,7 +308,7 @@ const Profile = () => {
                 </h3>
                 <button
                   onClick={togglePasswordForm}
-                  className={`font-medium text-sm flex items-center gap-2 transition-colors ${
+                  className={`font-medium text-sm flex items-center gap-2 transition-colors cursor-pointer ${
                     isPasswordFormValid()
                       ? "text-[#F59115] hover:text-orange-600"
                       : "text-gray-400 hover:text-gray-500"
@@ -350,7 +385,7 @@ const Profile = () => {
                     <button
                       type="button"
                       onClick={togglePasswordForm}
-                      className="px-6 py-3 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all"
+                      className="px-6 py-3 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -359,7 +394,7 @@ const Profile = () => {
                       disabled={loading || !isPasswordFormValid()}
                       className={`font-bold py-3 px-8 rounded-xl transition-all disabled:opacity-50 ${
                         isPasswordFormValid()
-                          ? "bg-[#F59115] hover:bg-orange-600 text-white"
+                          ? "bg-[#F59115] hover:bg-orange-600 text-white cursor-pointer"
                           : "bg-gray-300 text-gray-500 cursor-not-allowed"
                       }`}
                     >
