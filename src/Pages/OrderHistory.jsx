@@ -24,6 +24,7 @@ const OrderHistory = () => {
     const [ratingSubmitting, setRatingSubmitting] = useState(false);
     const [ratingFeedback, setRatingFeedback] = useState('');
     const [fallbackUserId, setFallbackUserId] = useState('');
+    const [toast, setToast] = useState(null);
     const { formatPrice } = useCurrency();
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -80,11 +81,17 @@ const OrderHistory = () => {
 
     useEffect(() => {
         fetchOrders();
-        
         // Auto-refresh every 30 seconds if page is active
         const interval = setInterval(() => fetchOrders(false), 30000);
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        if (toast) {
+            const timer = setTimeout(() => setToast(null), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [toast]);
 
     const openRatingModal = (item) => {
         setSelectedRatingItem(item);
@@ -181,6 +188,7 @@ const OrderHistory = () => {
 
             setRatingFeedback('Thanks! Your rating has been submitted.');
             setPendingRatings((prev) => prev.filter((entry) => entry.productId !== productId));
+            setToast({ type: 'success', message: 'Rating submitted successfully!' });
 
             // Invalidate stale product data on other pages
             window.dispatchEvent(new CustomEvent('rating-submitted', { detail: { productId } }));
@@ -236,15 +244,35 @@ const OrderHistory = () => {
         }
     };
 
-    const visibleOrders = (orders || []).filter(order => {
-        const status = order?.orderStatus?.toLowerCase();
-        if (status === 'delivered' || status === 'cancelled') {
-            if (!order?.createdAt) return true; // keep it visible if createdAt is missing
-            const createdMs = new Date(order.createdAt).getTime();
-            return createdMs >= sevenDaysAgoMs;
-        }
-        return true;
-    });
+    const visibleOrders = (orders || [])
+        .filter(order => {
+            const status = order?.orderStatus?.toLowerCase();
+            if (status === 'delivered' || status === 'cancelled') {
+                if (!order?.createdAt) return true;
+                const createdMs = new Date(order.createdAt).getTime();
+                return createdMs >= sevenDaysAgoMs;
+            }
+            return true;
+        })
+        .sort((a, b) => {
+            const aStatus = String(a?.orderStatus || '').toLowerCase();
+            const bStatus = String(b?.orderStatus || '').toLowerCase();
+            const aItems = Array.isArray(a?.items) ? a.items : [];
+            const bItems = Array.isArray(b?.items) ? b.items : [];
+            const aHasPending = aStatus === 'delivered' && aItems.some((item) => {
+                const pid = getOrderItemProductId(item);
+                return pid && pendingRatings.some((p) => p.productId === pid);
+            });
+            const bHasPending = bStatus === 'delivered' && bItems.some((item) => {
+                const pid = getOrderItemProductId(item);
+                return pid && pendingRatings.some((p) => p.productId === pid);
+            });
+            if (aHasPending && !bHasPending) return -1;
+            if (!aHasPending && bHasPending) return 1;
+            const aDate = new Date(a?.createdAt || 0).getTime();
+            const bDate = new Date(b?.createdAt || 0).getTime();
+            return bDate - aDate;
+        });
 
     return (
         <>
@@ -269,19 +297,39 @@ const OrderHistory = () => {
                 </div>
 
                 {pendingRatings.length > 0 && (
-                    <div className="mb-8 bg-orange-50 border border-orange-100 rounded-2xl p-4 sm:p-5">
-                        <p className="text-sm text-orange-700 font-semibold mb-3">
-                            Your delivered orders are eligible for rating.
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                            {pendingRatings.slice(0, 4).map((item) => (
+                    <div className="mb-8 bg-gradient-to-r from-orange-50 to-amber-50/60 border border-orange-100 rounded-xl p-3 sm:p-4">
+                        <div className="flex items-center justify-between mb-2.5">
+                            <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-full bg-[#F59115] flex items-center justify-center">
+                                    <Star className="w-3 h-3 text-white fill-white" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-gray-800">Rate your purchases</p>
+                                    <p className="text-[10px] text-gray-500">
+                                        {pendingRatings.length} product{pendingRatings.length > 1 ? 's' : ''} waiting
+                                    </p>
+                                </div>
+                            </div>
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-[#F59115] bg-white px-2 py-0.5 rounded-md border border-orange-100">
+                                Pending
+                            </span>
+                        </div>
+                        <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pb-0.5">
+                            {pendingRatings.map((item) => (
                                 <button
                                     key={item.productId}
                                     onClick={() => openRatingModal(item)}
-                                    className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-xl bg-white border border-orange-200 text-orange-700 hover:bg-orange-100 transition-colors cursor-pointer"
+                                    className="flex-shrink-0 flex flex-col items-center gap-1 text-center p-1.5 rounded-lg bg-white border border-orange-100 hover:border-[#F59115] hover:shadow-sm transition-all cursor-pointer w-[68px]"
                                 >
-                                    <Star className="w-3.5 h-3.5" />
-                                    Rate {item.productName}
+                                    <div className="w-9 h-9 rounded-md bg-gray-50 border border-gray-100 overflow-hidden">
+                                        {item.image ? (
+                                            <img src={item.image} alt={item.productName} className="w-full h-full object-contain p-0.5" />
+                                        ) : (
+                                            <Package className="w-full h-full text-gray-300 p-1" />
+                                        )}
+                                    </div>
+                                    <p className="text-[8px] font-semibold text-gray-700 leading-tight line-clamp-2">{item.productName}</p>
+                                    <span className="text-[8px] font-bold text-[#F59115] bg-orange-50 px-1.5 py-0.5 rounded-full">Rate</span>
                                 </button>
                             ))}
                         </div>
@@ -457,39 +505,6 @@ const OrderHistory = () => {
                                                 </div>
                                             </div>
                                             </div>
-                                            {String(order.orderStatus || '').toLowerCase() === 'delivered' && (
-                                                <div className="px-4 py-3 rounded-xl border border-orange-100 bg-orange-50/70 flex flex-wrap items-center justify-between gap-2">
-                                                    <p className="text-xs text-orange-700 font-medium">
-                                                        Delivery completed. Please rate your product{orderItems.length > 1 ? 's' : ''}.
-                                                    </p>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {orderItems.map((item, itemIdx) => {
-                                                            const productId = getOrderItemProductId(item);
-                                                            if (!productId) return null;
-                                                            const isPending = pendingRatings.some((entry) => entry.productId === productId);
-
-                                                            return (
-                                                                <button
-                                                                    key={`${productId}-${itemIdx}`}
-                                                                    disabled={!isPending}
-                                                                    onClick={() =>
-                                                                        openRatingModal({
-                                                                            productId,
-                                                                            orderId: order?._id || null,
-                                                                            productName: item?.name || item?.title || 'Product',
-                                                                            image: item?.image || '',
-                                                                        })
-                                                                    }
-                                                                    className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-orange-200 bg-white text-orange-700 disabled:text-gray-400 disabled:border-gray-200 disabled:bg-gray-100 disabled:cursor-not-allowed cursor-pointer"
-                                                                >
-                                                                    <Star className="w-3.5 h-3.5" />
-                                                                    {isPending ? `Rate ${item?.name || 'Product'}` : `${item?.name || 'Product'} rated`}
-                                                                </button>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                </div>
-                                            )}
                                         </div>
                                     );
                                 })}
@@ -499,68 +514,110 @@ const OrderHistory = () => {
                 )}
             </div>
         </div>
+        {/* Toast */}
+        {toast && (
+            <div className="fixed top-6 right-6 z-[60] flex items-center gap-2 px-4 py-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm font-semibold shadow-lg animate-[fadeIn_0.3s_ease-out]">
+                <CheckCircle className="w-4 h-4" />
+                {toast.message}
+            </div>
+        )}
+
         {ratingModalOpen && selectedRatingItem && (
             <>
                 <div className="fixed inset-0 z-40 bg-black/40" onClick={closeRatingModal} />
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-gray-100">
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                            <h3 className="text-lg font-semibold text-gray-900">Rate {selectedRatingItem.productName}</h3>
-                            <button onClick={closeRatingModal} className="p-1 rounded-full hover:bg-gray-100 cursor-pointer">
-                                <X className="w-5 h-5 text-gray-500" />
+                    <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+                        {/* Modal header with product image */}
+                        <div className="relative bg-gradient-to-r from-orange-50 to-amber-50/60 px-6 py-5 border-b border-orange-100">
+                            <button
+                                onClick={closeRatingModal}
+                                className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white border border-orange-100 cursor-pointer transition-colors"
+                            >
+                                <X className="w-4 h-4 text-gray-500" />
                             </button>
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-xl bg-white border border-orange-100 overflow-hidden shrink-0 shadow-sm">
+                                    {selectedRatingItem.image ? (
+                                        <img src={selectedRatingItem.image} alt={selectedRatingItem.productName} className="w-full h-full object-contain p-1" />
+                                    ) : (
+                                        <Package className="w-full h-full text-gray-300 p-2" />
+                                    )}
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-bold text-gray-800">Rate this product</h3>
+                                    <p className="text-xs text-gray-500 truncate max-w-[200px]">{selectedRatingItem.productName}</p>
+                                </div>
+                            </div>
                         </div>
-                        <form onSubmit={handleSubmitRating} className="p-6 space-y-4">
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-2">Your rating</label>
-                                <div className="flex items-center gap-1">
+
+                        <form onSubmit={handleSubmitRating} className="p-6 space-y-5">
+                            {/* Stars */}
+                            <div className="text-center">
+                                <label className="text-xs font-bold uppercase tracking-widest text-gray-400 block mb-3">How would you rate it?</label>
+                                <div className="flex items-center justify-center gap-1">
                                     {[1, 2, 3, 4, 5].map((value) => (
                                         <button
                                             key={value}
                                             type="button"
                                             onClick={() => setRatingValue(value)}
-                                            className="p-1 cursor-pointer"
+                                            className="p-1 cursor-pointer transition-transform hover:scale-110"
                                         >
-                                            <Star className={`w-6 h-6 ${value <= ratingValue ? 'text-amber-500 fill-amber-500' : 'text-gray-300'}`} />
+                                            <Star className={`w-8 h-8 transition-colors ${value <= ratingValue ? 'text-amber-400 fill-amber-400' : 'text-gray-200'}`} />
                                         </button>
                                     ))}
                                 </div>
+                                <p className="text-xs text-gray-400 mt-2 font-medium">
+                                    {ratingValue === 5 ? 'Excellent!' : ratingValue === 4 ? 'Very Good' : ratingValue === 3 ? 'Good' : ratingValue === 2 ? 'Fair' : 'Poor'}
+                                </p>
                             </div>
+
+                            {/* Title */}
                             <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-2">Title</label>
+                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Review title</label>
                                 <input
                                     value={ratingTitle}
                                     onChange={(e) => setRatingTitle(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-400"
-                                    placeholder="Amazing product"
+                                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-[#F59115] focus:ring-2 focus:ring-orange-100 text-sm transition-all"
+                                    placeholder="e.g., Amazing quality!"
                                     maxLength={80}
                                 />
                             </div>
+
+                            {/* Comment */}
                             <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-2">Comment</label>
+                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Your experience</label>
                                 <textarea
                                     value={ratingComment}
                                     onChange={(e) => setRatingComment(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-400 min-h-24 resize-y"
-                                    placeholder="Very good quality"
+                                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-[#F59115] focus:ring-2 focus:ring-orange-100 min-h-24 resize-y text-sm transition-all"
+                                    placeholder="Tell us about the freshness, packaging, taste..."
                                     maxLength={500}
                                 />
+                                <p className="text-[10px] text-gray-400 mt-1 text-right">{ratingComment.length}/500</p>
                             </div>
+
+                            {/* Feedback */}
                             {ratingFeedback && (
-                                <p className={`text-sm ${ratingFeedback.includes('Thanks') ? 'text-green-600' : 'text-red-500'}`}>
+                                <div className={`text-sm px-3 py-2 rounded-lg ${ratingFeedback.includes('Thanks') ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-red-50 text-red-500 border border-red-100'}`}>
                                     {ratingFeedback}
-                                </p>
+                                </div>
                             )}
-                            <div className="flex justify-end gap-3 pt-2">
-                                <button type="button" onClick={closeRatingModal} className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-xl cursor-pointer">
+
+                            {/* Actions */}
+                            <div className="flex justify-end gap-3 pt-1">
+                                <button
+                                    type="button"
+                                    onClick={closeRatingModal}
+                                    className="px-4 py-2.5 text-sm font-medium text-gray-500 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors"
+                                >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={ratingSubmitting}
-                                    className="px-4 py-2 text-sm font-semibold text-white bg-[#F59115] hover:bg-orange-600 rounded-xl disabled:opacity-60 cursor-pointer"
+                                    className="px-5 py-2.5 text-sm font-bold text-white bg-[#F59115] hover:bg-orange-600 rounded-xl disabled:opacity-50 disabled:hover:bg-[#F59115] cursor-pointer transition-colors shadow-sm"
                                 >
-                                    {ratingSubmitting ? 'Submitting...' : 'Submit rating'}
+                                    {ratingSubmitting ? 'Submitting...' : 'Submit Rating'}
                                 </button>
                             </div>
                         </form>

@@ -68,7 +68,6 @@ export const CurrencyProvider = ({ children }) => {
             
             const data = await response.json();
             
-            console.log('API Response:', data);
             
             if (data.rates && typeof data.rates === 'object') {
                 // Add USD as 1:1 with itself and include all rates
@@ -80,7 +79,6 @@ export const CurrencyProvider = ({ children }) => {
                     INR: data.rates.INR || 83
                 };
                 
-                console.log('Final Rates:', rates);
                 setExchangeRates(rates);
                 setLastUpdated(new Date());
                 
@@ -89,7 +87,6 @@ export const CurrencyProvider = ({ children }) => {
                 localStorage.setItem('exchange_rates_time', Date.now().toString());
             }
         } catch (err) {
-            console.error('Error fetching exchange rates:', err);
             setError(err.message);
             
             // Fallback to basic rates if API fails (USD as base)
@@ -124,16 +121,9 @@ export const CurrencyProvider = ({ children }) => {
         try {
             let convertedAmount;
             
-            console.log('Currency Debug:', {
-                pkrAmount,
-                currency,
-                exchangeRates,
-                loading
-            });
             
             // Check if exchange rates are available
             if (!exchangeRates || Object.keys(exchangeRates).length === 0) {
-                console.log('Exchange rates not loaded yet, using fallback');
                 return `Rs. ${Math.round(pkrAmount).toLocaleString()}`;
             }
             
@@ -143,7 +133,6 @@ export const CurrencyProvider = ({ children }) => {
             } else {
                 // Check if required rates exist
                 if (!exchangeRates.PKR || !exchangeRates[currency]) {
-                    console.error('Missing exchange rates:', { PKR: exchangeRates.PKR, [currency]: exchangeRates[currency] });
                     return `Rs. ${Math.round(pkrAmount).toLocaleString()}`;
                 }
                 
@@ -151,16 +140,9 @@ export const CurrencyProvider = ({ children }) => {
                 const usdAmount = pkrAmount / exchangeRates.PKR; // PKR to USD
                 convertedAmount = usdAmount * exchangeRates[currency]; // USD to target currency
                 
-                console.log('Conversion Debug:', {
-                    pkrAmount,
-                    usdAmount,
-                    targetRate: exchangeRates[currency],
-                    convertedAmount
-                });
                 
                 // Check if result is valid number
                 if (isNaN(convertedAmount) || !isFinite(convertedAmount)) {
-                    console.error('Invalid conversion result:', convertedAmount);
                     return `Rs. ${Math.round(pkrAmount).toLocaleString()}`;
                 }
             }
@@ -175,10 +157,8 @@ export const CurrencyProvider = ({ children }) => {
                 formatted = `${currencyConfig.symbol}${convertedAmount.toFixed(2)}`;
             }
             
-            console.log('Final formatted price:', formatted);
             return formatted;
         } catch (err) {
-            console.error('Error formatting price:', err);
             return `Rs. ${Math.round(pkrAmount).toLocaleString()}`;
         }
     };

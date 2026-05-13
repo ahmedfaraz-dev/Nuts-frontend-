@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Button from '../Components/Ui/Button.jsx'
-import { ChevronUp, ChevronDown, X, ShoppingCart, ArrowLeft, Star } from "lucide-react";
+import imgOne from '../assets/ProductImages/productOne.png'
+import imgTwo from '../assets/ProductImages/productTwo.png'
+import imgThree from '../assets/ProductImages/productThree.png'
+import { ArrowLeft, ChevronUp, ChevronDown, ShoppingCart, Star, X } from "lucide-react";
 import imgFour from '../assets/ProductImages/shbackgound.png'
 import Testmonial from '../Components/Testmonial.jsx'
 import VideoSection from '../Components/VideoSection.jsx'
@@ -25,6 +28,8 @@ const ProductDetails = () => {
     const [cartModalOpen, setCartModalOpen] = useState(false);
     const [reviews, setReviews] = useState([]);
     const [reviewsLoading, setReviewsLoading] = useState(false);
+    const [reviewsPage, setReviewsPage] = useState(1);
+    const reviewsPerPage = 4;
     const navigate = useNavigate();
     const { addToCart, cartItems, totalItems } = useCart();
     const { user } = useAuth();
@@ -70,7 +75,11 @@ const ProductDetails = () => {
         window.addEventListener('rating-submitted', handleRatingSubmitted);
         return () => window.removeEventListener('rating-submitted', handleRatingSubmitted);
     }, [id]);
-    
+
+    useEffect(() => {
+        setReviewsPage(1);
+    }, [id]);
+
     // Derived values - defined before helpers for safety
     const rawImages = product?.images || [];
     const images = [
@@ -425,36 +434,103 @@ const ProductDetails = () => {
                                             </div>
                                         ) : reviews.length > 0 ? (
                                             <div className="space-y-3">
-                                                {reviews.map((review) => (
-                                                    <div key={review._id || review.id} className="border border-gray-100 rounded-xl p-4 bg-gray-50/60">
-                                                        <div className="flex items-center justify-between gap-3">
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-xs font-bold text-[#F59115]">
+                                                {reviews.slice((reviewsPage - 1) * reviewsPerPage, reviewsPage * reviewsPerPage).map((review) => {
+                                                    const relativeTime = review.createdAt ? ((dateStr) => {
+                                                        const date = new Date(dateStr);
+                                                        const now = new Date();
+                                                        const diffMs = now - date;
+                                                        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                                                        if (diffDays < 1) return "Today";
+                                                        if (diffDays === 1) return "1 day ago";
+                                                        if (diffDays < 30) return `${diffDays} days ago`;
+                                                        if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+                                                        return `${Math.floor(diffDays / 365)} years ago`;
+                                                    })(review.createdAt) : "";
+                                                    return (
+                                                        <div key={review._id || review.id} className="flex items-start gap-3 border border-gray-100 rounded-xl p-3 bg-white shadow-sm hover:shadow-md transition-shadow">
+                                                            {/* Left: Avatar */}
+                                                            <div className="shrink-0 pt-0.5">
+                                                                {review.userId?.profileImage || review.userId?.avatar ? (
+                                                                    <img
+                                                                        src={review.userId.profileImage || review.userId.avatar}
+                                                                        alt={review.userId?.name || "User"}
+                                                                        className="w-9 h-9 rounded-full object-cover ring-2 ring-orange-100"
+                                                                        onError={(e) => { e.target.style.display = 'none'; e.target.nextElementSibling.style.display = 'flex'; }}
+                                                                    />
+                                                                ) : null}
+                                                                <div
+                                                                    className="w-9 h-9 rounded-full bg-[#F59115] flex items-center justify-center text-xs font-bold text-white ring-2 ring-orange-100"
+                                                                    style={{ display: review.userId?.profileImage || review.userId?.avatar ? 'none' : 'flex' }}
+                                                                >
                                                                     {(review.userId?.name || "U").charAt(0).toUpperCase()}
                                                                 </div>
-                                                                <div>
-                                                                    <p className="font-semibold text-sm text-gray-800">{review.userId?.name || "Verified Buyer"}</p>
-                                                                    <p className="text-[10px] text-gray-400">
-                                                                        {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ""}
+                                                            </div>
+
+                                                            {/* Right: Content */}
+                                                            <div className="flex-1 min-w-0">
+                                                                {/* Name + Date */}
+                                                                <div className="flex items-center justify-between gap-3 mb-0.5">
+                                                                    <p className="text-xs font-bold text-gray-800">
+                                                                        {review.userId?.name || "Verified Buyer"}
+                                                                    </p>
+                                                                    <p className="text-[10px] text-gray-400 shrink-0">
+                                                                        {review.createdAt ? new Date(review.createdAt).toLocaleDateString('en-GB', {
+                                                                            day: '2-digit',
+                                                                            month: 'short',
+                                                                            year: 'numeric'
+                                                                        }) : ""}
                                                                     </p>
                                                                 </div>
-                                                            </div>
-                                                            <div className="inline-flex items-center gap-1 text-xs text-gray-600">
-                                                                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                                                                {Number(review.rating || 0).toFixed(1)}
+                                                                {/* Stars */}
+                                                                <div className="flex items-center gap-0.5 mb-1">
+                                                                    {[1,2,3,4,5].map(s => (
+                                                                        <Star
+                                                                            key={s}
+                                                                            size={12}
+                                                                            className={s <= Math.round(Number(review.rating || 0))
+                                                                                ? "text-[#F59115] fill-[#F59115]"
+                                                                                : "text-gray-300"
+                                                                            }
+                                                                        />
+                                                                    ))}
+                                                                </div>
+                                                                {/* Title */}
+                                                                <p className="font-bold text-xs text-gray-800 mb-0.5">{review.title || "Customer review"}</p>
+                                                                {/* Body */}
+                                                                <p className="text-xs text-gray-600 leading-relaxed">
+                                                                    {review.comment || "No comment provided."}
+                                                                </p>
                                                             </div>
                                                         </div>
-                                                        <p className="font-semibold text-sm text-gray-800 mt-2">{review.title || "Customer review"}</p>
-                                                        <p className="text-sm text-gray-600 mt-1">
-                                                            {review.comment || "No comment provided."}
-                                                        </p>
-                                                    </div>
-                                                ))}
+                                                    );
+                                                })}
                                             </div>
                                         ) : (
                                             <p className="text-gray-500 text-sm">
                                                 Delivered buyers can submit the first review.
                                             </p>
+                                        )}
+                                        {/* Reviews Pagination */}
+                                        {reviews.length > reviewsPerPage && (
+                                            <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+                                                <button
+                                                    onClick={() => setReviewsPage(p => Math.max(1, p - 1))}
+                                                    disabled={reviewsPage === 1}
+                                                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-600 hover:border-[#F59115] hover:text-[#F59115] disabled:opacity-30 disabled:hover:border-gray-200 disabled:hover:text-gray-600 transition-all cursor-pointer"
+                                                >
+                                                    Previous
+                                                </button>
+                                                <p className="text-xs text-gray-500 font-medium">
+                                                    Page {reviewsPage} of {Math.ceil(reviews.length / reviewsPerPage)}
+                                                </p>
+                                                <button
+                                                    onClick={() => setReviewsPage(p => p + 1)}
+                                                    disabled={reviewsPage >= Math.ceil(reviews.length / reviewsPerPage)}
+                                                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-600 hover:border-[#F59115] hover:text-[#F59115] disabled:opacity-30 disabled:hover:border-gray-200 disabled:hover:text-gray-600 transition-all cursor-pointer"
+                                                >
+                                                    Next
+                                                </button>
+                                            </div>
                                         )}
                                         {!canRateHint && (
                                             <p className="text-xs text-gray-500 mt-3">
