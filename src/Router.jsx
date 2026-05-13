@@ -4,6 +4,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import Layout from "./Components/Layout/Layout";
 import Home from "./Pages/Home";
 import ProductDetails from "./Pages/ProductDetails";
+<<<<<<< Updated upstream
 import Cart from "./Pages/Cart";
 import ProductList from "./Components/Products";
 import MinimalLayout from "./Components/Layout/MinimalLayout";
@@ -24,6 +25,41 @@ import Orders from "./Components/dashboard/Orders";
 import TestCurrency from "./test-currency";
 import OAuthCallback from "./Pages/OAuthCallback";
 import OAuthFailed from "./Pages/OAuthFailed";
+=======
+import MinimalLayout from "./Components/Layout/MiniLaout";
+import Customerdetails from './Pages/Customerdetails'
+
+
+export const route = createBrowserRouter(
+    [
+        {
+            path: '/',
+            element: <Layout/>,
+            children: [
+                {
+                    path: '/',
+                    element: <Home/>
+                },
+                {
+                    path: 'product/',
+                    element: <ProductDetails/>
+                }
+            ]
+            
+        },
+        {
+            path: '/',
+            element: <MinimalLayout/>,
+            children: [
+                {
+                    path: 'customer-details/',
+                    element: <Customerdetails/>
+                }
+            ]
+        }
+    ]
+)
+>>>>>>> Stashed changes
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
