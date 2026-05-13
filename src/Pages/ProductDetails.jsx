@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Button from '../Components/Ui/Button.jsx'
 import imgOne from '../assets/ProductImages/productOne.png'
 import imgTwo from '../assets/ProductImages/productTwo.png'
 import imgThree from '../assets/ProductImages/productThree.png'
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { ArrowLeft, ChevronUp, ChevronDown, ShoppingCart, Star, X } from "lucide-react";
 import imgFour from '../assets/ProductImages/shbackgound.png'
 import Testmonial from '../Components/Testmonial.jsx'
 import VideoSection from '../Components/VideoSection.jsx'

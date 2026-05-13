@@ -5,31 +5,30 @@ import { loadStripe } from "@stripe/stripe-js";
 import Layout from "./Components/Layout/Layout";
 import Home from "./Pages/Home";
 import ProductDetails from "./Pages/ProductDetails";
-import MinimalLayout from "./Components/Layout/MiniLaout";
+import MinimalLayout from "./Components/Layout/MinimalLayout";
 import Customerdetails from "./Pages/Customerdetails";
 
 // second block imports (kept as-is assumed)
 import Cart from "./Pages/Cart";
-import ProductList from "./Pages/ProductList";
+import ProductList from "./Components/Products";
 import ProtectedRoute from "./Components/Auth/ProtectedRoute";
 import Profile from "./Pages/Profile";
 import OrderHistory from "./Pages/OrderHistory";
-import TestCurrency from "./Pages/TestCurrency";
+import TestCurrency from "./test-currency";
 
-import AdminLayout from "./Components/Admin/AdminLayout";
-import Dashboard from "./Pages/admin/Dashboard";
-import Products from "./Pages/admin/Products";
-import Categories from "./Pages/admin/Categories";
-import Deals from "./Pages/admin/Deals";
-import Orders from "./Pages/admin/Orders";
+import AdminLayout from "./Components/Layout/AdminLayout";
+import Dashboard from "./Components/dashboard/Dashboard";
+import Products from "./Components/dashboard/Products";
+import Categories from "./Components/dashboard/Categories";
+import Deals from "./Components/dashboard/Deals";
+import Orders from "./Components/dashboard/Orders";
 
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
 import OAuthCallback from "./Pages/OAuthCallback";
 import OAuthFailed from "./Pages/OAuthFailed";
 
-import CustomerDetails from "./Pages/CustomerDetails";
-import PaymentForm from "./Pages/PaymentForm";
+import PaymentForm from "./Components/PaymentForm";
 import Paysucessmodel from "./Pages/Paysucessmodel";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -141,7 +140,7 @@ export const route = createBrowserRouter([
         children: [
           {
             path: "customer-details",
-            element: <CustomerDetails />,
+            element: <Customerdetails />,
           },
           {
             path: "payment-form/:id",

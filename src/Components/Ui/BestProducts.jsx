@@ -1,11 +1,5 @@
-<<<<<<< Updated upstream
 import { useNavigate } from 'react-router-dom'
 import bg from '../../assets/bgimage.png'
-=======
-import React from 'react'
-import bg from '../../assets/bgimage.png'
-import overLay from '../../assets/almad.png'
->>>>>>> Stashed changes
 import Button from './Button'
 
 const BestProducts = ({ heading, subheading, imageSrc }) => {
