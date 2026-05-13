@@ -56,10 +56,18 @@ export default function Products() {
   };
 
   const getCategoryName = (catId) => {
-    console.log(categories, "cate")
+    if (!catId) return "";
     const cat = categories.find((c) => c._id === catId);
-    console.log("cat", cat)
     return cat ? cat.name : "";
+  };
+
+  /** List API often populates `category`; create/update responses may only send an id or omit it. */
+  const getProductCategoryLabel = (product) => {
+    const c = product?.category;
+    if (c && typeof c === "object" && c.name) return c.name;
+    const id = typeof c === "string" ? c : product?.categoryId;
+    const fromList = getCategoryName(id);
+    return fromList || "—";
   };
 
   const getDealDiscount = (dealId) => {
@@ -145,7 +153,7 @@ export default function Products() {
     return (
       product.name.toLowerCase().includes(searchLower) ||
       (product.discription && product.discription.toLowerCase().includes(searchLower)) ||
-      (product.category?.name && product.category.name.toLowerCase().includes(searchLower))
+      getProductCategoryLabel(product).toLowerCase().includes(searchLower)
     );
   });
   console.log(displayedProducts, "All ")
@@ -231,7 +239,7 @@ export default function Products() {
                     </td>
                     <td className="px-5 py-3 text-gray-600">{formatPrice(product.price)}</td>
                     <td className="px-5 py-3 text-gray-600">{product.stock}</td>
-                    <td className="px-5 py-3 text-gray-600">{product.category.name || "unknown"}</td>
+                    <td className="px-5 py-3 text-gray-600">{getProductCategoryLabel(product)}</td>
                     <td className="px-5 py-3">
                       <span
                         className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${product.isActive
