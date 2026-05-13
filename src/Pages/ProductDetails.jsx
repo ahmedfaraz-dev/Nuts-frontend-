@@ -1,15 +1,9 @@
-<<<<<<< Updated upstream
-import React, { useState, useEffect } from 'react'
-import Button from '../Components/Ui/Button.jsx'
-import { ChevronUp, ChevronDown, X, ShoppingCart, ArrowLeft, Star, ThumbsUp, ThumbsDown } from "lucide-react";
-=======
 import React, { useState } from 'react'
 import Button from '../Components/Ui/Button.jsx'
 import imgOne from '../assets/ProductImages/productOne.png'
 import imgTwo from '../assets/ProductImages/productTwo.png'
 import imgThree from '../assets/ProductImages/productThree.png'
 import { ChevronUp, ChevronDown } from "lucide-react";
->>>>>>> Stashed changes
 import imgFour from '../assets/ProductImages/shbackgound.png'
 import Testmonial from '../Components/Testmonial.jsx'
 import VideoSection from '../Components/VideoSection.jsx'
