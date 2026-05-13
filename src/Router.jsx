@@ -1,67 +1,39 @@
 import { createBrowserRouter, Outlet } from "react-router-dom";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+
 import Layout from "./Components/Layout/Layout";
 import Home from "./Pages/Home";
 import ProductDetails from "./Pages/ProductDetails";
-<<<<<<< Updated upstream
+import MinimalLayout from "./Components/Layout/MiniLaout";
+import Customerdetails from "./Pages/Customerdetails";
+
+// second block imports (kept as-is assumed)
 import Cart from "./Pages/Cart";
-import ProductList from "./Components/Products";
-import MinimalLayout from "./Components/Layout/MinimalLayout";
-import CustomerDetails from "./Pages/Customerdetails";
-import PaymentForm from "./Components/PaymentForm";
-import Paysucessmodel from "./Pages/Paysucessmodel";
-import AdminLayout from "./Components/Layout/AdminLayout";
-import Dashboard from "./Components/dashboard/Dashboard";
-import Products from "./Components/dashboard/Products";
-import Categories from "./Components/dashboard/Categories";
-import Deals from "./Components/dashboard/Deals";
+import ProductList from "./Pages/ProductList";
+import ProtectedRoute from "./Components/Auth/ProtectedRoute";
+import Profile from "./Pages/Profile";
+import OrderHistory from "./Pages/OrderHistory";
+import TestCurrency from "./Pages/TestCurrency";
+
+import AdminLayout from "./Components/Admin/AdminLayout";
+import Dashboard from "./Pages/admin/Dashboard";
+import Products from "./Pages/admin/Products";
+import Categories from "./Pages/admin/Categories";
+import Deals from "./Pages/admin/Deals";
+import Orders from "./Pages/admin/Orders";
+
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
-import Profile from "./Pages/Profile";
-import ProtectedRoute from "./Components/Auth/ProtectedRoute";
-import OrderHistory from "./Pages/OrderHistory";
-import Orders from "./Components/dashboard/Orders";
-import TestCurrency from "./test-currency";
 import OAuthCallback from "./Pages/OAuthCallback";
 import OAuthFailed from "./Pages/OAuthFailed";
-=======
-import MinimalLayout from "./Components/Layout/MiniLaout";
-import Customerdetails from './Pages/Customerdetails'
 
-
-export const route = createBrowserRouter(
-    [
-        {
-            path: '/',
-            element: <Layout/>,
-            children: [
-                {
-                    path: '/',
-                    element: <Home/>
-                },
-                {
-                    path: 'product/',
-                    element: <ProductDetails/>
-                }
-            ]
-            
-        },
-        {
-            path: '/',
-            element: <MinimalLayout/>,
-            children: [
-                {
-                    path: 'customer-details/',
-                    element: <Customerdetails/>
-                }
-            ]
-        }
-    ]
-)
->>>>>>> Stashed changes
+import CustomerDetails from "./Pages/CustomerDetails";
+import PaymentForm from "./Pages/PaymentForm";
+import Paysucessmodel from "./Pages/Paysucessmodel";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
 
 export const route = createBrowserRouter([
   {
@@ -160,7 +132,6 @@ export const route = createBrowserRouter([
         path: "auth/google/failed",
         element: <OAuthFailed />,
       },
-      // Checkout routes wrapped in Stripe Elements
       {
         element: (
           <Elements stripe={stripePromise}>
