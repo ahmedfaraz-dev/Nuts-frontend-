@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 export const httpClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   timeout: 14000,
+  withCredentials: true,
 });
 
 httpClient.interceptors.request.use(
@@ -44,7 +45,7 @@ function handleSessionExpiration() {
   localStorage.removeItem("token");
 
   // Only redirect if not already on login or register pages to avoid loops
-  const publicPaths = ["/login", "/register"];
+  const publicPaths = ["/login", "/register", "/auth/google/callback", "/auth/google/failed"];
   const isPublicPath = publicPaths.some(path => window.location.pathname.startsWith(path));
 
   if (!isPublicPath) {

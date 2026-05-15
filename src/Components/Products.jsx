@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { userApi } from "../Api/userApi";
-import { adminApi } from "../Api/adminApi";
 import Product from "./Ui/Product";
 import { SearchX, ChevronLeft, ChevronRight, ArrowRight, SlidersHorizontal, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -121,11 +120,30 @@ const FilterContent = ({
   </div>
 );
 
+const mapApiProducts = (rawProducts) =>
+  (rawProducts || []).map((item) => ({
+    id: item._id || item.id,
+    title: item.name,
+    desc: item.discription || item.description,
+    price: item.price,
+    image: item.images?.[0] || "/images/placeholder.png",
+    activeDeal: item.activeDeal || null,
+    stock: item.stock,
+    category: item.category?._id || item.category,
+    categoryName: item.category?.name,
+    averageRating: item.averageRating ?? item.avgRating ?? item.ratingsAverage,
+    ratingsCount: item.ratingsCount ?? item.numOfReviews ?? item.reviewCount ?? item.totalRatings,
+    reviews: Array.isArray(item.reviews) ? item.reviews : [],
+  }));
+
 const ProductList = ({ limit }) => {
   const [products, setProducts] = useState([]);
   const [categoriesData, setCategoriesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { formatPrice } = useCurrency();
@@ -146,21 +164,8 @@ const ProductList = ({ limit }) => {
 
   const categories = useMemo(() => {
     if (categoriesData.length === 0) return ["All"];
-    
-    const categoryMap = {};
-    categoriesData.forEach(cat => {
-      categoryMap[cat._id || cat.id] = cat.name;
-    });
-    
-    const usedCategories = new Set();
-    products.forEach(product => {
-      if (product.category && categoryMap[product.category]) {
-        usedCategories.add(categoryMap[product.category]);
-      }
-    });
-    
-    return ["All", ...Array.from(usedCategories).sort()];
-  }, [products, categoriesData]);
+    return ["All", ...categoriesData.map((cat) => cat.name).sort()];
+  }, [categoriesData]);
   const discounts = [
     { label: "10% Off or more", value: 10 },
     { label: "20% Off or more", value: 20 },
@@ -169,102 +174,93 @@ const ProductList = ({ limit }) => {
   ];
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [productsResponse, categoriesResponse] = await Promise.all([
-          userApi.getAllProducts(),
-          userApi.getCategories()
-        ]);
+    const controller = new AbortController();
 
-        if (categoriesResponse.success) {
+    const fetchCategories = async () => {
+      try {
+        const categoriesResponse = await userApi.getCategories({ signal: controller.signal });
+        if (!controller.signal.aborted && categoriesResponse.success) {
           setCategoriesData(categoriesResponse.data || []);
         }
+      } catch (err) {
+        if (err?.code === "ERR_CANCELED" || err?.name === "CanceledError") return;
+      }
+    };
+
+    fetchCategories();
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const params = {
+          page: limit ? 1 : currentPage,
+          limit: limit || itemsPerPage,
+          signal: controller.signal,
+        };
+
+        if (query) params.search = query;
+        if (activeCategory !== "All") params.category = activeCategory;
+        if (activeDiscount !== null) params.minDiscount = activeDiscount;
+        if (priceRange[0] > 0) params.minPrice = priceRange[0];
+        if (priceRange[1] < 5000) params.maxPrice = priceRange[1];
+
+        const productsResponse = await userApi.getAllProducts(params);
+
+        if (controller.signal.aborted) return;
 
         if (productsResponse.success) {
-          const rawProducts = productsResponse.data || [];
-
-          const mappedProducts = rawProducts.map((item) => ({
-            id: item._id || item.id,
-            title: item.name,
-            desc: item.discription || item.description,
-            price: item.price,
-            image: item.images?.[0] || "/images/placeholder.png",
-            activeDeal: item.activeDeal || null,
-            stock: item.stock,
-            category: item.category,
-            averageRating: item.averageRating ?? item.avgRating ?? item.ratingsAverage,
-            ratingsCount: item.ratingsCount ?? item.numOfReviews ?? item.reviewCount ?? item.totalRatings,
-            reviews: Array.isArray(item.reviews) ? item.reviews : [],
-          }));
-
-          setProducts(mappedProducts);
+          setProducts(mapApiProducts(productsResponse.data));
+          if (!limit) {
+            setTotalProducts(productsResponse.meta?.totalProducts || 0);
+            setTotalPages(productsResponse.meta?.totalPages || 1);
+          }
         } else {
           setError(productsResponse.message || "Failed to fetch products");
         }
       } catch (err) {
+        if (err?.code === "ERR_CANCELED" || err?.name === "CanceledError") return;
         setError(err?.response?.data?.message || "Failed to fetch data");
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
-    fetchData();
+    fetchProducts();
+    return () => controller.abort();
+  }, [
+    currentPage,
+    query,
+    activeCategory,
+    activeDiscount,
+    priceRange,
+    limit,
+    refreshKey,
+  ]);
 
-    const handleRatingSubmitted = () => fetchData();
-    window.addEventListener('rating-submitted', handleRatingSubmitted);
-    return () => window.removeEventListener('rating-submitted', handleRatingSubmitted);
+  useEffect(() => {
+    const handleRatingSubmitted = () => setRefreshKey((k) => k + 1);
+    window.addEventListener("rating-submitted", handleRatingSubmitted);
+    return () => window.removeEventListener("rating-submitted", handleRatingSubmitted);
   }, []);
 
-  const lowerQ = query.toLowerCase();
+  useEffect(() => {
+    if (limit || currentPage === 1) return;
+    const params = new URLSearchParams(searchParams);
+    params.set("page", "1");
+    setSearchParams(params, { replace: true });
+  }, [query, activeCategory, activeDiscount, priceRange, limit]);
 
-  const filteredProducts = useMemo(() => {
-    let result = products;
-
-    // 1. Apply Search Query Filter
-    if (query) {
-      result = result.filter((p) =>
-        p.title?.toLowerCase().includes(lowerQ) ||
-        p.desc?.toLowerCase().includes(lowerQ)
-      );
-    }
-
-    // 2. Apply Category Filter
-    if (activeCategory !== "All") {
-      const categoryMap = {};
-      categoriesData.forEach(cat => {
-        categoryMap[cat._id || cat.id] = cat.name;
-      });
-      
-      result = result.filter((p) => {
-        const categoryName = categoryMap[p.category];
-        return categoryName === activeCategory;
-      });
-    }
-
-    // 3. Apply Discount Filter
-    if (activeDiscount !== null) {
-      result = result.filter((p) => {
-        const discount = p.activeDeal ? p.activeDeal.discount : 0;
-        return discount >= activeDiscount;
-      });
-    }
-
-    // 4. Apply Price Range Filter
-    result = result.filter((p) => p.price >= priceRange[0] && p.price <= priceRange[1]);
-
-    return result;
-  }, [products, query, lowerQ, activeCategory, activeDiscount, priceRange]);
-
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-
-  const paginatedProducts = limit
-    ? filteredProducts.slice(0, limit)
-    : filteredProducts.slice(
-      (currentPage - 1) * itemsPerPage,
-      currentPage * itemsPerPage
-    );
-
-  const noMatch = (query || activeCategory !== "All" || activeDiscount !== null) && filteredProducts.length === 0;
+  const displayedProducts = products;
+  const noMatch =
+    (query || activeCategory !== "All" || activeDiscount !== null || priceRange[0] > 0 || priceRange[1] < 5000) &&
+    displayedProducts.length === 0;
 
   const handlePageChange = (newPage) => {
     const params = new URLSearchParams(searchParams);
@@ -274,10 +270,10 @@ const ProductList = ({ limit }) => {
   };
 
   useEffect(() => {
-    if (totalPages > 0 && currentPage > totalPages) {
+    if (!limit && totalPages > 0 && currentPage > totalPages) {
       handlePageChange(totalPages);
     }
-  }, [totalPages, currentPage]);
+  }, [totalPages, currentPage, limit]);
 
   // Auto-apply filters based on search query or URL params
   useEffect(() => {
@@ -513,9 +509,9 @@ const ProductList = ({ limit }) => {
                     </div>
                   )}
                 </>
-              ) : paginatedProducts.length > 0 ? (
+              ) : displayedProducts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-                  {paginatedProducts.map((item) => (
+                  {displayedProducts.map((item) => (
                     <Product key={item.id} item={item} />
                   ))}
                 </div>
@@ -580,7 +576,7 @@ const ProductList = ({ limit }) => {
 
                     <div className="px-6 py-3 bg-gray-50/80 backdrop-blur-sm rounded-full border border-gray-100/50 shadow-sm">
                       <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">
-                        Showing <span className="text-[#F59115]">{(currentPage - 1) * itemsPerPage + 1}</span> - <span className="text-[#F59115]">{Math.min(currentPage * itemsPerPage, filteredProducts.length)}</span> of <span className="text-gray-900">{filteredProducts.length}</span> Products
+                        Showing <span className="text-[#F59115]">{totalProducts === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> - <span className="text-[#F59115]">{Math.min(currentPage * itemsPerPage, totalProducts)}</span> of <span className="text-gray-900">{totalProducts}</span> Products
                       </p>
                     </div>
                   </div>
@@ -631,7 +627,7 @@ const ProductList = ({ limit }) => {
                 onClick={() => setShowMobileFilters(false)}
                 className="w-full py-4 bg-[#F59115] hover:bg-orange-600 text-white font-bold rounded-2xl shadow-lg shadow-orange-100"
               >
-                Show {filteredProducts.length} Products
+                Show {totalProducts} Products
               </button>
             </div>
           </div>

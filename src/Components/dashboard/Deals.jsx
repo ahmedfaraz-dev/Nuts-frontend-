@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Plus, Pencil, Trash2, AlertCircle, Search, Loader2 } from "lucide-react";
 import { adminApi } from "../../Api/adminApi";
 import { SkeletonDealRow, SkeletonText, SkeletonButton } from "../../Components/Ui/Skeletons";
@@ -21,26 +21,41 @@ export default function Deals() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const mountedRef = useRef(true);
+
   useEffect(() => {
-    fetchData();
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
-  const fetchData = async (isRefresh = false) => {
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchData(false, controller.signal);
+    return () => controller.abort();
+  }, []);
+
+  const fetchData = async (isRefresh = false, signal) => {
     if (!isRefresh) setLoading(true);
     try {
       const [dealsRes, prodRes] = await Promise.all([
-        adminApi.getDeals(),
-        adminApi.getAllProducts()
+        adminApi.getDeals({ signal }),
+        adminApi.getAllProducts(1, 500, "", signal),
       ]);
+
+      if (signal?.aborted || !mountedRef.current) return;
 
       if (dealsRes.success) setDeals(dealsRes.data || []);
       if (prodRes.success) setProducts(prodRes.data?.products || []);
       setError(null);
     } catch (err) {
+      if (err?.code === "ERR_CANCELED" || err?.name === "CanceledError") return;
+      if (!mountedRef.current) return;
       console.error("Error fetching deals:", err);
       setError("Failed to load deals. Please try again.");
     } finally {
-      if (!isRefresh) setLoading(false);
+      if (!signal?.aborted && mountedRef.current && !isRefresh) setLoading(false);
     }
   };
 

@@ -34,8 +34,12 @@ const userApi = {
     return res.data;
   },
 
-  getAllProducts: async () => {
-    const res = await httpClient.get("/product/all-products");
+  getAllProducts: async (params = {}) => {
+    const { signal, ...queryParams } = params;
+    const res = await httpClient.get("/product/all-products", {
+      params: queryParams,
+      signal,
+    });
     return res.data;
   },
 
@@ -45,8 +49,12 @@ const userApi = {
   },
 
   // CATEGORIES
-  getCategories: async () => {
-    const res = await httpClient.get("/user/categories");
+  getCategories: async (params = {}) => {
+    const { signal, ...queryParams } = params;
+    const res = await httpClient.get("/user/categories", {
+      params: queryParams,
+      signal,
+    });
     return res.data;
   },
 
@@ -66,18 +74,11 @@ const userApi = {
     return { success: true, avatar: { url: "path/to/new/avatar" } };
   },
 
-  // GOOGLE OAUTH
+  // GOOGLE OAUTH — redirects to backend; after Google, user returns to /auth/google/callback on frontend
   googleLogin: () => {
-    const BACKEND_URL = "https://nut-backend-production-73f0.up.railway.app";
-
-    window.location.href = `${BACKEND_URL}/api/v1/auth/google`;
-  },
-
-  handleGoogleCallback: async (code, state) => {
-    const res = await httpClient.get("/auth/google/callback", {
-      params: { code, state },
-    });
-    return res.data;
+    const productionApi = "https://nut-backend-production-73f0.up.railway.app/api/v1";
+    const apiBase = (import.meta.env.VITE_API_URL || productionApi).replace(/\/$/, "");
+    window.location.href = `${apiBase}/auth/google`;
   },
 };
 

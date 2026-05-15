@@ -23,11 +23,16 @@ export default function ProductForm({ product, categories, onSave, onClose, isLo
 
   useEffect(() => {
     if (product) {
+      const categoryId =
+        product.category && typeof product.category === "object"
+          ? product.category._id
+          : product.category;
+
       setForm({
         name: product.name || "",
-        price: product.price || "",
-        stock: product.stock || "",
-        category: product.category || "",
+        price: product.price ?? "",
+        stock: product.stock ?? "",
+        category: categoryId || "",
         isActive: product.isActive ?? true,
         discription: product.discription || "",
         hasDeal: !!product.activeDeal,

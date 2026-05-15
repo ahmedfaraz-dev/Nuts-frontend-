@@ -41,7 +41,7 @@ const DealsSection = () => {
   useEffect(() => {
     const fetch = async () => {
       try {
-        const res = await userApi.getAllProducts();
+        const res = await userApi.getAllProducts({ page: 1, limit: 100 });
         if (res.success) {
           // Only keep products that have an active deal
           const withDeals = (res.data || [])

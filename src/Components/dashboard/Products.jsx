@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Plus, Pencil, Trash2, Loader2, AlertCircle, Image as ImageIcon, Search } from "lucide-react";
 import ProductForm from "./ProductForm";
 import Pagination from "./Pagination";
@@ -6,11 +6,12 @@ import { adminApi } from "../../Api/adminApi";
 import { SkeletonTableRow } from "../../Components/Ui/Skeletons";
 import { useCurrency } from "../../contexts/CurrencyContext";
 
+const extractProduct = (res) => res?.data?.product ?? res?.data ?? res?.product ?? null;
+
 export default function Products() {
   const { formatPrice } = useCurrency();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -19,39 +20,83 @@ export default function Products() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 10;
 
+  const mountedRef = useRef(true);
+
   useEffect(() => {
-    fetchData();
-  }, [currentPage]);
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
-  const fetchData = async (isRefresh = false) => {
-    if (!isRefresh) setLoading(true);
-    try {
-      // Parallel fetch for better performance
-      const [productsData, categoriesData] = await Promise.all([
-        adminApi.getAllProducts(currentPage, itemsPerPage),
-        adminApi.getCategories().catch(() => ({ success: true, data: [] })) // Fallback if route missing
-      ]);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 400);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-      if (productsData.success) {
-        setProducts(productsData.data?.products || []);
-        setTotalItems(productsData.meta?.totalProducts || 0);
-        setTotalPages(productsData.meta?.totalPages || 1);
+  useEffect(() => {
+    if (currentPage === 1) return;
+    setCurrentPage(1);
+  }, [debouncedSearch]);
+
+  const applyProductsResponse = useCallback((productsData) => {
+    if (!productsData?.success) return;
+    setProducts(productsData.data?.products || []);
+    setTotalItems(productsData.meta?.totalProducts || 0);
+    setTotalPages(productsData.meta?.totalPages || 1);
+    setError(null);
+  }, []);
+
+  const fetchData = useCallback(
+    async (isRefresh = false, signal) => {
+      if (!isRefresh) setLoading(true);
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          adminApi.getAllProducts(currentPage, itemsPerPage, debouncedSearch, signal),
+          adminApi.getCategories({ signal }).catch(() => ({ success: true, data: [] })),
+        ]);
+
+        if (signal?.aborted || !mountedRef.current) return;
+
+        applyProductsResponse(productsData);
+        if (categoriesData.success) setCategories(categoriesData.data || []);
+      } catch (err) {
+        if (err?.code === "ERR_CANCELED" || err?.name === "CanceledError") return;
+        if (!mountedRef.current) return;
+        console.error("Error fetching admin data:", err);
+        setError("Failed to load products. Please check your connection.");
+      } finally {
+        if (!signal?.aborted && mountedRef.current && !isRefresh) setLoading(false);
       }
-      if (categoriesData.success) setCategories(categoriesData.data || []);
+    },
+    [currentPage, debouncedSearch, itemsPerPage, applyProductsResponse]
+  );
 
-      setError(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchData(false, controller.signal);
+    return () => controller.abort();
+  }, [fetchData]);
+
+  const refreshProducts = async () => {
+    try {
+      const productsData = await adminApi.getAllProducts(
+        currentPage,
+        itemsPerPage,
+        debouncedSearch
+      );
+      if (!mountedRef.current) return;
+      applyProductsResponse(productsData);
     } catch (err) {
-      console.error("Error fetching admin data:", err);
-      setError("Failed to load products. Please check your connection.");
-    } finally {
-      if (!isRefresh) setLoading(false);
+      if (err?.code === "ERR_CANCELED" || err?.name === "CanceledError") return;
+      console.error("Error refreshing products:", err);
     }
   };
 
@@ -61,20 +106,11 @@ export default function Products() {
     return cat ? cat.name : "";
   };
 
-  /** List API often populates `category`; create/update responses may only send an id or omit it. */
   const getProductCategoryLabel = (product) => {
     const c = product?.category;
     if (c && typeof c === "object" && c.name) return c.name;
     const id = typeof c === "string" ? c : product?.categoryId;
-    const fromList = getCategoryName(id);
-    return fromList || "—";
-  };
-
-  const getDealDiscount = (dealId) => {
-    // In a real API, deal info might be populated or we fetch separately
-    // For now, checking if product has a deal
-    const deal = deals.find((d) => d._id === dealId);
-    return deal ? `${deal.discount}%` : "—";
+    return getCategoryName(id) || "—";
   };
 
   const handleAdd = () => {
@@ -86,33 +122,28 @@ export default function Products() {
     setEditingProduct(product);
     setShowForm(true);
   };
-  const handleSave = async (productData, dealData) => {
+
+  const handleSave = async (productData) => {
     setActionLoading(true);
     try {
       if (editingProduct) {
-        // Edit existing
         const res = await adminApi.editProduct(editingProduct._id, productData);
         if (res.success) {
-          setProducts(prev => prev.map(p => p._id === editingProduct._id ? res.data : p));
+          const updated = extractProduct(res);
+          if (updated) {
+            setProducts((prev) =>
+              prev.map((p) => (p._id === editingProduct._id ? { ...p, ...updated } : p))
+            );
+          }
+          await refreshProducts();
         }
       } else {
-        // Create new
         const res = await adminApi.createProduct(productData);
         if (res.success) {
-          const newProduct = res.data;
-
-          // If there's deal data, create the deal for this new product
-          if (dealData) {
-            try {
-              await adminApi.createDeal(newProduct._id, dealData);
-              // Refresh silently to get final state with deal
-              await fetchData(true);
-            } catch (err) {
-              console.error("Failed to create deal:", err);
-              setProducts(prev => [...prev, newProduct]);
-            }
+          if (currentPage !== 1) {
+            setCurrentPage(1);
           } else {
-            setProducts(prev => [...prev, newProduct]);
+            await refreshProducts();
           }
         }
       }
@@ -121,7 +152,7 @@ export default function Products() {
     } catch (err) {
       alert(err?.response?.data?.message || "Failed to save product");
     } finally {
-      setActionLoading(false);
+      if (mountedRef.current) setActionLoading(false);
     }
   };
 
@@ -129,37 +160,21 @@ export default function Products() {
     setActionLoading(true);
     try {
       await adminApi.deleteProduct(productId);
+      if (!mountedRef.current) return;
 
-      // Update the local state directly for an immediate UI response
-      setProducts((prev) => prev.filter((p) => p._id !== productId));
-
-      // Close the confirmation modal
       setDeleteConfirm(null);
+      await refreshProducts();
     } catch (err) {
+      if (!mountedRef.current) return;
       console.error("Delete error:", err);
       alert(err?.response?.data?.message || "Failed to delete product");
     } finally {
-      setActionLoading(false);
+      if (mountedRef.current) setActionLoading(false);
     }
   };
 
-
-
-
-  // Server-side pagination: use products directly with search filter
-  const displayedProducts = products.filter(product => {
-    if (!searchTerm) return true;
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      product.name.toLowerCase().includes(searchLower) ||
-      (product.discription && product.discription.toLowerCase().includes(searchLower)) ||
-      getProductCategoryLabel(product).toLowerCase().includes(searchLower)
-    );
-  });
-  console.log(displayedProducts, "All ")
   return (
     <div className="space-y-4">
-      {/* Top bar */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 flex-1">
           <div className="relative max-w-sm flex-1">
@@ -172,7 +187,9 @@ export default function Products() {
               className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#F59115] focus:ring-1 focus:ring-[#F59115]"
             />
           </div>
-          <p className="text-sm text-gray-500 whitespace-nowrap">{searchTerm ? `${displayedProducts.length} found` : `${totalItems} products`}</p>
+          <p className="text-sm text-gray-500 whitespace-nowrap">
+            {searchTerm ? `${totalItems} found` : `${totalItems} products`}
+          </p>
         </div>
         <button
           onClick={handleAdd}
@@ -184,7 +201,6 @@ export default function Products() {
         </button>
       </div>
 
-      {/* Table */}
       <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -201,16 +217,17 @@ export default function Products() {
           </thead>
           <tbody>
             {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <SkeletonTableRow key={i} />
-              ))
+              Array.from({ length: 5 }).map((_, i) => <SkeletonTableRow key={i} />)
             ) : error ? (
               <tr>
                 <td colSpan={8} className="px-5 py-8 text-center">
                   <div className="flex flex-col items-center justify-center text-red-500 bg-red-50 rounded-lg border border-red-100 p-6">
                     <AlertCircle className="w-8 h-8 mb-2" />
                     <p className="text-sm font-medium">{error}</p>
-                    <button onClick={() => fetchData()} className="mt-4 text-sm text-[#F59115] hover:underline font-semibold">
+                    <button
+                      onClick={() => fetchData()}
+                      className="mt-4 text-sm text-[#F59115] hover:underline font-semibold"
+                    >
                       Try Again
                     </button>
                   </div>
@@ -218,7 +235,7 @@ export default function Products() {
               </tr>
             ) : (
               <>
-                {displayedProducts.map((product) => (
+                {products.map((product) => (
                   <tr key={product._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
                     <td className="px-5 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-3">
@@ -242,17 +259,18 @@ export default function Products() {
                     <td className="px-5 py-3 text-gray-600">{getProductCategoryLabel(product)}</td>
                     <td className="px-5 py-3">
                       <span
-                        className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${product.isActive
-                          ? "bg-green-50 text-green-700"
-                          : "bg-gray-100 text-gray-500"
-                          }`}
+                        className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
+                          product.isActive ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-500"
+                        }`}
                       >
                         {product.isActive ? "Active" : "Inactive"}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-gray-600"> {product?.activeDeal?.discount !== undefined
-                      ? product.activeDeal.discount + "%"
-                      : "No Deals"}</td>
+                    <td className="px-5 py-3 text-gray-600">
+                      {product?.activeDeal?.discount !== undefined
+                        ? `${product.activeDeal.discount}%`
+                        : "No Deals"}
+                    </td>
                     <td className="px-5 py-3 text-right whitespace-nowrap">
                       <button
                         onClick={() => handleEdit(product)}
@@ -284,7 +302,6 @@ export default function Products() {
         </table>
       </div>
 
-      {/* Pagination */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
@@ -293,7 +310,6 @@ export default function Products() {
         label="Total Products"
       />
 
-      {/* Product Form Modal */}
       {showForm && (
         <ProductForm
           product={editingProduct}
@@ -307,7 +323,6 @@ export default function Products() {
         />
       )}
 
-      {/* Delete Confirmation */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-sm text-center shadow-xl border border-gray-100">
