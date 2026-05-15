@@ -2,8 +2,10 @@ import { httpClient } from "./axiosInstance";
 
 const adminApi = {
     // PRODUCTS
-    getAllProducts: async (page = 1, limit = 20) => {
-        const res = await httpClient.get(`/admin/products?page=${page}&limit=${limit}`);
+    getAllProducts: async (page = 1, limit = 20, search = "", signal) => {
+        const params = new URLSearchParams({ page, limit });
+        if (search?.trim()) params.set("search", search.trim());
+        const res = await httpClient.get(`/admin/products?${params}`, { signal });
         return res.data;
     },
     createProduct: async (productData) => {
@@ -20,8 +22,9 @@ const adminApi = {
     },
 
     // CATEGORIES
-    getCategories: async () => {
-        const res = await httpClient.get('/admin/categories');
+    getCategories: async (params = {}) => {
+        const { signal, ...queryParams } = params;
+        const res = await httpClient.get('/admin/categories', { params: queryParams, signal });
         return res.data;
     },
     createCategory: async (categoryData) => {
@@ -38,8 +41,9 @@ const adminApi = {
     },
 
     // DEALS
-    getDeals: async () => {
-        const res = await httpClient.get('/admin/deals');
+    getDeals: async (params = {}) => {
+        const { signal, ...queryParams } = params;
+        const res = await httpClient.get('/admin/deals', { params: queryParams, signal });
         return res.data;
     },
     createDeal: async (productId, dealData) => {
