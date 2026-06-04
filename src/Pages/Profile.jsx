@@ -3,21 +3,37 @@ import { useAuth } from "../contexts/AuthContext.jsx";
 import {
   User,
   Mail,
-  Phone,
-  MapPin,
   Camera,
   Lock,
   LogOut,
   Check,
   ShoppingBag,
   ChevronRight,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
 import { userApi } from "../Api/userApi.js";
+
+function PasswordFieldError({ id, message }) {
+  if (!message) return null;
+  return (
+    <p
+      id={id}
+      className="mt-1.5 flex items-start gap-1.5 text-xs font-medium text-red-600"
+      role="alert"
+    >
+      <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" aria-hidden />
+      {message}
+    </p>
+  );
+}
 
 const Profile = () => {
   const { user, setUser, logout } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [passwordUpdating, setPasswordUpdating] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [passwordSuccessMessage, setPasswordSuccessMessage] = useState("");
   const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   const [form, setForm] = useState({
@@ -31,16 +47,71 @@ const Profile = () => {
     confirmPassword: "",
   });
 
+  const emptyPasswordErrors = {
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+    form: "",
+  };
+  const [passwordErrors, setPasswordErrors] = useState(emptyPasswordErrors);
+
+  const getPasswordValidationErrors = () => {
+    const errors = { ...emptyPasswordErrors };
+
+    if (!passwordForm.oldPassword.trim()) {
+      errors.oldPassword = "Current password is required.";
+    } else if (passwordForm.oldPassword.length < 8) {
+      errors.oldPassword = "Must be at least 8 characters.";
+    }
+
+    if (!passwordForm.newPassword.trim()) {
+      errors.newPassword = "New password is required.";
+    } else if (passwordForm.newPassword.length < 8) {
+      errors.newPassword = "Must be at least 8 characters.";
+    } else if (
+      passwordForm.oldPassword.trim() &&
+      passwordForm.oldPassword === passwordForm.newPassword
+    ) {
+      errors.newPassword = "Must be different from your current password.";
+    }
+
+    if (!passwordForm.confirmPassword.trim()) {
+      errors.confirmPassword = "Please confirm your new password.";
+    } else if (passwordForm.confirmPassword.length < 8) {
+      errors.confirmPassword = "Must be at least 8 characters.";
+    } else if (
+      passwordForm.newPassword.trim() &&
+      passwordForm.newPassword !== passwordForm.confirmPassword
+    ) {
+      errors.confirmPassword = "Does not match new password.";
+    }
+
+    return errors;
+  };
+
+  const passwordErrorsPresent = (errs) =>
+    Object.values(errs).some((v) => typeof v === "string" && v.length > 0);
+
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handlePasswordChange = (e) => {
-    setPasswordForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name } = e.target;
+    setPasswordForm((prev) => ({ ...prev, [name]: e.target.value }));
+    setPasswordErrors((prev) => {
+      const next = { ...prev, form: "" };
+      next[name] = "";
+      if (name === "newPassword") {
+        next.confirmPassword = "";
+      }
+      return next;
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setPasswordSuccessMessage("");
     setLoading(true);
     try {
       const response = await userApi.updateAccount({
@@ -57,71 +128,51 @@ const Profile = () => {
 
   const handleUpdatePassword = async (e) => {
     e.preventDefault();
-    
-    // Validate current password
-    if (!passwordForm.oldPassword.trim()) {
-      setMessage({ type: "error", text: "Current password is required" });
+
+    const validationErrors = getPasswordValidationErrors();
+    if (passwordErrorsPresent(validationErrors)) {
+      setPasswordErrors(validationErrors);
       return;
     }
-    if (passwordForm.oldPassword.length < 8) {
-      setMessage({ type: "error", text: "Current password must be at least 8 characters long" });
-      return;
-    }
-    
-    // Validate new password
-    if (!passwordForm.newPassword.trim()) {
-      setMessage({ type: "error", text: "New password is required" });
-      return;
-    }
-    if (passwordForm.newPassword.length < 8) {
-      setMessage({ type: "error", text: "New password must be at least 8 characters long" });
-      return;
-    }
-    
-    // Validate confirm password
-    if (!passwordForm.confirmPassword.trim()) {
-      setMessage({ type: "error", text: "Please confirm your new password" });
-      return;
-    }
-    if (passwordForm.confirmPassword.length < 8) {
-      setMessage({ type: "error", text: "Confirm password must be at least 8 characters long" });
-      return;
-    }
-    
-    // Check if passwords match
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setMessage({ type: "error", text: "Passwords do not match!" });
-      return;
-    }
-    
-    // Check if new password is different from current password
-    if (passwordForm.oldPassword === passwordForm.newPassword) {
-      setMessage({ type: "error", text: "New password must be different from current password" });
-      return;
-    }
-    
-    setLoading(true);
+
+    setPasswordErrors(emptyPasswordErrors);
+    setPasswordSuccessMessage("");
+
+    setPasswordUpdating(true);
     try {
       await userApi.updatePassword({
         oldPassword: passwordForm.oldPassword,
         newPassword: passwordForm.newPassword,
       });
-      setMessage({ type: "success", text: "Password updated successfully!" });
+      // Stay on this page — no navigation after a successful password change.
+      setPasswordSuccessMessage(
+        "Your password was updated successfully. You stay on this profile page and remain signed in."
+      );
       setPasswordForm({
         oldPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
+      setPasswordErrors(emptyPasswordErrors);
       setShowPasswordForm(false);
     } catch (err) {
-      setMessage({ type: "error", text: err.response?.data?.message || "Failed to update password." });
+      setPasswordErrors({
+        ...emptyPasswordErrors,
+        form: err.response?.data?.message || "Failed to update password.",
+      });
     } finally {
-      setLoading(false);
+      setPasswordUpdating(false);
     }
   };
 
   const togglePasswordForm = () => {
-    setShowPasswordForm(!showPasswordForm);
+    setShowPasswordForm((prev) => {
+      if (!prev) {
+        setPasswordSuccessMessage("");
+      }
+      return !prev;
+    });
+    setPasswordErrors(emptyPasswordErrors);
   };
 
   const isPasswordFormValid = () => {
@@ -131,6 +182,11 @@ const Profile = () => {
       passwordForm.confirmPassword.trim() !== ""
     );
   };
+
+  const hasPasswordFieldErrors =
+    !!passwordErrors.oldPassword ||
+    !!passwordErrors.newPassword ||
+    !!passwordErrors.confirmPassword;
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -291,7 +347,7 @@ const Profile = () => {
                 <div className="pt-4">
                   <button
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || passwordUpdating}
                     className="bg-[#F59115] hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-xl transition-all disabled:opacity-50 cursor-pointer"
                   >
                     {loading ? "Saving..." : "Save Changes"}
@@ -302,82 +358,189 @@ const Profile = () => {
 
             {/* Password Section */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
-                <h3 className="text-lg font-bold text-gray-900">
-                  Change Password
-                </h3>
-                <button
-                  onClick={togglePasswordForm}
-                  className={`font-medium text-sm flex items-center gap-2 transition-colors cursor-pointer ${
-                    isPasswordFormValid()
-                      ? "text-[#F59115] hover:text-orange-600"
-                      : "text-gray-400 hover:text-gray-500"
-                  }`}
-                >
-                  {showPasswordForm ? "Cancel" : "Update Password"}
-                  <ChevronRight className={`w-4 h-4 transition-transform ${showPasswordForm ? "rotate-90" : ""}`} />
-                </button>
+              <div className="border-b border-gray-50 px-8 py-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <h3 className="text-lg font-bold text-gray-900">Change Password</h3>
+                    {showPasswordForm && (
+                      <p className="mt-1 text-xs text-gray-500">
+                        Use at least 8 characters for each field.
+                      </p>
+                    )}
+                    {showPasswordForm && hasPasswordFieldErrors && (
+                      <p
+                        className="mt-2 flex items-start gap-1.5 text-sm font-medium text-red-600"
+                        role="status"
+                      >
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                        <span>Please correct the issues below each field.</span>
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={togglePasswordForm}
+                    disabled={passwordUpdating}
+                    className={`flex shrink-0 items-center gap-2 text-sm font-medium transition-colors ${
+                      passwordUpdating
+                        ? "cursor-not-allowed text-gray-300"
+                        : isPasswordFormValid()
+                          ? "cursor-pointer text-[#F59115] hover:text-orange-600"
+                          : "cursor-pointer text-gray-400 hover:text-gray-500"
+                    }`}
+                  >
+                    {showPasswordForm ? "Cancel" : "Update Password"}
+                    <ChevronRight
+                      className={`h-4 w-4 transition-transform ${showPasswordForm ? "rotate-90" : ""}`}
+                    />
+                  </button>
+                </div>
+                {passwordSuccessMessage ? (
+                  <div
+                    className="mt-4 flex items-start justify-between gap-3 rounded-xl border border-green-200 bg-green-50/90 px-4 py-3 text-green-800"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <div className="flex min-w-0 flex-1 items-start gap-2.5">
+                      <Check className="mt-0.5 h-5 w-5 shrink-0 text-green-600" aria-hidden />
+                      <p className="text-sm font-medium leading-snug">{passwordSuccessMessage}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setPasswordSuccessMessage("")}
+                      className="shrink-0 rounded-lg px-2 py-1 text-xs font-semibold text-green-800 underline-offset-2 hover:bg-green-100/80 hover:underline cursor-pointer"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                ) : null}
               </div>
 
               {/* Collapsible Password Form */}
               <div
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                  showPasswordForm ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                  showPasswordForm ? "max-h-[920px] opacity-100" : "max-h-0 opacity-0"
                 }`}
               >
-                <form onSubmit={handleUpdatePassword} className="p-8 space-y-6 border-t border-gray-50">
+                <form
+                  onSubmit={handleUpdatePassword}
+                  noValidate
+                  className="p-8 space-y-6 border-t border-gray-50"
+                >
+                  {passwordErrors.form ? (
+                    <div
+                      className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm text-red-800"
+                      role="alert"
+                    >
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
+                      <p className="font-medium leading-snug">{passwordErrors.form}</p>
+                    </div>
+                  ) : null}
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        htmlFor="profile-password-old"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
                         Current Password
                       </label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
+                          id="profile-password-old"
                           type="password"
                           name="oldPassword"
                           value={passwordForm.oldPassword}
                           onChange={handlePasswordChange}
-                          className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:ring-2 focus:ring-orange-400 transition-all"
+                          disabled={passwordUpdating}
+                          autoComplete="current-password"
+                          aria-invalid={!!passwordErrors.oldPassword}
+                          aria-describedby={
+                            passwordErrors.oldPassword ? "profile-password-old-error" : undefined
+                          }
+                          className={`w-full pl-10 pr-4 py-3 rounded-xl text-sm border-0 transition-all disabled:opacity-60 disabled:cursor-wait ${
+                            passwordErrors.oldPassword
+                              ? "bg-red-50/60 ring-2 ring-red-200 focus:ring-2 focus:ring-red-300"
+                              : "bg-gray-50 focus:ring-2 focus:ring-orange-400"
+                          }`}
                           placeholder="Enter current password"
-                          required
                         />
                       </div>
+                      <PasswordFieldError
+                        id="profile-password-old-error"
+                        message={passwordErrors.oldPassword}
+                      />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label
+                          htmlFor="profile-password-new"
+                          className="block text-sm font-medium text-gray-700 mb-2"
+                        >
                           New Password
                         </label>
                         <div className="relative">
                           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                           <input
+                            id="profile-password-new"
                             type="password"
                             name="newPassword"
                             value={passwordForm.newPassword}
                             onChange={handlePasswordChange}
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:ring-2 focus:ring-orange-400 transition-all"
+                            disabled={passwordUpdating}
+                            autoComplete="new-password"
+                            aria-invalid={!!passwordErrors.newPassword}
+                            aria-describedby={
+                              passwordErrors.newPassword ? "profile-password-new-error" : undefined
+                            }
+                            className={`w-full pl-10 pr-4 py-3 rounded-xl text-sm border-0 transition-all disabled:opacity-60 disabled:cursor-wait ${
+                              passwordErrors.newPassword
+                                ? "bg-red-50/60 ring-2 ring-red-200 focus:ring-2 focus:ring-red-300"
+                                : "bg-gray-50 focus:ring-2 focus:ring-orange-400"
+                            }`}
                             placeholder="Enter new password"
-                            required
                           />
                         </div>
+                        <PasswordFieldError
+                          id="profile-password-new-error"
+                          message={passwordErrors.newPassword}
+                        />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label
+                          htmlFor="profile-password-confirm"
+                          className="block text-sm font-medium text-gray-700 mb-2"
+                        >
                           Confirm New Password
                         </label>
                         <div className="relative">
                           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                           <input
+                            id="profile-password-confirm"
                             type="password"
                             name="confirmPassword"
                             value={passwordForm.confirmPassword}
                             onChange={handlePasswordChange}
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:ring-2 focus:ring-orange-400 transition-all"
+                            disabled={passwordUpdating}
+                            autoComplete="new-password"
+                            aria-invalid={!!passwordErrors.confirmPassword}
+                            aria-describedby={
+                              passwordErrors.confirmPassword
+                                ? "profile-password-confirm-error"
+                                : undefined
+                            }
+                            className={`w-full pl-10 pr-4 py-3 rounded-xl text-sm border-0 transition-all disabled:opacity-60 disabled:cursor-wait ${
+                              passwordErrors.confirmPassword
+                                ? "bg-red-50/60 ring-2 ring-red-200 focus:ring-2 focus:ring-red-300"
+                                : "bg-gray-50 focus:ring-2 focus:ring-orange-400"
+                            }`}
                             placeholder="Confirm new password"
-                            required
                           />
                         </div>
+                        <PasswordFieldError
+                          id="profile-password-confirm-error"
+                          message={passwordErrors.confirmPassword}
+                        />
                       </div>
                     </div>
                   </div>
@@ -385,20 +548,34 @@ const Profile = () => {
                     <button
                       type="button"
                       onClick={togglePasswordForm}
-                      className="px-6 py-3 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all cursor-pointer"
+                      disabled={passwordUpdating}
+                      className="px-6 py-3 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      disabled={loading || !isPasswordFormValid()}
-                      className={`font-bold py-3 px-8 rounded-xl transition-all disabled:opacity-50 ${
-                        isPasswordFormValid()
-                          ? "bg-[#F59115] hover:bg-orange-600 text-white cursor-pointer"
-                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      disabled={passwordUpdating || loading || !isPasswordFormValid()}
+                      aria-busy={passwordUpdating}
+                      className={`inline-flex min-w-[11.5rem] items-center justify-center gap-2 rounded-xl py-3 px-8 font-bold transition-colors ${
+                        passwordUpdating && isPasswordFormValid()
+                          ? "cursor-wait bg-[#F59115] text-white ring-2 ring-orange-200/80"
+                          : isPasswordFormValid() && !loading
+                            ? "cursor-pointer bg-[#F59115] text-white hover:bg-orange-600"
+                            : "cursor-not-allowed bg-gray-300 text-gray-500"
                       }`}
                     >
-                      {loading ? "Updating..." : "Update Password"}
+                      {passwordUpdating ? (
+                        <>
+                          <Loader2
+                            className="h-4 w-4 shrink-0 animate-spin"
+                            aria-hidden
+                          />
+                          <span>Updating…</span>
+                        </>
+                      ) : (
+                        "Update Password"
+                      )}
                     </button>
                   </div>
                 </form>

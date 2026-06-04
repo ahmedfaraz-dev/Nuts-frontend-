@@ -54,18 +54,9 @@ const OAuthCallback = () => {
         navigate("/auth/google/failed?error=session", { replace: true });
       }
     };
-
     completeLogin();
-    return () => {
-      cancelled = true;
-    };
-  }, [navigate, searchParams, setUser]);
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <p className="text-gray-600 text-sm font-medium">Signing you in with Google…</p>
-    </div>
-  );
+  }, []);
+  return <div>Logging you in...</div>;
 };
 
 export default OAuthCallback;
