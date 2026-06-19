@@ -70,8 +70,12 @@ const userApi = {
   },
 
   updateAvatar: async (formData) => {
-    console.warn("updateAvatar backend not attached");
-    return { success: true, avatar: { url: "path/to/new/avatar" } };
+    const res = await httpClient.post("/user/add-profile", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return res.data;
   },
 
   // GOOGLE OAUTH — redirects to backend; after Google, user returns to /auth/google/callback on frontend

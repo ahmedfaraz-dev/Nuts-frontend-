@@ -132,16 +132,18 @@ export const route = createBrowserRouter([
         element: <OAuthFailed />,
       },
       {
+        path: "customer-details",
+        element: <Customerdetails />,
+      },
+      {
         element: (
-          <Elements stripe={stripePromise}>
-            <Outlet />
-          </Elements>
+          <ProtectedRoute>
+            <Elements stripe={stripePromise}>
+              <Outlet />
+            </Elements>
+          </ProtectedRoute>
         ),
         children: [
-          {
-            path: "customer-details",
-            element: <Customerdetails />,
-          },
           {
             path: "payment-form/:id",
             element: <PaymentForm />,

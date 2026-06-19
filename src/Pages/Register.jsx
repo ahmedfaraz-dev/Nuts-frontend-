@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { httpClient } from '../Api/axiosInstance.js';
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import GoogleOAuthButton from '../Components/Auth/GoogleOAuthButton.jsx';
@@ -14,6 +14,8 @@ const initialForm = {
 const Register = () => {
     // const { register } = useAuth();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const redirectTo = searchParams.get("redirectTo");
 
     const [form, setForm] = useState(initialForm);
     const [errors, setErrors] = useState({});
@@ -79,7 +81,7 @@ const Register = () => {
                     <h2 className="text-2xl font-bold text-[#272727] mb-3">Check your email!</h2>
                     <p className="text-gray-500 text-sm leading-relaxed">{success}</p>
                     <button
-                        onClick={() => navigate('/login')}
+                        onClick={() => navigate(redirectTo ? `/login?redirectTo=${encodeURIComponent(redirectTo)}` : '/login')}
                         className="mt-8 w-full bg-[#F59115] hover:bg-orange-600 text-white font-semibold py-3 rounded-lg transition"
                     >
                         Go to Login
@@ -258,7 +260,7 @@ const Register = () => {
                     {/* Login link */}
                     <p className="text-center text-sm text-gray-500">
                         Already have an account?{' '}
-                        <Link to="/login" className="text-[#F59115] font-medium hover:underline">
+                        <Link to={redirectTo ? `/login?redirectTo=${encodeURIComponent(redirectTo)}` : "/login"} className="text-[#F59115] font-medium hover:underline">
                             Sign in
                         </Link>
                     </p>

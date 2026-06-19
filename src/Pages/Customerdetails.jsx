@@ -3,6 +3,7 @@ import dryfruit from "../assets/dryfruitplate.png";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext.jsx";
 import { useCurrency } from "../contexts/CurrencyContext.jsx";
+import { useAuth } from "../contexts/AuthContext.jsx";
 
 const REQUIRED_FIELDS = ["email", "firstName", "lastName", "address", "city", "postalCode", "phone"];
 
@@ -10,22 +11,28 @@ const CustomerDetails = () => {
   const navigate = useNavigate();
   const { cartItems } = useCart();
   const { formatPrice, currency, setCurrency, availableCurrencies } = useCurrency();
+  const { user } = useAuth();
 
   const subTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const delivery = cartItems.length > 0 ? 250 : 0; // consistent with backend and Cart.jsx
   const discount = 0; // Logic for discount to be added later if needed
   const total = subTotal + delivery - discount;
 
+  // Try to load any saved guest data from before a login redirect
+  const savedForm = JSON.parse(localStorage.getItem("checkoutCustomerData") || "{}");
+
+  // Pre-fill form from user profile if available, prioritizing savedForm
+  const nameParts = (user?.name || "").trim().split(/\s+/);
   const [form, setForm] = useState({
-    email: "",
-    firstName: "",
-    lastName: "",
-    company: "",   // optional
-    address: "",
-    city: "",
-    postalCode: "",
-    phone: "",
-    saveInfo: false,
+    email: savedForm.email || user?.email || "",
+    firstName: savedForm.firstName || nameParts[0] || "",
+    lastName: savedForm.lastName || nameParts.slice(1).join(" ") || "",
+    company: savedForm.company || "",   // optional
+    address: savedForm.address || user?.address || "",
+    city: savedForm.city || user?.city || "",
+    postalCode: savedForm.postalCode || user?.postalCode || "",
+    phone: savedForm.phone || user?.phone || "",
+    saveInfo: savedForm.saveInfo || false,
   });
 
   const [errors, setErrors] = useState({});
@@ -77,6 +84,10 @@ const CustomerDetails = () => {
       document.getElementById(firstErrorKey)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
+
+    // Save to localStorage so it survives the login redirect if they aren't authenticated
+    localStorage.setItem("checkoutCustomerData", JSON.stringify(form));
+
     const productId = cartItems[0]?.id || "";
     navigate(`/payment-form/${productId}`, { state: { customerData: form } });
   }
@@ -244,20 +255,7 @@ const CustomerDetails = () => {
         <div className="w-full sm:w-[90vw] md:w-[70vw] lg:w-112.5 bg-[#FDFDFD] py-6 px-4 sm:px-8 md:py-12 shrink-0 mx-auto mt-8 lg:mt-0 rounded-lg shadow-md">
           <h2 className="text-xl font-bold mb-8 text-[#272727]">Your Order</h2>
 
-          <div className="mb-6">
-            <label className="block text-sm text-gray-600 mb-2">Display Currency</label>
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="w-full border border-gray-200 rounded-md p-3 bg-white focus:outline-none focus:border-orange-400"
-            >
-              {Object.entries(availableCurrencies).map(([code, info]) => (
-                <option key={code} value={code}>
-                  {code} - {info.name}
-                </option>
-              ))}
-            </select>
-          </div>
+
 
           <div className="flex flex-col gap-4 mb-8">
             {cartItems.map((item) => (

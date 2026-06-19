@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 
 /**
@@ -8,6 +8,7 @@ import { useAuth } from '../../contexts/AuthContext.jsx';
  */
 const ProtectedRoute = ({ children, adminOnly = false }) => {
     const { user, authLoading } = useAuth();
+    const location = useLocation();
 
     if (authLoading) {
         return (
@@ -24,7 +25,10 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
         );
     }
 
-    if (!user) return <Navigate to="/login" replace />;
+    if (!user) {
+        const redirectTo = encodeURIComponent(location.pathname + location.search);
+        return <Navigate to={`/login?redirectTo=${redirectTo}`} replace />;
+    }
 
     if (adminOnly && user.role !== 'admin') return <Navigate to="/" replace />;
 

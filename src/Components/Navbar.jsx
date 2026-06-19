@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import { useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext.jsx'
 import { useAuth } from '../contexts/AuthContext.jsx'
@@ -50,6 +49,30 @@ const Navbar = () => {
   const [activeTab, setActiveTab] = useState('dryfood')
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false)
   const [pendingRatingsCount, setPendingRatingsCount] = useState(0)
+  const currencyDropdownRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (currencyDropdownRef.current && !currencyDropdownRef.current.contains(event.target)) {
+        setIsCurrencyDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Close currency dropdown on window scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsCurrencyDropdownOpen(false)
+    }
+    
+    if (isCurrencyDropdownOpen) {
+      window.addEventListener('scroll', handleScroll, { passive: true })
+    }
+    
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [isCurrencyDropdownOpen])
   const navigate = useNavigate()
   const { totalItems } = useCart()
   const { user, logout, authLoading } = useAuth()
@@ -86,9 +109,9 @@ const Navbar = () => {
     return (
       <nav className="w-full sticky top-0 z-50 bg-white/70 backdrop-blur-[2px] py-4 px-4 md:px-8 lg:px-16">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-           <div className="h-10 w-32 bg-gray-100 animate-pulse rounded" />
-           <div className="h-10 flex-1 max-w-xl mx-8 bg-gray-100 animate-pulse rounded-full hidden md:block" />
-           <div className="h-10 w-24 bg-gray-100 animate-pulse rounded" />
+          <div className="h-10 w-32 bg-gray-100 animate-pulse rounded" />
+          <div className="h-10 flex-1 max-w-xl mx-8 bg-gray-100 animate-pulse rounded-full hidden md:block" />
+          <div className="h-10 w-24 bg-gray-100 animate-pulse rounded" />
         </div>
       </nav>
     )
@@ -133,55 +156,56 @@ const Navbar = () => {
 
             {/* Hamburger Menu & Actions */}
             <div className='flex justify-center items-center gap-4 md:gap-6 cursor-pointer'>
-              
+
               {/* Currency Selector */}
-              <div className="relative">
+              <div className="relative" ref={currencyDropdownRef}>
                 <button
                   onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-                  className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-all duration-150"
+                  className="flex items-center gap-1.5 px-2 py-1.5 border border-gray-200 rounded-md hover:border-gray-300 hover:bg-gray-50 transition-all duration-150"
                   title="Change Currency"
                 >
-                  <Globe className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm font-medium text-gray-700">{currency}</span>
+                  <img src={`https://flagcdn.com/w20/${availableCurrencies[currency]?.country}.png`} alt="flag" className="w-4 h-auto rounded-sm object-cover shadow-sm" />
+                  <span className="text-[13px] font-medium text-gray-700">{currency}</span>
                   <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform duration-150 ${isCurrencyDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {isCurrencyDropdownOpen && (
-                  <>
-                    <div 
-                      className="fixed inset-0 z-[60]" 
-                      onClick={() => setIsCurrencyDropdownOpen(false)}
-                    />
-                    <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[70] py-2 min-w-[140px]">
-                      {Object.entries(availableCurrencies).map(([currCode, currInfo]) => (
-                        <button
-                          key={currCode}
-                          onClick={() => {
-                            setCurrency(currCode);
-                            setIsCurrencyDropdownOpen(false);
-                          }}
-                          className={`w-full text-left px-3 py-2 text-sm transition-colors flex items-center justify-between ${
-                            currency === currCode 
-                              ? 'bg-gray-100 text-gray-900 font-medium' 
-                              : 'text-gray-700 hover:bg-gray-50'
-                          }`}
-                        >
-                          <span>{currCode}</span>
-                          <span className="text-gray-500">{currInfo.symbol}</span>
-                        </button>
-                      ))}
+                    <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[70] py-1.5 w-28">
+                      <div className="max-h-56 overflow-y-auto custom-scrollbar">
+                        {Object.entries(availableCurrencies).map(([currCode, currInfo]) => {
+                            const isSelected = currency === currCode;
+                            return (
+                              <button
+                                key={currCode}
+                                onClick={() => {
+                                  setCurrency(currCode);
+                                  setIsCurrencyDropdownOpen(false);
+                                }}
+                                className={`w-full text-left px-3 py-1.5 text-[13px] transition-colors flex items-center gap-2 hover:bg-gray-100 ${isSelected ? 'bg-orange-50/50' : ''}`}
+                              >
+                                <img 
+                                  src={`https://flagcdn.com/w20/${currInfo.country}.png`} 
+                                  alt={currCode} 
+                                  className="w-4 h-auto rounded-sm object-cover shadow-sm" 
+                                />
+                                <span className={`${isSelected ? 'text-[#F59115] font-semibold' : 'text-gray-700'} transition-colors`}>
+                                  {currCode}
+                                </span>
+                              </button>
+                            );
+                        })}
+                      </div>
                     </div>
-                  </>
                 )}
               </div>
 
-            {/* Cart Button */}
-            <button
-              onClick={() => navigate('/cart')}
-              className="relative p-1 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <img src="/images/cart.svg" alt="cart" className="w-6 h-6" />
-              {totalItems > 0 && (
+              {/* Cart Button */}
+              <button
+                onClick={() => navigate('/cart')}
+                className="relative p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <img src="/images/cart.svg" alt="cart" className="w-6 h-6" />
+                {totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-[#F59115] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                     {totalItems > 9 ? '9+' : totalItems}
                   </span>
