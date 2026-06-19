@@ -188,16 +188,35 @@ const Profile = () => {
     !!passwordErrors.newPassword ||
     !!passwordErrors.confirmPassword;
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
+      // 1. Show immediate preview for a responsive UI
       const reader = new FileReader();
       reader.onloadend = () => {
-        // In a real app, you'd upload this to the server
-        // and update the user state with the new URL
-        setUser({ ...user, avatar: { url: reader.result } });
+        setUser((prev) => ({ ...prev, avatar: { url: reader.result } }));
       };
       reader.readAsDataURL(file);
+
+      // 2. Prepare FormData to send to your backend
+      const formData = new FormData();
+      formData.append("image", file);
+
+      try {
+        const response = await userApi.updateAvatar(formData);
+        if (response?.user) {
+          // 3. Update state with the final, permanent Cloudinary URL
+          setUser(response.user);
+          setMessage({ type: "success", text: "Profile image saved successfully!" });
+        }
+      } catch (err) {
+        console.error("Avatar upload error:", err);
+        setMessage({ type: "error", text: err.response?.data?.message || "Failed to save profile image." });
+        
+        // Revert to original user fetch to clear the broken local preview on error
+        const currentUser = await userApi.getCurrentUser();
+        setUser(currentUser?.user || currentUser);
+      }
     }
   };
 

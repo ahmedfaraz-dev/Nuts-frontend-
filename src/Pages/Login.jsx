@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import GoogleOAuthButton from "../Components/Auth/GoogleOAuthButton.jsx";
 
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo");
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
@@ -44,10 +46,13 @@ const Login = () => {
 
       console.log("Login successful, user data:", data);
       // Redirect based on role returned from /get-user (or within the login response)
-      if (data?.role === "admin")
-
+      if (data?.role === "admin") {
         navigate("/admin-dashboard", { replace: true });
-      else navigate("/", { replace: true });
+      } else if (redirectTo) {
+        navigate(decodeURIComponent(redirectTo), { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
     } catch (err) {
       setServerError(
         err?.response?.data?.message ||
@@ -70,6 +75,13 @@ const Login = () => {
         </div>
 
         <form onSubmit={handleSubmit} noValidate className="space-y-5">
+          {/* Redirect notice (e.g. from checkout) */}
+          {redirectTo && !serverError && (
+            <div className="bg-orange-50 border border-orange-200 text-orange-700 text-sm rounded-lg px-4 py-3 flex items-center gap-2">
+              <span>🔒</span> Please sign in to continue with checkout
+            </div>
+          )}
+
           {/* Server error */}
           {serverError && (
             <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3">
@@ -159,7 +171,7 @@ const Login = () => {
           <p className="text-center text-sm text-gray-500">
             Don't have an account?{" "}
             <Link
-              to="/register"
+              to={redirectTo ? `/register?redirectTo=${encodeURIComponent(redirectTo)}` : "/register"}
               className="text-[#F59115] font-medium hover:underline"
             >
               Create one

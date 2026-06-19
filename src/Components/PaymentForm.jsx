@@ -47,7 +47,15 @@ const PaymentForm = () => {
     e.preventDefault();
     setError(null);
 
-    const customerData = location.state?.customerData;
+    // Fall back to localStorage if location.state was lost during a login redirect
+    let customerData = location.state?.customerData;
+    if (!customerData) {
+      try {
+        customerData = JSON.parse(localStorage.getItem("checkoutCustomerData") || "{}");
+      } catch (e) {
+        console.error("Failed to parse saved customer data", e);
+      }
+    }
 
     if (!stripe || !elements) {
       setError("Stripe not loaded");
