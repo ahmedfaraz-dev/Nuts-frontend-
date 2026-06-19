@@ -18,6 +18,7 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
