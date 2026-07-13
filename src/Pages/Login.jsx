@@ -70,7 +70,7 @@ const Login = () => {
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold text-[#272727]">Welcome back</h1>
           <p className="text-gray-400 text-sm mt-2">
-            Sign in to your Hunza Naturals account
+            Sign in to your Aura-Nuts account
           </p>
         </div>
 

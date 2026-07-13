@@ -98,7 +98,7 @@ const Register = () => {
                 {/* Heading */}
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold text-[#272727]">Create an account</h1>
-                    <p className="text-gray-400 text-sm mt-2">Join Hunza Naturals today</p>
+                    <p className="text-gray-400 text-sm mt-2">Join Aura-Nuts today</p>
                 </div>
 
                 <form onSubmit={handleSubmit} noValidate className="space-y-5">
