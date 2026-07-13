@@ -205,14 +205,17 @@ export default function ProductForm({ product, categories, onSave, onClose, isLo
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Images (Exactly 3) *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {product ? "Replace Images (Optional, Exactly 3)" : "Images (Exactly 3) *"}
+            </label>
             <div
               onClick={() => fileInputRef.current.click()}
+              className="cursor-pointer"
               disabled={isLoading}
             >
               <Upload size={24} className="text-gray-400" />
               <p className="text-xs text-gray-500">
-                {isLoading ? "Uploading..." : "Click to upload 3 product images"}
+                {isLoading ? "Uploading..." : (product ? "Click to replace 3 product images" : "Click to upload 3 product images")}
               </p>
               <input
                 type="file"

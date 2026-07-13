@@ -66,11 +66,11 @@ const Navbar = () => {
     const handleScroll = () => {
       setIsCurrencyDropdownOpen(false)
     }
-    
+
     if (isCurrencyDropdownOpen) {
       window.addEventListener('scroll', handleScroll, { passive: true })
     }
-    
+
     return () => window.removeEventListener('scroll', handleScroll)
   }, [isCurrencyDropdownOpen])
   const navigate = useNavigate()
@@ -124,11 +124,11 @@ const Navbar = () => {
         <div className="w-full bg-white/70 backdrop-blur-[2px] py-4 px-4 md:px-8 lg:px-16">
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
             {/* Logo */}
-            <a href="/" className="shrink-0">
+            <a href="/" className="shrink-0 flex items-center">
               <img
-                src="/images/logo.png"
-                alt="Hunza Naturals"
-                className="h-10 md:h-12 w-auto"
+                src="/images/logos.png"
+                alt="Aura-Nuts"
+                className="h-12 md:h-14 w-auto object-contain drop-shadow-sm transition-transform duration-200 hover:scale-105"
               />
             </a>
 
@@ -170,32 +170,32 @@ const Navbar = () => {
                 </button>
 
                 {isCurrencyDropdownOpen && (
-                    <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[70] py-1.5 w-28">
-                      <div className="max-h-56 overflow-y-auto custom-scrollbar">
-                        {Object.entries(availableCurrencies).map(([currCode, currInfo]) => {
-                            const isSelected = currency === currCode;
-                            return (
-                              <button
-                                key={currCode}
-                                onClick={() => {
-                                  setCurrency(currCode);
-                                  setIsCurrencyDropdownOpen(false);
-                                }}
-                                className={`w-full text-left px-3 py-1.5 text-[13px] transition-colors flex items-center gap-2 hover:bg-gray-100 ${isSelected ? 'bg-orange-50/50' : ''}`}
-                              >
-                                <img 
-                                  src={`https://flagcdn.com/w20/${currInfo.country}.png`} 
-                                  alt={currCode} 
-                                  className="w-4 h-auto rounded-sm object-cover shadow-sm" 
-                                />
-                                <span className={`${isSelected ? 'text-[#F59115] font-semibold' : 'text-gray-700'} transition-colors`}>
-                                  {currCode}
-                                </span>
-                              </button>
-                            );
-                        })}
-                      </div>
+                  <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[70] py-1.5 w-28">
+                    <div className="max-h-56 overflow-y-auto custom-scrollbar">
+                      {Object.entries(availableCurrencies).map(([currCode, currInfo]) => {
+                        const isSelected = currency === currCode;
+                        return (
+                          <button
+                            key={currCode}
+                            onClick={() => {
+                              setCurrency(currCode);
+                              setIsCurrencyDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-3 py-1.5 text-[13px] transition-colors flex items-center gap-2 hover:bg-gray-100 ${isSelected ? 'bg-orange-50/50' : ''}`}
+                          >
+                            <img
+                              src={`https://flagcdn.com/w20/${currInfo.country}.png`}
+                              alt={currCode}
+                              className="w-4 h-auto rounded-sm object-cover shadow-sm"
+                            />
+                            <span className={`${isSelected ? 'text-[#F59115] font-semibold' : 'text-gray-700'} transition-colors`}>
+                              {currCode}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
+                  </div>
                 )}
               </div>
 

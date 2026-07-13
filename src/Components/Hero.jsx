@@ -13,7 +13,7 @@ const Hero = () => {
         <div className="w-full lg:w-1/2 text-center lg:text-left">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#272727] leading-tight">
             Eat Healthy Every Day <br />
-            Hunza Naturals
+            Aura-Nuts
           </h1>
 
           <p className="my-6 text-[#696969] max-w-xl mx-auto lg:mx-0 leading-relaxed">

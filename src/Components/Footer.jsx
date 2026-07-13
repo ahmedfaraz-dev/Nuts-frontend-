@@ -94,7 +94,7 @@ export default function Footer() {
         {/* BOTTOM BAR */}
         <div className="pt-4 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-2">
           <p className="text-gray-400 text-[10px]">
-            © {currentYear} <span className="text-[#F59115]">Hunza Naturals</span>. All rights reserved.
+            © {currentYear} <span className="text-[#F59115]">Aura-Nuts</span>. All rights reserved.
           </p>
           <div className="flex gap-4 text-[10px] text-gray-400">
             <a href="#" className="hover:text-black">Sitemap</a>

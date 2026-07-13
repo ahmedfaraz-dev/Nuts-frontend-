@@ -232,7 +232,7 @@ const PaymentForm = () => {
                 Save Card
               </label>
               <p className="text-gray-400 text-sm font-normal">
-                That My Card Information Is Saved In My Hunza Naturals Account
+                That My Card Information Is Saved In My Aura-Nuts Account
               </p>
             </div>
           </div>
