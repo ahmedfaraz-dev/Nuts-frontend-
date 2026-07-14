@@ -1,17 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import Cookies from "js-cookie";
 import { useAuth } from "../contexts/AuthContext.jsx";
+import { userApi } from "../Api/userApi";
 import GoogleOAuthButton from "../Components/Auth/GoogleOAuthButton.jsx";
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login, setUser } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo");
+  const oauthAccessToken = searchParams.get("accessToken") || searchParams.get("token");
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
-  const [apiError, setApiError] = useState("");
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -62,6 +64,29 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!oauthAccessToken) return;
+
+    const handleOAuthRedirect = async () => {
+      Cookies.set("token", oauthAccessToken, { expires: 7, path: "/" });
+      localStorage.setItem("token", oauthAccessToken);
+      window.history.replaceState({}, "", "/login");
+
+      try {
+        const data = await userApi.getCurrentUser();
+        const userData = data.user || data.data || data;
+        if (userData && userData.email) {
+          setUser(userData);
+          navigate("/", { replace: true });
+        }
+      } catch (err) {
+        console.error("OAuth login callback failed:", err);
+      }
+    };
+
+    handleOAuthRedirect();
+  }, [oauthAccessToken, navigate, setUser]);
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4 py-12">
