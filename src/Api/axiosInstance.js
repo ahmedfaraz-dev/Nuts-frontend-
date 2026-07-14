@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 
 export const httpClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  timeout: 14000,
+  timeout: 23000,
   withCredentials: true,
 });
 
