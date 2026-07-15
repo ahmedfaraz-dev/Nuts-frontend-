@@ -11,7 +11,7 @@ const Testmonial = () => {
 
             {/* big image */}
             <img
-              src="/public/images/nuts1.png"
+              src="/images/nuts1.png"
               alt=""
               className="w-full h-64 object-cover rounded-2xl"
             />
