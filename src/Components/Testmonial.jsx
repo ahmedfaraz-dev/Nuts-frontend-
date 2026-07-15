@@ -19,13 +19,13 @@ const Testmonial = () => {
             {/* two small images */}
             <div className="flex gap-4">
               <img
-                src="/public/images/nuts2.png"
+                src="/images/nuts2.png"
                 alt=""
                 className="w-1/2 h-48 object-cover rounded-2xl"
               />
 
               <img
-                src="/public/images/nuts3.png"
+                src="/images/nuts3.png"
                 alt=""
                 className="w-1/2 h-48 object-cover rounded-2xl"
               />
@@ -58,7 +58,7 @@ const Testmonial = () => {
 
                 <div className="flex items-center gap-4">
                   <img
-                    src="/public/images/avaster.png"
+                    src="/images/avaster.png"
                     alt=""
                     className="w-12 h-12 rounded-full object-cover"
                   />
@@ -84,7 +84,7 @@ const Testmonial = () => {
 
                 <div className="flex items-center gap-4">
                   <img
-                    src="/public/images/avaster.png"
+                    src="/images/avaster.png"
                     alt=""
                     className="w-12 h-12 rounded-full object-cover"
                   />
