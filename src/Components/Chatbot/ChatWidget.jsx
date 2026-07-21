@@ -1,183 +1,236 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
+import { X, Send, RefreshCw, Minus, Mic } from 'lucide-react';
 import { chatbotApi } from '../../Api/chatbotApi';
 
+const WELCOME_MESSAGE = {
+  role: 'assistant',
+  content: 'Hi! 👋 Welcome to Aura-Nuts.\n\nI may share some of your information with our trusted service providers in order to assist you better.\n\nHow can I help you today?'
+};
+
 const ChatWidget = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState([
-        { role: 'assistant', content: 'Hi there! 👋 I am your Aura-Nuts assistant.\n\nI can help you find products, check deals, and answer any questions. How can I help?' }
-    ]);
-    const [input, setInput] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const messagesEndRef = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [messages, setMessages] = useState([WELCOME_MESSAGE]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
-    useEffect(() => {
-        if (isOpen) {
-            scrollToBottom();
-        }
-    }, [messages, isOpen]);
+  useEffect(() => {
+    if (isOpen && !isMinimized) {
+      scrollToBottom();
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, [messages, isOpen, isMinimized]);
 
-    const handleSend = async (e) => {
-        e.preventDefault();
-        if (!input.trim()) return;
+  const handleReset = () => {
+    setMessages([WELCOME_MESSAGE]);
+    setInput('');
+  };
 
-        const userMessage = input.trim();
-        setInput('');
-        
-        // Add user message to UI immediately
-        const newMessages = [...messages, { role: 'user', content: userMessage }];
-        setMessages(newMessages);
-        setIsLoading(true);
+  const handleSend = async (e) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
 
-        try {
-            // Prepare history for Groq. Map to simple role/content pairs.
-            // Exclude the most recent message (since that goes in 'message' field)
-            const history = newMessages.slice(0, -1).map(m => ({ 
-                role: m.role, 
-                content: m.content 
-            }));
+    const userMessage = input.trim();
+    setInput('');
 
-            const response = await chatbotApi.sendMessage(userMessage, history);
-            
-            if (response.data.success) {
-                setMessages([...newMessages, { role: 'assistant', content: response.data.reply }]);
-            } else {
-                setMessages([...newMessages, { role: 'assistant', content: 'Sorry, I am having trouble connecting right now.' }]);
-            }
-        } catch (error) {
-            console.error('Chatbot API Error:', error);
-            setMessages([...newMessages, { role: 'assistant', content: 'Oops! Something went wrong. Please try again later.' }]);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const newMessages = [...messages, { role: 'user', content: userMessage }];
+    setMessages(newMessages);
+    setIsLoading(true);
 
-    return (
-        <div className="fixed bottom-6 right-6 z-[999]">
-            {/* Chat Window */}
-            {isOpen && (
-                <div className="absolute bottom-20 right-0 w-[350px] sm:w-[400px] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col h-[500px] max-h-[80vh] transition-all duration-300 transform origin-bottom-right">
-                    
-                    {/* Header */}
-                    <div className="bg-[#F59115] text-white p-4 flex justify-between items-center shadow-[0_2px_10px_rgba(245,145,21,0.2)]">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-inner overflow-hidden p-1">
-                                <img src="/images/logos.png" alt="logo" className="w-full h-full object-contain" />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-[15px] leading-tight">Aura-Nuts Assistant</h3>
-                                <p className="text-[11px] text-orange-100 mt-0.5 flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
-                                    Online right now
-                                </p>
-                            </div>
-                        </div>
-                        <button 
-                            onClick={() => setIsOpen(false)}
-                            className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
+    try {
+      const history = newMessages.slice(0, -1).map(m => ({
+        role: m.role,
+        content: m.content
+      }));
+
+      const response = await chatbotApi.sendMessage(userMessage, history);
+
+      if (response.data.success) {
+        setMessages([...newMessages, { role: 'assistant', content: response.data.reply }]);
+      } else {
+        setMessages([...newMessages, { role: 'assistant', content: 'Sorry, I am having trouble connecting right now. Please try again.' }]);
+      }
+    } catch (error) {
+      console.error('Chatbot API Error:', error);
+      setMessages([...newMessages, { role: 'assistant', content: 'Oops! Something went wrong. Please try again later.' }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed bottom-6 right-6 z-[999] flex flex-col items-end gap-3">
+
+      {/* Chat Window */}
+      {isOpen && !isMinimized && (
+        <div className="w-[360px] sm:w-[390px] bg-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-gray-100 flex flex-col overflow-hidden"
+          style={{ height: '530px' }}>
+
+          {/* ── Header ── */}
+          <div className="flex items-center justify-between px-4 py-3.5 border-b border-gray-100 bg-white">
+            <div className="flex items-center gap-3">
+              {/* Logo circle */}
+              <div className="w-9 h-9 rounded-full bg-[#F59115] flex items-center justify-center shadow-sm overflow-hidden p-1 flex-shrink-0">
+                <img
+                  src="/images/logos.png"
+                  alt="Aura-Nuts"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <span className="font-semibold text-[15px] text-gray-800 tracking-tight">
+                Aura-Nuts Support
+              </span>
+            </div>
+
+            {/* Header Actions */}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={handleReset}
+                title="Reset conversation"
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setIsMinimized(true)}
+                title="Minimize"
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* ── Messages ── */}
+          <div className="flex-1 overflow-y-auto px-4 pt-5 pb-3 flex flex-col gap-4 custom-scrollbar bg-white">
+
+            {messages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start items-end gap-2.5'}`}
+              >
+                {/* Bot Avatar Left */}
+                {msg.role === 'assistant' && (
+                  <div className="w-8 h-8 rounded-full bg-[#F59115] flex-shrink-0 overflow-hidden p-1 flex items-center justify-center shadow-sm">
+                    <img src="/images/logos.png" alt="bot" className="w-full h-full object-contain" />
+                  </div>
+                )}
+
+                <div
+                  className={`max-w-[78%] text-[13.5px] leading-relaxed ${msg.role === 'user'
+                    ? 'bg-[#F59115] text-white px-4 py-2.5 rounded-2xl rounded-br-sm shadow-sm'
+                    : 'text-gray-600 text-center'
+                    }`}
+                  style={{ whiteSpace: 'pre-line' }}
+                >
+                  {msg.role === 'assistant' && idx === 0 ? (
+                    <p className="text-gray-500 text-[13px] text-center leading-relaxed">
+                      {msg.content}
+                    </p>
+                  ) : msg.role === 'assistant' ? (
+                    <div className="bg-gray-50 border border-gray-100 text-gray-700 px-4 py-2.5 rounded-2xl rounded-bl-sm text-left text-[13.5px]">
+                      {msg.content}
                     </div>
-
-                    {/* Chat Messages */}
-                    <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 custom-scrollbar bg-[#fafafa]">
-                        {messages.map((msg, idx) => (
-                            <div 
-                                key={idx} 
-                                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                            >
-                                {msg.role === 'assistant' && (
-                                    <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center flex-shrink-0 mr-2 mt-auto mb-1 shadow-sm p-1 border border-gray-100">
-                                        <img src="/images/logos.png" alt="logo" className="w-full h-full object-contain" />
-                                    </div>
-                                )}
-                                <div 
-                                    className={`max-w-[75%] rounded-2xl p-3.5 text-[14px] leading-relaxed shadow-sm ${
-                                        msg.role === 'user' 
-                                            ? 'bg-[#F59115] text-white rounded-br-sm' 
-                                            : 'bg-white border border-gray-100 text-gray-700 rounded-bl-sm'
-                                    }`}
-                                    style={{ whiteSpace: 'pre-line' }}
-                                >
-                                    {msg.content}
-                                </div>
-                            </div>
-                        ))}
-                        
-                        {isLoading && (
-                            <div className="flex justify-start items-end">
-                                <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center flex-shrink-0 mr-2 mb-1 shadow-sm p-1 border border-gray-100">
-                                    <img src="/images/logos.png" alt="logo" className="w-full h-full object-contain" />
-                                </div>
-                                <div className="bg-white border border-gray-100 text-gray-700 rounded-2xl rounded-bl-sm p-3.5 shadow-sm flex items-center gap-2">
-                                    <Loader2 className="w-4 h-4 animate-spin text-[#F59115]" />
-                                    <span className="text-xs text-gray-500 font-medium tracking-wide">Typing...</span>
-                                </div>
-                            </div>
-                        )}
-                        <div ref={messagesEndRef} />
-                    </div>
-
-                    {/* Input Area */}
-                    <div className="p-4 bg-white border-t border-gray-100">
-                        <form onSubmit={handleSend} className="relative flex items-center">
-                            <input
-                                type="text"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                placeholder="Type your message..."
-                                className="w-full pl-5 pr-12 py-3.5 rounded-full border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-[#F59115] focus:ring-1 focus:ring-[#F59115] focus:bg-white transition-all text-gray-700 shadow-inner"
-                                disabled={isLoading}
-                            />
-                            <button
-                                type="submit"
-                                disabled={!input.trim() || isLoading}
-                                className="absolute right-2 p-2.5 bg-[#F59115] text-white rounded-full hover:bg-orange-600 disabled:opacity-50 disabled:hover:bg-[#F59115] transition-all transform active:scale-95 shadow-md shadow-orange-500/20"
-                            >
-                                <Send className="w-4 h-4 ml-0.5" />
-                            </button>
-                        </form>
-                    </div>
+                  ) : (
+                    msg.content
+                  )}
                 </div>
+              </div>
+            ))}
+
+            {/* Typing indicator */}
+            {isLoading && (
+              <div className="flex items-end gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-[#F59115] flex-shrink-0 overflow-hidden p-1 flex items-center justify-center shadow-sm">
+                  <img src="/images/logos.png" alt="bot" className="w-full h-full object-contain" />
+                </div>
+                <div className="bg-gray-50 border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-gray-300 animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                  <span className="w-2 h-2 rounded-full bg-gray-300 animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                  <span className="w-2 h-2 rounded-full bg-gray-300 animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                </div>
+              </div>
             )}
 
-            {/* Chat Toggle Button */}
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 bg-white pl-1 pr-5 py-1 rounded-full shadow-[0_8px_25px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all duration-300 hover:scale-105 active:scale-95 border border-gray-100"
-            >
-                {isOpen ? (
-                    <div className="flex items-center gap-2">
-                        <div className="w-[2.75rem] h-[2.75rem] rounded-full bg-[#F59115] flex items-center justify-center text-white text-lg">
-                            <X className="w-6 h-6" />
-                        </div>
-                        <div className="flex flex-col items-start hidden sm:flex">
-                            <span className="text-[#3f3f46] font-extrabold text-[15px] leading-[1.2] mr-1">Close chat</span>
-                        </div>
-                    </div>
-                ) : (
-                    <>
-                        <div className="flex items-center justify-center w-[2.75rem] h-[2.75rem] rounded-full bg-gradient-to-tr from-[#a3e635] via-[#fde047] to-[#fef08a] p-[2px]">
-                            <div className="flex items-center justify-center w-full h-full rounded-full bg-white overflow-hidden p-[2px]">
-                                <div className="flex items-center justify-center w-full h-full rounded-full bg-white overflow-hidden">
-                                    <img src="/images/logos.png" alt="logo" className="w-[90%] h-auto object-contain" />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex flex-col items-start">
-                            <span className="text-[#3f3f46] font-black tracking-wide text-[14.5px] leading-[1.1]">Ask anything</span>
-                            <span className="text-[#71717a] text-[11.5px] font-medium leading-[1.1] mt-0.5">Chat about the order</span>
-                        </div>
-                    </>
-                )}
-            </button>
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* ── Input Area ── */}
+          <div className="px-4 pt-2 pb-2 bg-white border-t border-gray-100">
+            <form onSubmit={handleSend} className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full px-4 py-2.5 focus-within:border-[#F59115] focus-within:ring-1 focus-within:ring-[#F59115]/20 transition-all">
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask a question..."
+                disabled={isLoading}
+                className="flex-1 bg-transparent text-[13.5px] text-gray-700 placeholder-gray-400 outline-none min-w-0"
+              />
+              <button type="button" className="text-gray-400 hover:text-gray-500 transition-colors ml-1">
+                <Mic className="w-4 h-4" />
+              </button>
+              <button
+                type="submit"
+                disabled={!input.trim() || isLoading}
+                className="text-gray-400 hover:text-[#F59115] disabled:opacity-30 transition-colors"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </form>
+
+            {/* Powered by */}
+            <p className="text-center text-[10.5px] text-gray-400 mt-2 pb-1">
+              ⚡ Powered by <span className="font-medium">Aura-Nuts AI</span>
+            </p>
+          </div>
+
         </div>
-    );
+      )}
+
+      {/* ── Toggle / Launcher Button ── */}
+      <button
+        onClick={() => {
+          if (isMinimized) {
+            setIsMinimized(false);
+          } else {
+            setIsOpen(!isOpen);
+          }
+        }}
+        className="flex items-center gap-2 bg-white pl-1 pr-5 py-1 rounded-full shadow-[0_8px_25px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all duration-300 hover:scale-105 active:scale-95 border border-gray-100"
+      >
+        {isOpen && !isMinimized ? (
+          /* Close state */
+          <div className="flex items-center gap-2">
+            <div className="w-[2.75rem] h-[2.75rem] rounded-full bg-[#F59115] flex items-center justify-center text-white">
+              <X className="w-5 h-5" />
+            </div>
+            <span className="text-[#3f3f46] font-bold text-[14px] mr-1">Close chat</span>
+          </div>
+        ) : (
+          /* Open state */
+          <>
+            <div className="flex items-center justify-center w-[2.75rem] h-[2.75rem] rounded-full bg-gradient-to-tr from-[#a3e635] via-[#fde047] to-[#fef08a] p-[2px]">
+              <div className="flex items-center justify-center w-full h-full rounded-full bg-white overflow-hidden">
+                <img src="/images/logos.png" alt="logo" className="w-[88%] h-auto object-contain" />
+              </div>
+            </div>
+            <div className="flex flex-col items-start">
+              <span className="text-[#3f3f46] font-black text-[14px] leading-[1.1]">Ask anything</span>
+              <span className="text-[#71717a] text-[11.5px] font-medium leading-[1.1] mt-0.5">Chat about the order</span>
+            </div>
+          </>
+        )}
+      </button>
+
+    </div>
+  );
 };
 
 export default ChatWidget;
