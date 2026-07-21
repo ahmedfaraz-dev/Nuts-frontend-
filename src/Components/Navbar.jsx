@@ -118,20 +118,26 @@ const Navbar = () => {
     }
   }
 
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      // Standard 300ms debounce
+      if (searchQuery.trim()) {
+        const filtered = allProducts.filter(product => 
+          product.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        setSearchResults(filtered);
+        setIsDropdownVisible(true);
+      } else {
+        setSearchResults([]);
+        setIsDropdownVisible(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery, allProducts]);
+
   const handleSearchInputChange = (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    
-    if (query.trim()) {
-      const filtered = allProducts.filter(product => 
-        product.name.toLowerCase().includes(query.toLowerCase())
-      );
-      setSearchResults(filtered);
-      setIsDropdownVisible(true);
-    } else {
-      setSearchResults([]);
-      setIsDropdownVisible(false);
-    }
+    setSearchQuery(e.target.value);
   }
 
   if (authLoading) {
