@@ -1,98 +1,1505 @@
 [
   {
-    "id": 1,
-    "title": "Hunza Walnuts (Natural)",
-    "desc": "Premium quality walnuts harvested from the high valleys of Hunza.",
-    "price": 850,
-    "image": "/images/product1.png",
-    "category": "dry-fruits"
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 1,
+      "5": 1
+    },
+    "_id": "69d4ea1dfc6d6723567065c2",
+    "name": "almondss",
+    "price": 799,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1775561240/E-commerce_products/m5xj0xc4kewnywm4rt67.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1775561242/E-commerce_products/e2hhg1q8gd9spdzdpiqz.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1775561244/E-commerce_products/mvicswhpearkrat4pukl.png"
+    ],
+    "discription": "jdfbasdjkfbasdf   s",
+    "stock": 456,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69d39c4562993ed827ef019e",
+      "name": "dry fruites"
+    },
+    "activeDeal": null,
+    "createdAt": "2026-04-07T11:27:25.671Z",
+    "updatedAt": "2026-07-15T12:02:45.905Z",
+    "__v": 0,
+    "slug": "almondss",
+    "averageRating": 4.5,
+    "ratingSum": 9,
+    "totalRatings": 2
   },
   {
-    "id": 2,
-    "title": "Roasted Almonds",
-    "desc": "Crunchy and flavorful almonds roasted to perfection.",
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 1,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "69df4a03dc969132161dbed0",
+    "name": "almond",
     "price": 1200,
-    "image": "/images/product2.png",
-    "category": "dry-fruits"
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776241151/E-commerce_products/ib7ajns3belnmqzx95bt.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776241153/E-commerce_products/zfksk7fvzdeiunhmxwkr.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776241154/E-commerce_products/gz1spt4u0ee2tdxhyny1.png"
+    ],
+    "discription": "Fresh and healthy almonds for daily use.",
+    "stock": 12,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69d39c4562993ed827ef019e",
+      "name": "dry fruites"
+    },
+    "activeDeal": {
+      "_id": "69df4a03dc969132161dbed2",
+      "user": "69d37fdd1907bbd32a641b90",
+      "discount": 46,
+      "startDate": "2026-07-21T00:00:00.000Z",
+      "endDate": "2027-03-09T00:00:00.000Z",
+      "product": "69df4a03dc969132161dbed0",
+      "createdAt": "2026-04-15T08:19:15.664Z",
+      "updatedAt": "2026-07-20T08:24:11.086Z",
+      "__v": 0
+    },
+    "createdAt": "2026-04-15T08:19:15.397Z",
+    "updatedAt": "2026-07-13T07:33:27.821Z",
+    "__v": 0,
+    "averageRating": 2,
+    "ratingSum": 2,
+    "totalRatings": 1,
+    "slug": "almond"
   },
   {
-    "id": 3,
-    "title": "Dried Apricots",
-    "desc": "Sun-dried organic apricots with zero additives.",
-    "price": 600,
-    "image": "/images/product3.png",
-    "category": "dried-fruits"
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69df4ab9dc969132161dbeed",
+    "name": "cashew nuts",
+    "price": 1100,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776241327/E-commerce_products/cfecql9ehcq7hg5viukd.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776241329/E-commerce_products/g3fdpge6dvq6gfyntj4k.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776241334/E-commerce_products/eeeopnrextej2p4orle2.jpg"
+    ],
+    "discription": "Tasty and crunchy cashews.",
+    "stock": 23,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69d39c4562993ed827ef019e",
+      "name": "dry fruites"
+    },
+    "activeDeal": null,
+    "createdAt": "2026-04-15T08:22:17.559Z",
+    "updatedAt": "2026-04-15T18:50:08.870Z",
+    "__v": 0
   },
   {
-    "id": 4,
-    "title": "Cashew Nuts (W320)",
-    "desc": "Large, creamy cashews perfect for snacking or desserts.",
-    "price": 1500,
-    "image": "/images/product4.png",
-    "category": "dry-fruits"
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69df4acadc969132161dbf07",
+    "name": "cashew nuts",
+    "price": 1100,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776241343/E-commerce_products/iail7wmm0fdejnnd4ahs.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776241346/E-commerce_products/lmkliapp6vyuhqqsyy9d.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776241351/E-commerce_products/nbocz6k2ewa0sfwosc7o.jpg"
+    ],
+    "discription": "Tasty and crunchy cashews.",
+    "stock": 23,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69d39c4562993ed827ef019e",
+      "name": "dry fruites"
+    },
+    "activeDeal": {
+      "_id": "69df89c16383750f6bbf01fe",
+      "user": "69d37fdd1907bbd32a641b90",
+      "discount": 60,
+      "startDate": "2026-04-16T00:00:00.000Z",
+      "endDate": "2027-01-01T00:00:00.000Z",
+      "product": "69df4acadc969132161dbf07",
+      "createdAt": "2026-04-15T12:51:13.663Z",
+      "updatedAt": "2026-07-20T13:02:27.118Z",
+      "__v": 0
+    },
+    "createdAt": "2026-04-15T08:22:34.148Z",
+    "updatedAt": "2026-04-15T12:51:13.857Z",
+    "__v": 0
   },
   {
-    "id": 5,
-    "title": "Pistachios (Saffron Roasted)",
-    "desc": "Luxurious saffron-infused roasted pistachios.",
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69df68f3948f25b29fb06669",
+    "name": "almond",
+    "price": 1000,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776249062/E-commerce_products/wysmvqcuwzcplgo93m68.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776249069/E-commerce_products/lwtihotm5yfqgm9hxp3k.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776249074/E-commerce_products/sdntgavs9jliddi7fayn.png"
+    ],
+    "discription": "eeihreruiebdas",
+    "stock": 23,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69d39c4562993ed827ef019e",
+      "name": "dry fruites"
+    },
+    "activeDeal": {
+      "_id": "69df68f3948f25b29fb0666b",
+      "user": "69d37fdd1907bbd32a641b90",
+      "discount": 50,
+      "startDate": "2026-07-21T00:00:00.000Z",
+      "endDate": "2026-07-31T00:00:00.000Z",
+      "product": "69df68f3948f25b29fb06669",
+      "createdAt": "2026-04-15T10:31:15.490Z",
+      "updatedAt": "2026-07-20T10:50:45.215Z",
+      "__v": 0
+    },
+    "createdAt": "2026-04-15T10:31:15.272Z",
+    "updatedAt": "2026-04-15T10:31:15.673Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69df86087c75906887c9c04e",
+    "name": "mixed dry fruits",
+    "price": 2000,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776256514/E-commerce_products/pefvqxg2bnnvfizb6ckr.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776256518/E-commerce_products/iag2wrfqiyttfcse1us0.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776256519/E-commerce_products/uvk82d6ajxsjg4jktcdh.png"
+    ],
+    "discription": "Mix of healthy dry fruits.",
+    "stock": 23,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69d39c4562993ed827ef019e",
+      "name": "dry fruites"
+    },
+    "activeDeal": {
+      "_id": "6a576acfcc9e7298283c38a5",
+      "user": "69d37fdd1907bbd32a641b90",
+      "discount": 90,
+      "startDate": "2026-07-16T00:00:00.000Z",
+      "endDate": "2026-07-29T00:00:00.000Z",
+      "product": "69df86087c75906887c9c04e",
+      "createdAt": "2026-07-15T11:11:11.906Z",
+      "updatedAt": "2026-07-15T11:11:11.906Z",
+      "__v": 0
+    },
+    "createdAt": "2026-04-15T12:35:20.252Z",
+    "updatedAt": "2026-07-15T11:11:12.144Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69df86ab7c75906887c9c06d",
+    "name": "pistachios",
     "price": 1800,
-    "image": "/images/product5.png",
-    "category": "dry-fruits"
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776256669/E-commerce_products/vo40cc5m92z24q5uncr2.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776256674/E-commerce_products/axf43dmwcwyb4vg2ljo3.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776256680/E-commerce_products/dpufr3umlyh4tpn9vrpd.jpg"
+    ],
+    "discription": "Crunchy and salted pistachios",
+    "stock": 30,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69d39c4562993ed827ef019e",
+      "name": "dry fruites"
+    },
+    "activeDeal": null,
+    "createdAt": "2026-04-15T12:38:03.493Z",
+    "updatedAt": "2026-04-15T19:00:43.893Z",
+    "__v": 0
   },
   {
-    "id": 6,
-    "title": "Dried Mulberries",
-    "desc": "Naturally sweet and healthy dried white mulberries.",
-    "price": 450,
-    "image": "/images/product6.png",
-    "category": "dried-fruits"
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69df8cb16383750f6bbf0ad7",
+    "name": "organic cashew nuts",
+    "price": 1200,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776258216/E-commerce_products/d28bvgpxmtx5b2cn858f.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776258218/E-commerce_products/atatia0xsjvtic08evnw.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776258222/E-commerce_products/otuxrzr5qr6nlxgevhjh.jpg"
+    ],
+    "discription": "Delicious and naturally processed cashew nuts with rich taste",
+    "stock": 5,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df873f7c75906887c9c35b",
+      "name": "nuts"
+    },
+    "activeDeal": null,
+    "createdAt": "2026-04-15T13:03:45.603Z",
+    "updatedAt": "2026-04-28T06:49:55.804Z",
+    "__v": 0
   },
   {
-    "id": 7,
-    "title": "Pine Nuts (Chilgoza)",
-    "desc": "Hand-picked chilgoza from the forests of Gilgit-Baltistan.",
-    "price": 2500,
-    "image": "/images/product7.png",
-    "category": "dry-fruits"
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69df8dd9cfc3258e600812b9",
+    "name": "mixed dry fruits pack",
+    "price": 1500,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776258517/E-commerce_products/kykkfkd9rbpwes9ldray.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776258518/E-commerce_products/xh8xvtbaioli35usyx3m.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776258520/E-commerce_products/xnw0mjulcwbxtk35kdvh.png"
+    ],
+    "discription": "Delicious and naturally processed cashew nuts",
+    "stock": 34,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69d39c4562993ed827ef019e",
+      "name": "dry fruites"
+    },
+    "activeDeal": null,
+    "createdAt": "2026-04-15T13:08:41.455Z",
+    "updatedAt": "2026-04-15T13:08:41.455Z",
+    "__v": 0
   },
   {
-    "id": 8,
-    "title": "Golden Raisins",
-    "desc": "Extra sweet golden raisins dried under the Hunza sun.",
-    "price": 350,
-    "image": "/images/product8.png",
-    "category": "dried-fruits"
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69dfe0e7a43314ee3d0c27b6",
+    "name": "electronic",
+    "price": 343,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776279779/E-commerce_products/nx48jd3bpeq5b6x70xzv.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776279780/E-commerce_products/ufo73z7tiuefkczutsjg.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776279782/E-commerce_products/u2jkd4wrftxfdtzjxx29.png"
+    ],
+    "discription": "jfbasdbfjsdbf",
+    "stock": 34,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69dfe06ba43314ee3d0c2681",
+      "name": "electronics"
+    },
+    "activeDeal": null,
+    "createdAt": "2026-04-15T19:03:03.560Z",
+    "updatedAt": "2026-04-15T19:03:05.823Z",
+    "__v": 0
   },
   {
-    "id": 9,
-    "title": "Mix Dry Fruits Tray",
-    "desc": "A perfect blend of all premium dry fruits in one pack.",
-    "price": 1350,
-    "image": "/images/product9.png",
-    "category": "mix"
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69e734ebde2ff7a996266885",
+    "name": "i wala apple",
+    "price": 10000,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776760034/E-commerce_products/onv48hgog7mrg6vrhxrk.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776760037/E-commerce_products/emjhnnsfercdcw7reaw6.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1776760041/E-commerce_products/g1jhop8raio2sxmzdazu.jpg"
+    ],
+    "discription": "this is all about the product made by the abc and xyz and then add the product like this quick brown fox jump over the lazy dog",
+    "stock": 100,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df873f7c75906887c9c35b",
+      "name": "nuts"
+    },
+    "activeDeal": {
+      "_id": "69e734ebde2ff7a996266887",
+      "user": "69d37fdd1907bbd32a641b90",
+      "discount": 10,
+      "startDate": "2026-04-22T00:00:00.000Z",
+      "endDate": "2027-02-10T00:00:00.000Z",
+      "product": "69e734ebde2ff7a996266885",
+      "createdAt": "2026-04-21T08:27:23.353Z",
+      "updatedAt": "2026-04-21T08:27:23.353Z",
+      "__v": 0
+    },
+    "createdAt": "2026-04-21T08:27:23.155Z",
+    "updatedAt": "2026-04-21T08:27:23.552Z",
+    "__v": 0
   },
   {
-    "id": 10,
-    "title": "Roasted Kaju (Salted)",
-    "desc": "Savory salted cashews for a quick healthy bite.",
-    "price": 1400,
-    "image": "/images/product10.png",
-    "category": "dry-fruits"
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69ef25e5e63a9e470bd6b7f6",
+    "name": "pistachios",
+    "price": 900,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777280482/E-commerce_products/ikb4ax4vmzv0v5lcsxqf.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777280483/E-commerce_products/rgz9n1ux2psfci4drzq1.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777280484/E-commerce_products/wqr2wq3g64c7h5ioqjtq.png"
+    ],
+    "discription": "this is bio of pistachiosag",
+    "stock": 33,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df873f7c75906887c9c35b",
+      "name": "nuts"
+    },
+    "activeDeal": null,
+    "slug": "pistachios",
+    "createdAt": "2026-04-27T09:01:25.029Z",
+    "updatedAt": "2026-07-15T11:02:26.517Z",
+    "__v": 0
   },
   {
-    "id": 11,
-    "title": "Black Kishmish",
-    "desc": "Iron-rich organic black raisins.",
-    "price": 400,
-    "image": "/images/product11.png",
-    "category": "dried-fruits"
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69ef2684e63a9e470bd6b91a",
+    "name": "almomd",
+    "price": 908,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777280636/E-commerce_products/zi6sxfvjaeyu8ful499h.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777280639/E-commerce_products/plum3ltf3qromtqhwcux.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777280642/E-commerce_products/vin5hwcqlsiglq39gj6h.png"
+    ],
+    "discription": "sdfdkfkdfn",
+    "stock": 34,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df87cb7c75906887c9c40f",
+      "name": "exotic dry fruits"
+    },
+    "activeDeal": null,
+    "slug": "almomd",
+    "createdAt": "2026-04-27T09:04:04.011Z",
+    "updatedAt": "2026-04-27T09:04:04.483Z",
+    "__v": 0
   },
   {
-    "id": 12,
-    "title": "Apricot Kernels (Sweet)",
-    "desc": "Traditional Hunza health snack with amazing health benefits.",
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69ef286de63a9e470bd6bb29",
+    "name": "nutss",
+    "price": 999,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777281131/E-commerce_products/ts0bfiidwvxmozuro3lg.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777281132/E-commerce_products/i3i7i87f9ryfukm2gbco.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777281133/E-commerce_products/cqzgp36lskh91wrwc7vr.png"
+    ],
+    "discription": "dfhsdjkfhsd",
+    "stock": 23,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df87cb7c75906887c9c40f",
+      "name": "exotic dry fruits"
+    },
+    "activeDeal": null,
+    "slug": "nutss",
+    "createdAt": "2026-04-27T09:12:13.913Z",
+    "updatedAt": "2026-04-27T09:12:14.387Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69ef3a16e63a9e470bd6c548",
+    "name": "abc.com",
+    "price": 899,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777285648/E-commerce_products/wzx78hiljvbfdurq0ixx.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777285650/E-commerce_products/l0gkmwvo4cuu075xaoso.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777285652/E-commerce_products/zwxugpsbrqowoh6j1hou.jpg"
+    ],
+    "discription": "sfdg sfdgsdfgsdfjgsdfgfgisdfg fgifg",
+    "stock": 799,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69d39c4562993ed827ef019e",
+      "name": "dry fruites"
+    },
+    "activeDeal": null,
+    "slug": "abccom",
+    "createdAt": "2026-04-27T10:27:34.611Z",
+    "updatedAt": "2026-04-27T10:27:34.611Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69ef3ec8e63a9e470bd6cb8f",
+    "name": "hunza gold apricots",
+    "price": 789,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777286852/E-commerce_products/stfodx0j3aorafh0es0c.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777286853/E-commerce_products/gnolz3uuveoz9hwqc1jq.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777286854/E-commerce_products/oydmlp8h95gxbyaqdcvs.png"
+    ],
+    "discription": "skfnldklsanfkasd",
+    "stock": 78,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df87947c75906887c9c3b5",
+      "name": "seeds"
+    },
+    "activeDeal": null,
+    "slug": "hunza-gold-apricots",
+    "createdAt": "2026-04-27T10:47:36.446Z",
+    "updatedAt": "2026-04-27T10:47:36.926Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69ef44d2e63a9e470bd6cfb9",
+    "name": "abcn",
+    "price": 747,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777288397/E-commerce_products/f3ujqbuljxjjcvikvd0u.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777288400/E-commerce_products/czav1jkaonqmx4apg05a.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777288401/E-commerce_products/d16r99vuv1grqb99auqf.png"
+    ],
+    "discription": "sdfkksdbfksdb",
+    "stock": 23,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69dfde9ca43314ee3d0c2264",
+      "name": "almond"
+    },
+    "activeDeal": null,
+    "slug": "abcn",
+    "createdAt": "2026-04-27T11:13:22.228Z",
+    "updatedAt": "2026-04-27T11:13:22.228Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69ef471fe63a9e470bd6d3b4",
+    "name": "xyzb",
+    "price": 774,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777288987/E-commerce_products/xiuz9mwwsrcupuqsr18a.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777288989/E-commerce_products/klruyqj2g8s2evdvc12g.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777288990/E-commerce_products/p2ryoltzknaztklfzkze.png"
+    ],
+    "discription": "dfjkbsdjkfbd",
+    "stock": 757,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df88507c75906887c9c4c3",
+      "name": "chewy dried fruits"
+    },
+    "activeDeal": null,
+    "slug": "xyzb",
+    "createdAt": "2026-04-27T11:23:11.225Z",
+    "updatedAt": "2026-04-27T11:23:11.696Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69ef48a2e63a9e470bd6da7e",
+    "name": "yyyyz",
     "price": 700,
-    "image": "/images/product12.png",
-    "category": "dry-fruits"
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777289370/E-commerce_products/fbeaurunlphuoablzbme.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777289373/E-commerce_products/qhj5zbtkuwtnuqydmhfi.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777289375/E-commerce_products/wbhdgu3dlzaqjaqlfrmc.jpg"
+    ],
+    "discription": "dfbjkdsbfjsbk",
+    "stock": 23,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df87f87c75906887c9c469",
+      "name": "salted"
+    },
+    "activeDeal": null,
+    "slug": "yyyyz",
+    "createdAt": "2026-04-27T11:29:38.143Z",
+    "updatedAt": "2026-04-27T11:29:38.614Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69efa7c7e63a9e470bd6efa6",
+    "name": "jbfdsjkfbkjds",
+    "price": 600,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777313732/E-commerce_products/hpows4z3qpve9kkjpt4j.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777313733/E-commerce_products/aarxh2imttaoea0ozpzr.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777313734/E-commerce_products/hfr9qv2e7x81fk1m7kae.png"
+    ],
+    "discription": "sadasmdbjas",
+    "stock": 7,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df87947c75906887c9c3b5",
+      "name": "seeds"
+    },
+    "activeDeal": null,
+    "slug": "jbfdsjkfbkjds",
+    "createdAt": "2026-04-27T18:15:35.707Z",
+    "updatedAt": "2026-04-27T18:15:35.707Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69efad9fe63a9e470bd6fbbe",
+    "name": "akhrot",
+    "price": 1000,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777315224/E-commerce_products/dbpwqzkovqmghxhvdqpt.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777315226/E-commerce_products/bmfzdv1iigx9tet2qeui.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777315229/E-commerce_products/x8brdleujjykm93hxuuo.png"
+    ],
+    "discription": "kxncksdckdskf",
+    "stock": 23,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df87cb7c75906887c9c40f",
+      "name": "exotic dry fruits"
+    },
+    "activeDeal": null,
+    "slug": "akhrot",
+    "createdAt": "2026-04-27T18:40:31.217Z",
+    "updatedAt": "2026-04-27T18:40:31.709Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69efafb1e63a9e470bd6ff53",
+    "name": "buynow",
+    "price": 1100,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777315752/E-commerce_products/olny9wqwcwyyojdwg3aq.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777315755/E-commerce_products/b5h65vmkficbtda2dto2.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777315759/E-commerce_products/k09bmobg2yvqpz6ewtl7.jpg"
+    ],
+    "discription": "dncksdksdbfksd",
+    "stock": 11,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df88507c75906887c9c4c3",
+      "name": "chewy dried fruits"
+    },
+    "activeDeal": null,
+    "slug": "buynow",
+    "createdAt": "2026-04-27T18:49:21.702Z",
+    "updatedAt": "2026-04-27T18:49:22.190Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69efb011e63a9e470bd700fe",
+    "name": "bucottt",
+    "price": 1400,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777315852/E-commerce_products/qjufhgh4re5zu02dvsw1.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777315855/E-commerce_products/qpgm0btrnrsps8xmzhpl.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777315856/E-commerce_products/lcnxygda0xsu8wysxmog.png"
+    ],
+    "discription": "xfknsdklfsf",
+    "stock": 14,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69dfde9ca43314ee3d0c2264",
+      "name": "almond"
+    },
+    "activeDeal": null,
+    "slug": "bucottt",
+    "createdAt": "2026-04-27T18:50:57.235Z",
+    "updatedAt": "2026-04-27T18:50:57.717Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69efbb4ee63a9e470bd70ce1",
+    "name": "almondhjhj",
+    "price": 888,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777318731/E-commerce_products/yqst8hyjjfur9yg6rlf1.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777318732/E-commerce_products/h2c73mwtlkjmpelvfndo.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777318733/E-commerce_products/yyhcexk7raddte5yrd6p.png"
+    ],
+    "discription": "kfkyifykjg",
+    "stock": 9,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df873f7c75906887c9c35b",
+      "name": "nuts"
+    },
+    "activeDeal": null,
+    "slug": "almondhjhj",
+    "createdAt": "2026-04-27T19:38:54.637Z",
+    "updatedAt": "2026-04-27T19:38:55.103Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69efc6aeb793080816fde2e8",
+    "name": "new product",
+    "price": 400,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777321640/E-commerce_products/bjtwxe1qudjpw1svx1zj.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777321642/E-commerce_products/pzzxgtvq9h9dz6smef6l.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777321645/E-commerce_products/jlrfnjscwzu616cktxxk.png"
+    ],
+    "discription": "this is new product",
+    "stock": 34,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df87f87c75906887c9c469",
+      "name": "salted"
+    },
+    "activeDeal": null,
+    "slug": "new-product",
+    "createdAt": "2026-04-27T20:27:26.207Z",
+    "updatedAt": "2026-04-27T20:27:26.751Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69f056ace63a9e470bd734a1",
+    "name": "apricotttt",
+    "price": 1000,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777358506/E-commerce_products/ab6livmk7qvselrp8n4l.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777358507/E-commerce_products/f23p2afie77egczgrkgl.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777358508/E-commerce_products/ysomdrlexugptgjgensh.png"
+    ],
+    "discription": "sbdka kasdbksadbsdusajkbdadb",
+    "stock": 67,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df87f87c75906887c9c469",
+      "name": "salted"
+    },
+    "activeDeal": null,
+    "slug": "apricotttt",
+    "createdAt": "2026-04-28T06:41:48.966Z",
+    "updatedAt": "2026-04-28T06:41:49.441Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "_id": "69f05c9ee63a9e470bd73f31",
+    "name": "skdjbksbf",
+    "price": 2300,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777360027/E-commerce_products/pc2hk6htxbybclajmrzi.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777360028/E-commerce_products/lbvanira1mpzxdxgyhoj.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1777360029/E-commerce_products/n1cw3bnobfuqpvykl62d.png"
+    ],
+    "discription": "sdbskadkabdbjaksd",
+    "stock": 23,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69dfde9ca43314ee3d0c2264",
+      "name": "almond"
+    },
+    "activeDeal": null,
+    "slug": "skdjbksbf",
+    "createdAt": "2026-04-28T07:07:10.011Z",
+    "updatedAt": "2026-04-28T07:07:10.495Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a04762c86a05c4f71e432e5",
+    "name": "almondssssss",
+    "price": 24,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778677284/E-commerce_products/jzu3pkahkc4sqrzgzawd.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778677288/E-commerce_products/vthdfjgzaxzga68mjaf2.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778677290/E-commerce_products/n7473dnf71bvy0z9gyup.png"
+    ],
+    "discription": "sssssssssssssssssssssssssssssss",
+    "stock": 57,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df873f7c75906887c9c35b",
+      "name": "nuts"
+    },
+    "activeDeal": null,
+    "slug": "almondssssss",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-05-13T13:01:32.179Z",
+    "updatedAt": "2026-05-13T13:01:32.671Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a04769186a05c4f71e4331e",
+    "name": "allied",
+    "price": 500,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778677387/E-commerce_products/am8iileyqefgxsozzdmb.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778677388/E-commerce_products/v4bqq1kvpjudb4hc4m8y.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778677390/E-commerce_products/ng0asvsxmz7xbcn4i9zp.png"
+    ],
+    "discription": "sdfasdf sdf asdfjaksdf asdfa",
+    "stock": 40,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df873f7c75906887c9c35b",
+      "name": "nuts"
+    },
+    "activeDeal": null,
+    "slug": "allied",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-05-13T13:03:13.499Z",
+    "updatedAt": "2026-05-13T17:24:51.653Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a04799b86a05c4f71e4341a",
+    "name": "laptop",
+    "price": 340,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778678168/E-commerce_products/xe8xngkeoifpaodu34qw.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778678169/E-commerce_products/gl4tcpjivfxwqevbbssj.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778678170/E-commerce_products/gsbo08upnrebkkx8nd7w.jpg"
+    ],
+    "discription": "abc",
+    "stock": 12,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69d39c4562993ed827ef019e",
+      "name": "dry fruites"
+    },
+    "activeDeal": null,
+    "slug": "laptop",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-05-13T13:16:11.186Z",
+    "updatedAt": "2026-05-13T17:25:34.307Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a047a4286a05c4f71e43458",
+    "name": "sjsafbdkbq",
+    "price": 1000,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778678333/E-commerce_products/xywujpwlken6mfnfvafo.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778678335/E-commerce_products/kccceb1wc890divrrj84.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778678336/E-commerce_products/tlkdksgihq6fqkf36v0p.png"
+    ],
+    "discription": "dfghhshsjsjsjsjsjsj",
+    "stock": 10,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69dfde9ca43314ee3d0c2264",
+      "name": "almond"
+    },
+    "activeDeal": null,
+    "slug": "sjsafbdkbq",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-05-13T13:18:58.310Z",
+    "updatedAt": "2026-05-13T16:57:34.388Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a047f9a86a05c4f71e4353a",
+    "name": "hdhdhds",
+    "price": 1100,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778679702/E-commerce_products/afth2ytgtnyvxgs9hhas.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778679703/E-commerce_products/ozw0dtysb1n4bijd8vpg.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778679705/E-commerce_products/vx2ynfcblc4jlfugffqx.png"
+    ],
+    "discription": "hhhhhhhhhhhhhh",
+    "stock": 23,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69dfe06ba43314ee3d0c2681",
+      "name": "electronics"
+    },
+    "activeDeal": null,
+    "slug": "hdhdhds",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-05-13T13:41:46.802Z",
+    "updatedAt": "2026-05-13T14:01:38.072Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a04ac3b5fa6ac7bfea4c862",
+    "name": "lllllllllllllllllll",
+    "price": 400,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778691124/E-commerce_products/ew7tkbkmib3zlnljveeu.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778691127/E-commerce_products/tzlxfoyrj3ou6qsnlnym.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778691129/E-commerce_products/xnj5r5ggnazhlxarzwu5.png"
+    ],
+    "discription": "sssssssssssss",
+    "stock": 40,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69dfde9ca43314ee3d0c2264",
+      "name": "almond"
+    },
+    "activeDeal": null,
+    "slug": "lllllllllllllllllll",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-05-13T16:52:11.697Z",
+    "updatedAt": "2026-05-13T16:52:11.697Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a04ac4c5fa6ac7bfea4c866",
+    "name": "lllllllllllllllllll",
+    "price": 400,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778691143/E-commerce_products/ujwemerif4dpfvigabau.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778691144/E-commerce_products/xobdojhped1m3vochmzp.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778691146/E-commerce_products/ppe4ypwzzcmqnvefsflw.png"
+    ],
+    "discription": "sssssssssssss",
+    "stock": 40,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69dfde9ca43314ee3d0c2264",
+      "name": "almond"
+    },
+    "activeDeal": null,
+    "slug": "lllllllllllllllllll",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-05-13T16:52:28.392Z",
+    "updatedAt": "2026-05-13T16:52:28.392Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a04b50d5fa6ac7bfea4c9b7",
+    "name": "clouds",
+    "price": 1200,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778693385/E-commerce_products/yio7am8zbyjbuzs6v0lb.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778693386/E-commerce_products/jkwlptdlugdzzcrtu1yz.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778693388/E-commerce_products/eqxex8ajvash2lq84g2l.png"
+    ],
+    "discription": "cnsksls,dkskdkdkwkw",
+    "stock": 100,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df88507c75906887c9c4c3",
+      "name": "chewy dried fruits"
+    },
+    "activeDeal": null,
+    "slug": "clouds",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-05-13T17:29:49.777Z",
+    "updatedAt": "2026-05-13T17:34:50.536Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a056c1e5fa6ac7bfea4ca8d",
+    "name": "product1",
+    "price": 1200,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778740252/E-commerce_products/fkfyz0dnaqmeju2ah23v.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778740253/E-commerce_products/k5okzmnzix3mfbgjeiln.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778740254/E-commerce_products/hlj8h2zkzcfw9ixhirvc.jpg"
+    ],
+    "discription": "this is all about the product and this is. Quick brown fox jumps over the lazy dog. Quick brown fox jumps over the lazy dog",
+    "stock": 12,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df873f7c75906887c9c35b",
+      "name": "nuts"
+    },
+    "activeDeal": null,
+    "slug": "product1",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-05-14T06:30:54.959Z",
+    "updatedAt": "2026-05-14T06:30:55.524Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a0581874449d60f68497de5",
+    "name": "test product",
+    "price": 1200,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778745732/E-commerce_products/thk5lwkk5doif9m919ao.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778745733/E-commerce_products/r6oclh54g5ejtwfpchdy.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778745735/E-commerce_products/v5th0nmjru6lqg1e9tq0.jpg"
+    ],
+    "discription": "this all about the test product and the we just testing the description of the product to some description of the product to show some text here.",
+    "stock": 34,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69d39c4562993ed827ef019e",
+      "name": "dry fruites"
+    },
+    "activeDeal": null,
+    "slug": "test-product",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-05-14T08:02:15.939Z",
+    "updatedAt": "2026-05-14T08:02:15.939Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a05a3f35fa6ac7bfea4cd24",
+    "name": "orange jice",
+    "price": 521,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778754542/E-commerce_products/svgqirpzu5gafdsre9lm.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778754544/E-commerce_products/obecsedgielxy3tkwofc.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778754545/E-commerce_products/yn8rrp36pfmb4afubwbw.png"
+    ],
+    "discription": "this great fruit for the winters",
+    "stock": 21,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69dfde9ca43314ee3d0c2264",
+      "name": "almond"
+    },
+    "activeDeal": null,
+    "slug": "orange-jice",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-05-14T10:29:07.051Z",
+    "updatedAt": "2026-05-14T11:43:05.499Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a05b76cb6df5467744ab8df",
+    "name": "test 3 product",
+    "price": 1303,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778759529/E-commerce_products/hqwnqg0rtizegtrjd3pq.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778759530/E-commerce_products/acstpmd3qulx1bidfilt.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778759532/E-commerce_products/ahhy6dendbtufgtpeqki.jpg"
+    ],
+    "discription": "this is all about the product and we handle the product ",
+    "stock": 25,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df87947c75906887c9c3b5",
+      "name": "seeds"
+    },
+    "activeDeal": null,
+    "slug": "test-3-product",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-05-14T11:52:13.008Z",
+    "updatedAt": "2026-05-14T11:52:57.673Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a071b67814850b8c5fc0d19",
+    "name": "almonds",
+    "price": 1233,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778850658/E-commerce_products/sex1ruulo6yvmqslhlaj.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778850660/E-commerce_products/uotjdg9cym71sncxadp0.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778850661/E-commerce_products/cga6xzyttulaw70epl4f.jpg"
+    ],
+    "discription": "this is the end",
+    "stock": 747,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69d39c4562993ed827ef019e",
+      "name": "dry fruites"
+    },
+    "activeDeal": null,
+    "slug": "almonds",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-05-15T13:11:03.275Z",
+    "updatedAt": "2026-05-15T13:12:10.838Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a072209be5d03e02e668132",
+    "name": "test product",
+    "price": 122,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778852356/E-commerce_products/xyo2dhvzzyku0tzvuydz.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778852358/E-commerce_products/eqrch8gfqj2xjn8tzevx.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778852360/E-commerce_products/uxo9aztfheai0yyzgjhw.jpg"
+    ],
+    "discription": "this is all about the prouct",
+    "stock": 3,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df873f7c75906887c9c35b",
+      "name": "nuts"
+    },
+    "activeDeal": null,
+    "slug": "test-product",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-05-15T13:39:21.352Z",
+    "updatedAt": "2026-05-15T13:39:21.751Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a072b6d61d9532596cc30cc",
+    "name": "test5",
+    "price": 500,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778854762/E-commerce_products/p6ckvoxqpidpqgmcwyhe.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778854763/E-commerce_products/uzynms54a8hmokvrigko.jpg",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1778854764/E-commerce_products/k541esqwzklq3xtxhzq7.jpg"
+    ],
+    "discription": "this test product",
+    "stock": 55,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69d39c4562993ed827ef019e",
+      "name": "dry fruites"
+    },
+    "activeDeal": null,
+    "slug": "test5",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-05-15T14:19:25.856Z",
+    "updatedAt": "2026-05-15T14:19:26.336Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a33b75674134061a81a5e3d",
+    "name": "almond dee",
+    "price": 700,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1781774162/E-commerce_products/suno3wgn3fps5fo1g9ql.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1781774163/E-commerce_products/zfmcl7chapug5dpneeup.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1781774165/E-commerce_products/szpjrl2lepyyeis6poks.png"
+    ],
+    "discription": "this is description of the alomd de",
+    "stock": 55,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69df88507c75906887c9c4c3",
+      "name": "chewy dried fruits"
+    },
+    "activeDeal": null,
+    "slug": "almond-dee",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-06-18T09:16:06.464Z",
+    "updatedAt": "2026-06-18T09:16:07.048Z",
+    "__v": 0
+  },
+  {
+    "ratingBreakdown": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    "_id": "6a549934bbef4a70ded96187",
+    "name": "dried apricots",
+    "price": 1500,
+    "images": [
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1783929133/E-commerce_products/nsih7sims3ibicki5bzx.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1783929136/E-commerce_products/ykezkx7vywbh5t8l8sne.png",
+      "https://res.cloudinary.com/dap8d3w7z/image/upload/v1783929138/E-commerce_products/gs1txi5syn5rzscsjii8.png"
+    ],
+    "discription": "this is description for the dried apricot and testing it ",
+    "stock": 300,
+    "user": "69d37fdd1907bbd32a641b90",
+    "isActive": true,
+    "category": {
+      "_id": "69d39c4562993ed827ef019e",
+      "name": "dry fruites"
+    },
+    "activeDeal": {
+      "_id": "6a549934bbef4a70ded96189",
+      "user": "69d37fdd1907bbd32a641b90",
+      "discount": 30,
+      "startDate": "2026-07-14T00:00:00.000Z",
+      "endDate": "2026-07-29T00:00:00.000Z",
+      "product": "6a549934bbef4a70ded96187",
+      "createdAt": "2026-07-13T07:52:20.617Z",
+      "updatedAt": "2026-07-13T07:52:20.617Z",
+      "__v": 0
+    },
+    "slug": "dried-apricots",
+    "averageRating": 0,
+    "totalRatings": 0,
+    "ratingSum": 0,
+    "createdAt": "2026-07-13T07:52:20.463Z",
+    "updatedAt": "2026-07-13T07:55:35.342Z",
+    "__v": 0
   }
 ]

@@ -5,7 +5,9 @@ import { useAuth } from '../contexts/AuthContext.jsx'
 import { useCurrency } from '../contexts/CurrencyContext.jsx'
 import { User, ChevronDown, LayoutDashboard, Globe, Bell } from 'lucide-react'
 import { paymentApi } from '../Api/paymentApi.js'
+import { userApi } from '../Api/userApi.js'
 import { getPendingRatingItems } from '../utils/ratingUtils.js'
+import productsData from '../data/products.json'
 
 const PRIMARY_TABS = [
   { id: 'dryfood', label: 'Dry food' },
@@ -44,6 +46,9 @@ const DRY_FOOD_COLUMNS = [
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('')
+  const [allProducts, setAllProducts] = useState([])
+  const [searchResults, setSearchResults] = useState([])
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('dryfood')
@@ -58,6 +63,13 @@ const Navbar = () => {
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
+
+    const fetchAllProducts = () => {
+      // Load products directly from the static JSON file instantly
+      setAllProducts(productsData || [])
+    }
+    fetchAllProducts()
+
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
@@ -101,7 +113,24 @@ const Navbar = () => {
   const handleSearch = (e) => {
     e.preventDefault()
     if (searchQuery.trim()) {
+      setIsDropdownVisible(false);
       navigate(`/all-products?q=${encodeURIComponent(searchQuery)}`)
+    }
+  }
+
+  const handleSearchInputChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    
+    if (query.trim()) {
+      const filtered = allProducts.filter(product => 
+        product.name.toLowerCase().includes(query.toLowerCase())
+      );
+      setSearchResults(filtered);
+      setIsDropdownVisible(true);
+    } else {
+      setSearchResults([]);
+      setIsDropdownVisible(false);
     }
   }
 
@@ -142,7 +171,9 @@ const Navbar = () => {
                   type="text"
                   placeholder="What Are You Looking For..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleSearchInputChange}
+                  onFocus={() => { if(searchQuery.trim()) setIsDropdownVisible(true) }}
+                  onBlur={() => setTimeout(() => setIsDropdownVisible(false), 200)}
                   className="w-full px-5 py-3 rounded-l-full border border-gray-200 border-r-0 bg-gray-50/50 text-gray-600 placeholder-gray-400 focus:outline-none focus:border-orange-400 text-sm"
                 />
                 <button
@@ -151,6 +182,34 @@ const Navbar = () => {
                 >
                   Search
                 </button>
+                {isDropdownVisible && searchResults.length > 0 && (
+                  <div className="absolute top-[110%] left-0 w-full bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden max-h-80 overflow-y-auto">
+                    {searchResults.map((product) => (
+                      <div 
+                        key={product._id} 
+                        className="p-3 hover:bg-gray-50 cursor-pointer flex items-center gap-3 border-b border-gray-100 last:border-0"
+                        onClick={() => {
+                          setSearchQuery(product.name);
+                          setIsDropdownVisible(false);
+                          navigate(`/all-products?q=${encodeURIComponent(product.name)}`);
+                        }}
+                      >
+                        {product.images && product.images.length > 0 && (
+                          <img src={product.images[0]} alt={product.name} className="w-10 h-10 object-cover rounded-md" />
+                        )}
+                        <div>
+                          <p className="text-sm font-medium text-gray-800">{product.name}</p>
+                          <p className="text-xs text-gray-500">PKR {product.price}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {isDropdownVisible && searchQuery.trim() && searchResults.length === 0 && (
+                   <div className="absolute top-[110%] left-0 w-full bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4 text-center text-sm text-gray-500">
+                     No products found for "{searchQuery}".
+                   </div>
+                )}
               </div>
             </form>
 
