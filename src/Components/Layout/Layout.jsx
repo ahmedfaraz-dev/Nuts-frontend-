@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom'
 import Footer from '../Footer'
 import Navbar from '../Navbar'
 import ScrollToTop from '../ScrollToTop'
+import ChatWidget from '../Chatbot/ChatWidget'
 
 
 const Layout = () => {
@@ -12,6 +13,7 @@ const Layout = () => {
         <Navbar/>
         <Outlet/>
         <Footer/>
+        <ChatWidget />
     </>
   )
 }

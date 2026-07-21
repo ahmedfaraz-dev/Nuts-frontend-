@@ -20,6 +20,7 @@ export default function Deals() {
   const [editingDeal, setEditingDeal] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [serverError, setServerError] = useState("");
 
   const mountedRef = useRef(true);
 
@@ -78,6 +79,7 @@ export default function Deals() {
 
   const handleAdd = () => {
     setEditingDeal(null);
+    setServerError("");
     setShowForm(true);
   };
 
@@ -109,6 +111,7 @@ export default function Deals() {
 
   const handleSave = async (dealData) => {
     setActionLoading(true);
+    setServerError("");
     try {
       if (editingDeal) {
         const productId =
@@ -133,7 +136,7 @@ export default function Deals() {
       setShowForm(false);
       setEditingDeal(null);
     } catch (err) {
-      alert(err?.response?.data?.message || "Failed to save deal");
+      setServerError(err?.response?.data?.message || "Failed to save deal. Please try again.");
     } finally {
       setActionLoading(false);
     }
@@ -321,10 +324,12 @@ export default function Deals() {
             deal={editingDeal}
             products={formProducts}
             isLoading={actionLoading}
+            serverError={serverError}
             onSave={handleSave}
             onClose={() => {
               setShowForm(false);
               setEditingDeal(null);
+              setServerError("");
             }}
           />
         );
