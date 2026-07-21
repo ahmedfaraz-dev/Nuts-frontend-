@@ -76,12 +76,10 @@ const ChatWidget = () => {
           <div className="flex items-center justify-between px-4 py-3.5 border-b border-gray-100 bg-white">
             <div className="flex items-center gap-3">
               {/* Logo circle */}
-              <div className="w-9 h-9 rounded-full bg-[#F59115] flex items-center justify-center shadow-sm overflow-hidden p-1 flex-shrink-0">
-                <img
-                  src="/images/logos.png"
-                  alt="Aura-Nuts"
-                  className="w-full h-full object-contain"
-                />
+              <div className="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-tr from-[#a3e635] via-[#fde047] to-[#fef08a] p-[2px] shadow-sm flex-shrink-0">
+                <div className="flex items-center justify-center w-full h-full rounded-full bg-white overflow-hidden">
+                  <img src="/images/logos.png" alt="Aura-Nuts" className="w-[85%] h-[85%] object-contain" />
+                </div>
               </div>
               <span className="font-semibold text-[15px] text-gray-800 tracking-tight">
                 Aura-Nuts Support
@@ -93,14 +91,14 @@ const ChatWidget = () => {
               <button
                 onClick={handleReset}
                 title="Reset conversation"
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
+                className="p-2 cursor-pointer text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
               >
                 <RefreshCw className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setIsMinimized(true)}
                 title="Minimize"
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
+                className="p-2 cursor-pointer text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
               >
                 <Minus className="w-4 h-4" />
               </button>
@@ -117,8 +115,10 @@ const ChatWidget = () => {
               >
                 {/* Bot Avatar Left */}
                 {msg.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-full bg-[#F59115] flex-shrink-0 overflow-hidden p-1 flex items-center justify-center shadow-sm">
-                    <img src="/images/logos.png" alt="bot" className="w-full h-full object-contain" />
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-tr from-[#a3e635] via-[#fde047] to-[#fef08a] p-[2px] shadow-sm flex-shrink-0">
+                    <div className="flex items-center justify-center w-full h-full rounded-full bg-white overflow-hidden">
+                      <img src="/images/logos.png" alt="bot" className="w-[85%] h-[85%] object-contain" />
+                    </div>
                   </div>
                 )}
 
@@ -147,8 +147,10 @@ const ChatWidget = () => {
             {/* Typing indicator */}
             {isLoading && (
               <div className="flex items-end gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-[#F59115] flex-shrink-0 overflow-hidden p-1 flex items-center justify-center shadow-sm">
-                  <img src="/images/logos.png" alt="bot" className="w-full h-full object-contain" />
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-tr from-[#a3e635] via-[#fde047] to-[#fef08a] p-[2px] shadow-sm flex-shrink-0">
+                  <div className="flex items-center justify-center w-full h-full rounded-full bg-white overflow-hidden">
+                    <img src="/images/logos.png" alt="bot" className="w-[85%] h-[85%] object-contain" />
+                  </div>
                 </div>
                 <div className="bg-gray-50 border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-gray-300 animate-bounce" style={{ animationDelay: '0ms' }}></span>
@@ -173,13 +175,13 @@ const ChatWidget = () => {
                 disabled={isLoading}
                 className="flex-1 bg-transparent text-[13.5px] text-gray-700 placeholder-gray-400 outline-none min-w-0"
               />
-              <button type="button" className="text-gray-400 hover:text-gray-500 transition-colors ml-1">
+              <button type="button" className="cursor-pointer text-gray-400 hover:text-gray-500 transition-colors ml-1">
                 <Mic className="w-4 h-4" />
               </button>
               <button
                 type="submit"
                 disabled={!input.trim() || isLoading}
-                className="text-gray-400 hover:text-[#F59115] disabled:opacity-30 transition-colors"
+                className="cursor-pointer text-gray-400 hover:text-[#F59115] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -203,7 +205,7 @@ const ChatWidget = () => {
             setIsOpen(!isOpen);
           }
         }}
-        className="flex items-center gap-2 bg-white pl-1 pr-5 py-1 rounded-full shadow-[0_8px_25px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all duration-300 hover:scale-105 active:scale-95 border border-gray-100"
+        className="cursor-pointer flex items-center gap-2 bg-white pl-1 pr-5 py-1 rounded-full shadow-[0_8px_25px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all duration-300 hover:scale-105 active:scale-95 border border-gray-100"
       >
         {isOpen && !isMinimized ? (
           /* Close state */
