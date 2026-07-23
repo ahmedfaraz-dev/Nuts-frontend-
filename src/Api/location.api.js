@@ -41,7 +41,7 @@ export const getPhoneCodeByCountry = async (countryIso) => {
     const response = await httpClient.get(`/location/phonecode/${countryIso}`);
     return response.data?.data || null;
   } catch (error) {
-    console.error(`Error fetching phone code for ${countryIso}:`, error);
+    console.error(`Error fetching  phone code for ${countryIso}:`, error);
     throw error;
   }
 };
