@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import dryfruit from "../assets/dryfruitplate.png";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext.jsx";
 import { useCurrency } from "../contexts/CurrencyContext.jsx";
 import { useAuth } from "../contexts/AuthContext.jsx";
+import { getCountries, getCitiesByCountry } from "../Api/location.api.js";
 
 const REQUIRED_FIELDS = ["email", "firstName", "lastName", "address", "city", "postalCode", "phone"];
 
@@ -28,6 +29,7 @@ const CustomerDetails = () => {
     firstName: savedForm.firstName || nameParts[0] || "",
     lastName: savedForm.lastName || nameParts.slice(1).join(" ") || "",
     company: savedForm.company || "",   // optional
+    county: savedForm.county || user?.county || "",
     address: savedForm.address || user?.address || "",
     city: savedForm.city || user?.city || "",
     postalCode: savedForm.postalCode || user?.postalCode || "",
@@ -36,6 +38,51 @@ const CustomerDetails = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [countries, setCountries] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [loadingCities, setLoadingCities] = useState(false);
+  const [selectedPhoneCode, setSelectedPhoneCode] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+
+  useEffect(() => {
+    getCountries().then(setCountries).catch(console.error);
+  }, []);
+
+  async function handleCountryChange(iso2) {
+    setForm(prev => ({ ...prev, county: iso2, city: "" }));
+    setCities([]);
+    if (!iso2) return;
+
+    // Auto-set phone dial code from the selected country
+    const found = countries.find(c => c.iso2 === iso2);
+    if (found?.phoneCode) {
+      const code = String(found.phoneCode).replace(/^\+/, "");
+      setSelectedPhoneCode(code);
+      setForm(prev => ({ ...prev, phone: `+${code}${phoneNumber}` }));
+    }
+
+    setLoadingCities(true);
+    try {
+      const data = await getCitiesByCountry(iso2);
+      setCities(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingCities(false);
+    }
+  }
+
+  function handlePhoneCodeChange(code) {
+    setSelectedPhoneCode(code);
+    setForm(prev => ({ ...prev, phone: `+${code}${phoneNumber}` }));
+  }
+
+  function handlePhoneNumberChange(e) {
+    const num = e.target.value.replace(/[^0-9]/g, "");
+    setPhoneNumber(num);
+    setForm(prev => ({ ...prev, phone: selectedPhoneCode ? `+${selectedPhoneCode}${num}` : num }));
+    if (errors.phone) setErrors(prev => ({ ...prev, phone: "" }));
+  }
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
@@ -167,6 +214,24 @@ const CustomerDetails = () => {
                 />
               </div>
 
+              {/* County - Country Dropdown */}
+              <div>
+                <label className="text-sm text-[#272727] block mb-1">Country</label>
+                <select
+                  id="county"
+                  name="county"
+                  value={form.county}
+                  onChange={e => handleCountryChange(e.target.value)}
+                  className={inputClass("county")}
+                >
+                  <option value="">Select Country</option>
+                  {countries.map(c => (
+                    <option key={c.iso2} value={c.iso2}>{c.name}</option>
+                  ))}
+                </select>
+                {errors.county && <p className="text-red-500 text-xs mt-1">{errors.county}</p>}
+              </div>
+
               {/* Address */}
               <div>
                 <label className="text-sm text-[#272727] block mb-1">Address <span className="text-red-500">*</span></label>
@@ -186,15 +251,31 @@ const CustomerDetails = () => {
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
                   <label className="text-sm text-[#272727] block mb-1">City <span className="text-red-500">*</span></label>
-                  <input
-                    id="city"
-                    name="city"
-                    type="text"
-                    placeholder="City"
-                    value={form.city}
-                    onChange={handleChange}
-                    className={inputClass("city")}
-                  />
+                  {cities.length > 0 ? (
+                    <select
+                      id="city"
+                      name="city"
+                      value={form.city}
+                      onChange={handleChange}
+                      className={inputClass("city")}
+                    >
+                      <option value="">Select City</option>
+                      {cities.map(city => (
+                        <option key={city} value={city}>{city}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      id="city"
+                      name="city"
+                      type="text"
+                      placeholder={loadingCities ? "Loading cities..." : form.county ? "Type city name" : "Select a country first"}
+                      value={form.city}
+                      onChange={handleChange}
+                      className={inputClass("city")}
+                      disabled={loadingCities}
+                    />
+                  )}
                   {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
                 </div>
                 <div className="flex-1">
@@ -215,15 +296,32 @@ const CustomerDetails = () => {
               {/* Phone */}
               <div>
                 <label className="text-sm text-[#272727] block mb-1">Phone Number <span className="text-red-500">*</span></label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="text"
-                  placeholder="e.g. 03001234567"
-                  value={form.phone}
-                  onChange={handleChange}
-                  className={inputClass("phone")}
-                />
+                <div className={`flex gap-0 border rounded-md overflow-hidden transition-colors ${errors.phone ? "border-red-400 ring-1 ring-red-400" : "border-gray-200 focus-within:border-orange-400 focus-within:ring-1 focus-within:ring-orange-300"}`}>
+                  {/* Dial-code dropdown — populated from getCountries() */}
+                  <select
+                    id="phoneCode"
+                    value={selectedPhoneCode}
+                    onChange={e => handlePhoneCodeChange(e.target.value)}
+                    className="bg-gray-50 text-gray-700 text-sm px-2 py-3 border-r border-gray-200 outline-none cursor-pointer shrink-0 max-w-[140px]"
+                  >
+                    <option value="">Code</option>
+                    {countries.map(c => (
+                      <option key={c.iso2} value={String(c.phoneCode).replace(/^\+/, "")}>
+                        {c.iso2} +{String(c.phoneCode).replace(/^\+/, "")}
+                      </option>
+                    ))}
+                  </select>
+                  {/* Number input */}
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    placeholder="e.g. 3001234567"
+                    value={phoneNumber}
+                    onChange={handlePhoneNumberChange}
+                    className="flex-1 p-3 outline-none bg-white text-sm"
+                  />
+                </div>
                 {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
               </div>
             </div>
