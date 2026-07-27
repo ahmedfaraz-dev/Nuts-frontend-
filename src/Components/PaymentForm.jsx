@@ -241,7 +241,7 @@ const PaymentForm = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#f7941d] hover:bg-[#e68415] text-white font-bold py-4 rounded-lg shadow-md transition-all active:scale-[0.98] disabled:opacity-70"
+            className="w-full bg-[#f7941d] hover:bg-[#e68415] text-white font-bold py-4 rounded-lg shadow-md transition-all active:scale-[0.98] disabled:opacity-70 cursor-pointer disabled:cursor-not-allowed"
           >
             {loading ? "Processing..." : "Payment Now"}
           </button>

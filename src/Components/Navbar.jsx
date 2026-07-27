@@ -226,7 +226,7 @@ const Navbar = () => {
               <div className="relative" ref={currencyDropdownRef}>
                 <button
                   onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-                  className="flex items-center gap-1.5 px-2 py-1.5 border border-gray-200 rounded-md hover:border-gray-300 hover:bg-gray-50 transition-all duration-150"
+                  className="flex items-center gap-1.5 px-2 py-1.5 border border-gray-200 rounded-md hover:border-gray-300 hover:bg-gray-50 transition-all duration-150 cursor-pointer"
                   title="Change Currency"
                 >
                   <img src={`https://flagcdn.com/w20/${availableCurrencies[currency]?.country}.png`} alt="flag" className="w-4 h-auto rounded-sm object-cover shadow-sm" />
@@ -267,7 +267,7 @@ const Navbar = () => {
               {/* Cart Button */}
               <button
                 onClick={() => navigate('/cart')}
-                className="relative p-1 hover:bg-gray-100 rounded-full transition-colors"
+                className="relative p-1 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
               >
                 <img src="/images/cart.svg" alt="cart" className="w-6 h-6" />
                 {totalItems > 0 && (
@@ -311,7 +311,7 @@ const Navbar = () => {
                     {user.role === 'admin' && (
                       <button
                         onClick={() => navigate('/admin-dashboard')}
-                        className="p-2 text-gray-400 hover:text-[#F59115] hover:bg-orange-50 rounded-lg transition-all"
+                        className="p-2 text-gray-400 hover:text-[#F59115] hover:bg-orange-50 rounded-lg transition-all cursor-pointer"
                         title="Admin Dashboard"
                       >
                         <LayoutDashboard className="w-5 h-5" />
@@ -321,7 +321,7 @@ const Navbar = () => {
                 ) : (
                   <button
                     onClick={() => navigate('/register')}
-                    className="flex items-center gap-2 p-1.5 hover:bg-gray-100 rounded-lg transition-all group"
+                    className="flex items-center gap-2 p-1.5 hover:bg-gray-100 rounded-lg transition-all group cursor-pointer"
                   >
                     <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center overflow-hidden border border-gray-200 group-hover:border-[#F59115]">
                       <User className="w-5 h-5 text-gray-500 group-hover:text-[#F59115]" />
@@ -368,7 +368,7 @@ const Navbar = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`text-sm font-medium transition-colors whitespace-nowrap pb-1 border-b-2 -mb-[13px] ${activeTab === tab.id
+                    className={`text-sm font-medium transition-colors whitespace-nowrap pb-1 border-b-2 -mb-[13px] cursor-pointer ${activeTab === tab.id
                       ? 'text-[#F59115] border-[#F59115]'
                       : 'text-gray-600 border-transparent hover:text-gray-800'
                       }`}
